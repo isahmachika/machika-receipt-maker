@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machika Receipt Maker</title>
+<style>
+:root{--ink:#172033;--muted:#64748b;--line:#dbe2ea;--brand:#175cd3;--bg:#f4f7fb}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#102a56;color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:22px;margin:0 0 4px}header p{margin:0;color:#d7e5ff;font-size:13px}
+.wrap{max-width:1200px;margin:22px auto;padding:0 14px;display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1fr);gap:20px}
+.card{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 4px 14px #14213d0a}
+h2{font-size:18px;margin:0 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:12px}.field.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:14px;background:white;color:var(--ink)}
+button{border:0;border-radius:8px;padding:11px 14px;font-weight:700;cursor:pointer;font-size:14px}
+.primary{background:var(--brand);color:white}.secondary{background:#e8eef8;color:#19345d}.danger{background:#fee2e2;color:#991b1b}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.items-head,.item-row{display:grid;grid-template-columns:2fr .65fr 1fr 34px;gap:7px;align-items:center}.items-head{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:6px}.item-row{margin-bottom:8px}.item-row input{padding:9px 7px;min-width:0}.remove{padding:8px 0}
+.small{font-size:12px;color:var(--muted);line-height:1.5}.preview{border:1px dashed #cbd5e1;background:#fff;padding:20px;min-height:320px}
+.receipt{max-width:100%;margin:auto;color:#111;font-family:Arial,sans-serif}.receipt h3{text-align:center;margin:0 0 5px;font-size:21px;overflow-wrap:anywhere}.center{text-align:center}.receipt .meta{font-size:12px;text-align:center;white-space:pre-line;line-height:1.5}.receipt hr{border:0;border-top:1px dashed #555;margin:12px 0}.receipt table{width:100%;border-collapse:collapse;font-size:12px}.receipt th{text-align:left;border-bottom:1px solid #222;padding:5px 2px}.receipt td{padding:6px 2px;vertical-align:top}.num{text-align:right;white-space:nowrap}.total{font-weight:700;font-size:16px}.receipt .foot{text-align:center;font-size:12px;margin-top:16px;white-space:pre-line}
+.history{margin-top:18px}.history-row{padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;gap:10px;font-size:13px}
+footer{text-align:center;padding:8px 14px 24px;color:var(--muted);font-size:12px}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+@media print{body{background:white}.no-print,header,footer,.wrap>.card:first-child,.history{display:none!important}.wrap{display:block;margin:0;padding:0;max-width:none}.wrap>.card{border:0;box-shadow:none;padding:0}.preview{border:0;padding:0;min-height:0}.receipt{width:100%;max-width:80mm}.receipt h3{font-size:18px}@page{margin:5mm;size:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Machika Receipt Maker</h1><p>Offline receipt creator • Works on your computer</p></div>
+  <span style="font-size:12px">Babu internet da ake buƙata bayan ka buɗe file ɗin</span>
+</header>
+<main class="wrap">
+<section class="card no-print">
+<h2>1. Bayanan Shago da Sayayya</h2>
+<div class="grid">
+ <div class="field full"><label>Sunan shago / kamfani</label><input id="business" placeholder="Misali: Machika Stores"></div>
+ <div class="field"><label>Lambar waya</label><input id="phone" placeholder="080..."></div>
+ <div class="field"><label>Adireshi</label><input id="address" placeholder="Katsina, Nigeria"></div>
+ <div class="field"><label>Lambar receipt</label><input id="receiptNo"></div>
+ <div class="field"><label>Ranar sayarwa</label><input id="date" type="date"></div>
+ <div class="field"><label>Sunan abokin ciniki</label><input id="customer" placeholder="Cash customer"></div>
+ <div class="field"><label>Hanyar biya</label><select id="payment"><option>Cash</option><option>Transfer</option><option>POS</option><option>Card</option><option>Credit</option></select></div>
+</div>
+<h2 style="margin-top:10px">Kayayyakin da aka sayar</h2>
+<div class="items-head"><span>Kaya / sabis</span><span>Adadi</span><span>Farashi (₦)</span><span></span></div>
+<div id="items"></div>
+<button class="secondary" id="addItem" type="button">+ Ƙara kaya</button>
+<div class="grid" style="margin-top:16px">
+ <div class="field"><label>Discount (₦)</label><input id="discount" type="number" min="0" value="0"></div>
+ <div class="field"><label>Ƙarin bayani</label><input id="note" placeholder="Na gode da ciniki"></div>
+</div>
+<div class="actions">
+<button class="primary" id="update" type="button">Sabunta receipt</button>
+<button class="secondary" id="save" type="button">Ajiye receipt</button>
+<button class="secondary" id="pdf" type="button">Print / Save as PDF</button>
+<button class="danger" id="clear" type="button">Sabon receipt</button>
+</div>
+<p class="small">Bayanan receipts ana ajiye su a wannan browser/computer kawai (local storage). Yi amfani da “Print / Save as PDF”, sannan ka zaɓi printer ko “Save as PDF”. Ka riƙa yin backup idan bayanan suna da muhimmanci.</p>
+<div class="history"><h2>2. Tarihin receipts</h2><div id="history"></div></div>
+</section>
+<section class="card">
+<h2 class="no-print">Receipt Preview</h2>
+<div class="preview"><div class="receipt" id="receipt"></div></div>
+<div class="actions no-print"><button class="primary" onclick="window.print()">🖨️ Print / Save PDF</button></div>
+</section>
+</main>
+<footer>Machika Receipt Maker • Offline starter version • Ba tsarin lissafin haraji ko POS mai cikakken tsaro ba ne.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const safe=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+function nextNo(){return 'REC-'+new Date().toISOString().slice(0,10).replaceAll('-','')+'-'+String(Date.now()).slice(-5)}
+function addItem(name='',qty=1,price=''){const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input class="iname" placeholder="Sunan kaya" value="${safe(name)}"><input class="iqty" type="number" min="0.01" step="any" value="${safe(qty)}"><input class="iprice" type="number" min="0" step="0.01" placeholder="0.00" value="${safe(price)}"><button class="danger remove" title="Cire kaya" type="button">×</button>`;$('items').appendChild(row);row.querySelectorAll('input').forEach(i=>i.addEventListener('input',render));row.querySelector('.remove').addEventListener('click',()=>{row.remove();if(!$('items').children.length)addItem();render()});render()}
+function values(){const items=[...document.querySelectorAll('.item-row')].map(r=>({name:r.querySelector('.iname').value.trim(),qty:Math.max(0,Number(r.querySelector('.iqty').value)||0),price:Math.max(0,Number(r.querySelector('.iprice').value)||0)})).filter(x=>x.name);const subtotal=items.reduce((s,x)=>s+x.qty*x.price,0);const discount=Math.max(0,Number($('discount').value)||0);return {business:$('business').value.trim()||'Business Name',phone:$('phone').value.trim(),address:$('address').value.trim(),receiptNo:$('receiptNo').value.trim()||nextNo(),date:$('date').value,customer:$('customer').value.trim()||'Walk-in Customer',payment:$('payment').value,items,subtotal,discount,total:Math.max(0,subtotal-discount),note:$('note').value.trim()}}
+function render(){const d=values();$('receipt').innerHTML=`<h3>${safe(d.business)}</h3><div class="meta">${safe(d.address)}${d.phone?'\nTel: '+safe(d.phone):''}</div><hr><div style="font-size:12px;line-height:1.7"><div><b>Receipt:</b> ${safe(d.receiptNo)}</div><div><b>Date:</b> ${safe(d.date||new Date().toLocaleDateString('en-CA'))}</div><div><b>Customer:</b> ${safe(d.customer)}</div><div><b>Payment:</b> ${safe(d.payment)}</div></div><hr><table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${d.items.map(x=>`<tr><td>${safe(x.name)}</td><td class="num">${x.qty}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`).join('')||'<tr><td colspan="4" class="center">Babu kaya tukuna</td></tr>'}</tbody></table><hr><div style="font-size:13px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₦${money(d.subtotal)}</span></div><div style="display:flex;justify-content:space-between"><span>Discount</span><span>₦${money(d.discount)}</span></div><div class="total" style="display:flex;justify-content:space-between"><span>TOTAL</span><span>₦${money(d.total)}</span></div></div><hr><div class="foot">${safe(d.note||'Thank you for your patronage!')}</div>`}
+function snapshot(){return {...values(),savedAt:new Date().toISOString()}}
+function getSaved(){try{return JSON.parse(localStorage.getItem('machikaReceipts')||'[]')}catch(e){return []}}
+function save(){const d=snapshot();if(!d.items.length){alert('Da fatan za ka saka aƙalla kaya ɗaya mai suna.');return}const all=getSaved();const index=all.findIndex(x=>x.receiptNo===d.receiptNo);if(index>=0)all[index]=d;else all.unshift(d);localStorage.setItem('machikaReceipts',JSON.stringify(all));showHistory();alert('An ajiye receipt a wannan computer.')}
+function showHistory(){const all=getSaved();$('history').innerHTML=all.length?all.slice(0,30).map((x,i)=>`<div class="history-row"><div><b>${safe(x.receiptNo)}</b><br>${safe(x.customer)} · ${safe(x.date||'')}</div><div style="text-align:right"><b>₦${money(x.total)}</b><br><button class="secondary" style="padding:5px 8px;margin-top:4px" data-load="${i}">Buɗe</button> <button class="danger" style="padding:5px 8px;margin-top:4px" data-del="${i}">×</button></div></div>`).join(''):'<p class="small">Ba a ajiye receipt ba tukuna.</p>';document.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadReceipt(getSaved()[Number(b.dataset.load)]));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('A goge wannan receipt daga wannan computer?')){const a=getSaved();a.splice(Number(b.dataset.del),1);localStorage.setItem('machikaReceipts',JSON.stringify(a));showHistory()}})}
+function loadReceipt(d){if(!d)return;['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>{if($(k))$(k).value=d[k]??''});$('items').innerHTML='';(d.items||[]).forEach(x=>addItem(x.name,x.qty,x.price));if(!$('items').children.length)addItem();render()}
+function clearForm(){['customer','note'].forEach(k=>$(k).value='');$('discount').value=0;$('receiptNo').value=nextNo();$('date').value=new Date().toLocaleDateString('en-CA');$('payment').value='Cash';$('items').innerHTML='';addItem();render()}
+$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('pdf').onclick=()=>{render();window.print()};$('clear').onclick=()=>{if(confirm('A fara sabon receipt? Ka tabbatar ka ajiye na yanzu idan kana buƙata.'))clearForm()};
+['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>$(k).addEventListener('input',render));
+$('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();showHistory();render();
+</script>
+</body>
+</html>
