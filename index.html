@@ -29,8 +29,18 @@ footer{text-align:center;padding:8px 14px 24px;color:var(--muted);font-size:12px
 <body>
 <header>
   <div class="brandmark"><div class="brand-icon">M</div><div><h1>Machika Receipt Maker</h1><p>Ƙirƙiri receipt cikin sauri • Simple, neat and professional</p></div></div>
-  <span style="font-size:12px;background:#ffffff18;border:1px solid #ffffff35;padding:8px 11px;border-radius:999px">✓ Offline-ready</span>
+  <span id="accountBadge" style="font-size:12px;background:#ffffff18;border:1px solid #ffffff35;padding:8px 11px;border-radius:999px">Cloud receipts</span>
 </header>
+<section class="card" id="authCard" style="max-width:760px;margin:20px auto 0;padding:20px;">
+<h2>Shiga ko ƙirƙiri account</h2>
+<p class="small">Yi rajista da email domin adana receipts a online, sannan ka iya buɗe su daga wata na'ura.</p>
+<div class="grid">
+ <div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+ <div class="field"><label>Password (aƙalla haruffa 6)</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Password"></div>
+</div>
+<div class="actions"><button class="primary" id="signInBtn" type="button">Shiga (Login)</button><button class="secondary" id="signUpBtn" type="button">Ƙirƙiri account</button><button class="secondary" id="resetBtn" type="button">Forgot password</button><button class="danger" id="signOutBtn" type="button" style="display:none">Fita (Logout)</button></div>
+<p id="authStatus" class="small" role="status">Ba ka shiga ba tukuna.</p>
+</section>
 <main class="wrap">
 <section class="card no-print">
 <h2>1. Bayanan Shago da Sayayya</h2>
@@ -59,7 +69,7 @@ footer{text-align:center;padding:8px 14px 24px;color:var(--muted);font-size:12px
 <button class="secondary" id="pdf" type="button">Print / Save as PDF</button>
 <button class="danger" id="clear" type="button">Sabon receipt</button>
 </div>
-<p class="small">Bayanan receipts ana ajiye su a wannan browser/computer kawai (local storage). Yi amfani da “Print / Save as PDF”, sannan ka zaɓi printer ko “Save as PDF”. Za ka iya ajiye receipt a PNG ta maɓallin “Ajiye a Hoto”. Tarihin receipts har yanzu yana cikin wannan browser/computer kawai; ka riƙa yin backup idan bayanan suna da muhimmanci.</p>
+<p class="small">Ka shiga account domin ajiye receipts a Supabase cloud. PNG da Print / Save as PDF suna aiki a browser. Kada ka raba password ɗinka da kowa.</p>
 <div class="history"><h2>2. Tarihin receipts</h2><div id="history"></div></div>
 </section>
 <section class="card">
@@ -68,7 +78,8 @@ footer{text-align:center;padding:8px 14px 24px;color:var(--muted);font-size:12px
 <div class="actions no-print"><button class="primary" onclick="window.print()">🖨️ Print / Save PDF</button></div>
 </section>
 </main>
-<footer>Machika Receipt Maker • An tsara shi domin ƙananan shaguna da masu kasuwanci. <br><span class="small">Sigar yanzu tana adana tarihin receipt a browser ɗin wannan na'ura; account da cloud backup za su zo a mataki na gaba.</span></footer>
+<footer>Machika Receipt Maker • An tsara shi domin ƙananan shaguna da masu kasuwanci. <br><span class="small">Cloud storage yana buƙatar shiga account. Ka gwada rajista da email ɗinka.</span></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
@@ -80,10 +91,20 @@ function values(){const items=[...document.querySelectorAll('.item-row')].map(r=
 let logoData = '';
 $('logoFile').addEventListener('change', e=>{const file=e.target.files&&e.target.files[0];if(!file){logoData='';render();return}if(!file.type.startsWith('image/')){alert('Da fatan zaɓi hoton logo.');e.target.value='';return}if(file.size>2*1024*1024){alert('Logo ya yi girma. Zaɓi hoto ƙasa da 2MB.');e.target.value='';return}const reader=new FileReader();reader.onload=()=>{logoData=String(reader.result||'');render()};reader.readAsDataURL(file)});
 function render(){const d=values();$('receipt').innerHTML=`${logoData?`<div class="center" style="margin-bottom:8px"><img src="${logoData}" alt="Shop logo" style="max-width:90px;max-height:70px;object-fit:contain"></div>`:''}<h3>${safe(d.business)}</h3><div class="meta">${safe(d.address)}${d.phone?'\nTel: '+safe(d.phone):''}</div><hr><div style="font-size:12px;line-height:1.7"><div><b>Receipt:</b> ${safe(d.receiptNo)}</div><div><b>Date:</b> ${safe(d.date||new Date().toLocaleDateString('en-CA'))}</div><div><b>Customer:</b> ${safe(d.customer)}</div><div><b>Payment:</b> ${safe(d.payment)}</div></div><hr><table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${d.items.map(x=>`<tr><td>${safe(x.name)}</td><td class="num">${x.qty}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`).join('')||'<tr><td colspan="4" class="center">Babu kaya tukuna</td></tr>'}</tbody></table><hr><div style="font-size:13px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₦${money(d.subtotal)}</span></div><div style="display:flex;justify-content:space-between"><span>Discount</span><span>₦${money(d.discount)}</span></div><div class="total" style="display:flex;justify-content:space-between"><span>TOTAL</span><span>₦${money(d.total)}</span></div></div><hr><div class="foot">${safe(d.note||'Thank you for your patronage!')}</div>`}
+// Supabase public project settings. Publishable keys are intended for browser use; RLS protects user data.
+const SUPABASE_URL='https://caicmftfgrxzqdmxeshx.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_0cLxI9qxCDG4kQG_80CIxw_pp6BJ_Zv';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let currentUser=null;
 function snapshot(){return {...values(),savedAt:new Date().toISOString()}}
-function getSaved(){try{return JSON.parse(localStorage.getItem('machikaReceipts')||'[]')}catch(e){return []}}
-function save(){const d=snapshot();if(!d.items.length){alert('Da fatan za ka saka aƙalla kaya ɗaya mai suna.');return}const all=getSaved();const index=all.findIndex(x=>x.receiptNo===d.receiptNo);if(index>=0)all[index]=d;else all.unshift(d);localStorage.setItem('machikaReceipts',JSON.stringify(all));showHistory();alert('An ajiye receipt a wannan computer.')}
-function showHistory(){const all=getSaved();$('history').innerHTML=all.length?all.slice(0,30).map((x,i)=>`<div class="history-row"><div><b>${safe(x.receiptNo)}</b><br>${safe(x.customer)} · ${safe(x.date||'')}</div><div style="text-align:right"><b>₦${money(x.total)}</b><br><button class="secondary" style="padding:5px 8px;margin-top:4px" data-load="${i}">Buɗe</button> <button class="danger" style="padding:5px 8px;margin-top:4px" data-del="${i}">×</button></div></div>`).join(''):'<p class="small">Ba a ajiye receipt ba tukuna.</p>';document.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadReceipt(getSaved()[Number(b.dataset.load)]));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('A goge wannan receipt daga wannan computer?')){const a=getSaved();a.splice(Number(b.dataset.del),1);localStorage.setItem('machikaReceipts',JSON.stringify(a));showHistory()}})}
+function setAuthStatus(msg,isError=false){$('authStatus').textContent=msg;$('authStatus').style.color=isError?'#b91c1c':'#475569'}
+function updateAuthUI(){const signed=!!currentUser;$('signInBtn').style.display=signed?'none':'';$('signUpBtn').style.display=signed?'none':'';$('resetBtn').style.display=signed?'none':'';$('signOutBtn').style.display=signed?'':'none';$('accountBadge').textContent=signed?('Signed in: '+currentUser.email):'Ba a shiga ba';$('authEmail').disabled=signed;$('authPassword').disabled=signed;if(signed){setAuthStatus('Ka shiga a matsayin '+currentUser.email);showHistory()}else{$('history').innerHTML='<p class="small">Ka shiga account domin ganin tarihin receipts ɗinka na online.</p>'}}
+async function signIn(){const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){setAuthStatus('Shigar da email da password.',true);return}setAuthStatus('Ana shiga...');const {error}=await sb.auth.signInWithPassword({email,password});if(error)setAuthStatus(error.message,true)}
+async function signUp(){const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){setAuthStatus('Shigar da email da password.',true);return}if(password.length<6){setAuthStatus('Password ya kamata ya kasance aƙalla haruffa 6.',true);return}setAuthStatus('Ana ƙirƙirar account...');const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin}});if(error){setAuthStatus(error.message,true);return}if(data.session){setAuthStatus('An ƙirƙiri account kuma ka shiga.')}else{setAuthStatus('An aika email na tabbatarwa idan an kunna email confirmation. Duba inbox/spam, tabbatar da email, sannan ka shiga.')}}
+async function resetPassword(){const email=$('authEmail').value.trim();if(!email){setAuthStatus('Da farko ka shigar da email ɗinka.',true);return}setAuthStatus('Ana aika link na canza password...');const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin});setAuthStatus(error?error.message:'Idan email ɗin yana da account, za a aika masa link na canza password. Duba inbox/spam.',!!error)}
+async function save(){if(!currentUser){alert('Da farko ka shiga ko ka ƙirƙiri account domin adana receipt online.');return}const d=snapshot();if(!d.items.length){alert('Da fatan za ka saka aƙalla kaya ɗaya mai suna.');return}const row={user_id:currentUser.id,receipt_number:d.receiptNo,business_name:d.business,customer_name:d.customer,receipt_date:d.date||new Date().toLocaleDateString('en-CA'),items:{lines:d.items,discount:d.discount,phone:d.phone,address:d.address,payment:d.payment,note:d.note},subtotal:d.subtotal,tax:0,total:d.total,currency:'NGN'};setAuthStatus('Ana ajiye receipt a cloud...');const {data:existing,error:findErr}=await sb.from('receipts').select('id').eq('user_id',currentUser.id).eq('receipt_number',d.receiptNo).maybeSingle();if(findErr){setAuthStatus('An kasa duba receipt: '+findErr.message,true);alert('An kasa ajiye receipt. Duba cewa receipts table da RLS policies suna nan.');return}let result;if(existing){result=await sb.from('receipts').update(row).eq('id',existing.id).eq('user_id',currentUser.id)}else{result=await sb.from('receipts').insert(row)}if(result.error){setAuthStatus('An kasa ajiye receipt: '+result.error.message,true);alert('An kasa ajiye receipt a cloud: '+result.error.message);return}await showHistory();setAuthStatus('An ajiye receipt a cloud lafiya.');alert('An ajiye receipt a online account ɗinka.')}
+async function showHistory(){if(!currentUser){$('history').innerHTML='<p class="small">Ka shiga account domin ganin tarihin receipts ɗinka na online.</p>';return}const {data,error}=await sb.from('receipts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);if(error){$('history').innerHTML='<p class="small">An kasa ɗauko tarihin: '+safe(error.message)+'</p>';return}const all=data||[];$('history').innerHTML=all.length?all.map((x,i)=>`<div class="history-row"><div><b>${safe(x.receipt_number)}</b><br>${safe(x.customer_name||'Customer')} · ${safe(x.receipt_date||'')}</div><div style="text-align:right"><b>₦${money(x.total)}</b><br><button class="secondary" style="padding:5px 8px;margin-top:4px" data-load="${i}">Buɗe</button> <button class="danger" style="padding:5px 8px;margin-top:4px" data-del="${i}">×</button></div></div>`).join(''):'<p class="small">Babu receipt a cloud account ɗinka tukuna.</p>';document.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadCloudReceipt(all[Number(b.dataset.load)]));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=all[Number(b.dataset.del)];if(confirm('A goge wannan receipt daga cloud account ɗinka?')){const {error}=await sb.from('receipts').delete().eq('id',r.id).eq('user_id',currentUser.id);if(error){alert('An kasa gogewa: '+error.message)}else{await showHistory();setAuthStatus('An goge receipt.')}}})}
+function loadCloudReceipt(r){if(!r)return;const meta=r.items&&typeof r.items==='object'&&!Array.isArray(r.items)?r.items:{};const lines=Array.isArray(meta.lines)?meta.lines:(Array.isArray(r.items)?r.items:[]);const d={business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',items:lines};loadReceipt(d)}
 function loadReceipt(d){if(!d)return;['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>{if($(k))$(k).value=d[k]??''});$('items').innerHTML='';(d.items||[]).forEach(x=>addItem(x.name,x.qty,x.price));if(!$('items').children.length)addItem();render()}
 function clearForm(){['customer','note'].forEach(k=>$(k).value='');$('discount').value=0;$('receiptNo').value=nextNo();$('date').value=new Date().toLocaleDateString('en-CA');$('payment').value='Cash';$('items').innerHTML='';addItem();render()}
 async function saveImage(){
@@ -100,7 +121,10 @@ async function saveImage(){
 }
 $('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('pdf').onclick=()=>{render();window.print()};$('clear').onclick=()=>{if(confirm('A fara sabon receipt? Ka tabbatar ka ajiye na yanzu idan kana buƙata.'))clearForm()};
 ['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>$(k).addEventListener('input',render));
-$('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();showHistory();render();
+$('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();render();
+$('signInBtn').onclick=signIn;$('signUpBtn').onclick=signUp;$('resetBtn').onclick=resetPassword;$('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};
+sb.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;updateAuthUI()});
+sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,true);currentUser=data.session?.user||null;updateAuthUI()});
 </script>
 </body>
 </html>
