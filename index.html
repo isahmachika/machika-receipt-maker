@@ -144,7 +144,13 @@ async function callAdmin(action){
   });
   let result={};
   try{result=await response.json()}catch{}
-  if(!response.ok) throw new Error(result.error || ('Admin request failed ('+response.status+').'));
+  if(!response.ok) {
+    const details = result.details
+      ? (typeof result.details === 'string' ? result.details : JSON.stringify(result.details))
+      : '';
+    const code = result.code ? ' ['+result.code+']' : '';
+    throw new Error((result.error || ('Admin request failed ('+response.status+').')) + code + (details ? ' — ' + details : ''));
+  }
   return result;
 }
 function statCard(label,value){
@@ -173,6 +179,11 @@ async function loadAdminData(action='stats'){
   }catch(err){
     $('adminStatus').textContent='Could not load admin data: '+err.message;
     $('adminStatus').style.color='#b91c1c';
+    if(action==='stats'){
+      $('adminStats').innerHTML=statCard('Registered users','—')+
+        statCard('Total receipts','Error')+
+        statCard('Receipts today','Error');
+    }
   }
 }
 async function saveProfile(){if(!currentUser)return;const meta={...(currentUser.user_metadata||{}),business_name:$('profileBusiness').value.trim(),business_phone:$('profilePhone').value.trim(),business_address:$('profileAddress').value.trim()};$('profileStatus').textContent='Saving profile...';const {data,error}=await sb.auth.updateUser({data:meta});if(error){$('profileStatus').textContent='Could not save: '+error.message;return}currentUser=data.user;$('profileStatus').textContent='Business profile saved to your account.';loadProfileIntoReceipt()}
