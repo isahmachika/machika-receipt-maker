@@ -102,8 +102,200 @@ footer{text-align:center;padding:8px 14px 24px;color:var(--muted);font-size:12px
 </section>
 </main>
 <footer>Machika Receipt Maker • Built for shops and small businesses.<br><span class="small">Log in to use the receipt maker. Receipts can be downloaded as PNG images only.</span></footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// URL routing: each main screen has its own shareable path.
+function navigateTo(path, replace=false){
+  if(replace) history.replaceState({}, '', path);
+  else if(location.pathname !== path) history.pushState({}, '', path);
+  renderRoute();
+}
+function renderRoute(){
+  const path = (location.pathname || '/').replace(/\/+$/, '') || '/';
+  const isAdmin = !!(currentUser && currentUser.email && currentUser.email.toLowerCase() === 'isahtasiumachika@gmail.com');
+
+  // Protect private pages: users must sign in first.
+  if(!currentUser && ['/dashboard','/profile','/create-receipt','/my-receipts','/admin'].includes(path)){
+    navigateTo('/login', true);
+    setAuthMode('login');
+    updateAuthUI();
+    return;
+  }
+  // Send signed-in users from auth pages to their dashboard.
+  if(currentUser && (path === '/login' || path === '/register' || path === '/')){
+    navigateTo('/dashboard', true);
+    return;
+  }
+  if(!currentUser && path === '/'){
+    navigateTo('/login', true);
+    setAuthMode('login');
+    updateAuthUI();
+    return;
+  }
+
+  $('authCard').hidden = true;
+  $('dashboard').hidden = true;
+  $('appArea').hidden = true;
+
+  if(path === '/login' || path === '/register'){
+    $('authCard').hidden = false;
+    setAuthMode(path === '/register' ? 'register' : 'login');
+    updateAuthUI();
+    $('authCard').hidden = false;
+    $('dashboard').hidden = true;
+    $('appArea').hidden = true;
+    return;
+  }
+  if(path === '/create-receipt'){
+    $('appArea').hidden = false;
+    loadProfileIntoReceipt();
+    return;
+  }
+  $('dashboard').hidden = false;
+  if(path === '/profile'){
+    showDashboardProfile();
+  }else if(path === '/my-receipts'){
+    showDashboardReceipts();
+    showDashboardHistory();
+  }else if(path === '/admin'){
+    if(isAdmin) showAdminPanel();
+    else { showDashboardHome(); setAuthStatus('You do not have permission to access Super Admin.', true); navigateTo('/dashboard', true); }
+  }else{
+    showDashboardHome();
+    if(path !== '/dashboard') navigateTo('/dashboard', true);
+  }
+}
+window.addEventListener('popstate', renderRoute);
+
+// Route navigation buttons to their own URLs.
+$('loginTab').onclick = () => navigateTo('/login');
+$('registerTab').onclick = () => navigateTo('/register');
+$('dashboardHomeBtn').onclick = () => navigateTo('/dashboard');
+$('showProfileBtn').onclick = () => { showDashboardProfile(); navigateTo('/dashboard'); };
+$('showHistoryBtn').onclick = () => navigateTo('/my-receipts');
+$('newReceiptBtn').onclick = () => navigateTo('/create-receipt');
+$('adminNavBtn').onclick = () => navigateTo('/admin');
+$('dashboardLogoutBtn').onclick = async () => {
+  const {error}=await sb.auth.signOut();
+  if(error) setAuthStatus(error.message,true);
+  else navigateTo('/login', true);
+};
+$('signOutBtn').onclick = async () => {
+  const {error}=await sb.auth.signOut();
+  if(error) setAuthStatus(error.message,true);
+  else navigateTo('/login', true);
+};
+
+// Re-render the selected route after login/logout and initial session restore.
+sb.auth.onAuthStateChange((_event, session) => {
+  currentUser = session?.user || null;
+  updateAuthUI();
+  renderRoute();
+});
+sb.auth.getSession().then(({data,error}) => {
+  if(error) setAuthStatus(error.message,true);
+  currentUser = data.session?.user || null;
+  updateAuthUI();
+  renderRoute();
+});
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
+// URL routing: each main screen has its own shareable path.
+function navigateTo(path, replace=false){
+  if(replace) history.replaceState({}, '', path);
+  else if(location.pathname !== path) history.pushState({}, '', path);
+  renderRoute();
+}
+function renderRoute(){
+  const path = (location.pathname || '/').replace(/\/+$/, '') || '/';
+  const isAdmin = !!(currentUser && currentUser.email && currentUser.email.toLowerCase() === 'isahtasiumachika@gmail.com');
+
+  // Protect private pages: users must sign in first.
+  if(!currentUser && ['/dashboard','/profile','/create-receipt','/my-receipts','/admin'].includes(path)){
+    navigateTo('/login', true);
+    setAuthMode('login');
+    updateAuthUI();
+    return;
+  }
+  // Send signed-in users from auth pages to their dashboard.
+  if(currentUser && (path === '/login' || path === '/register' || path === '/')){
+    navigateTo('/dashboard', true);
+    return;
+  }
+  if(!currentUser && path === '/'){
+    navigateTo('/login', true);
+    setAuthMode('login');
+    updateAuthUI();
+    return;
+  }
+
+  $('authCard').hidden = true;
+  $('dashboard').hidden = true;
+  $('appArea').hidden = true;
+
+  if(path === '/login' || path === '/register'){
+    $('authCard').hidden = false;
+    setAuthMode(path === '/register' ? 'register' : 'login');
+    updateAuthUI();
+    $('authCard').hidden = false;
+    $('dashboard').hidden = true;
+    $('appArea').hidden = true;
+    return;
+  }
+  if(path === '/create-receipt'){
+    $('appArea').hidden = false;
+    loadProfileIntoReceipt();
+    return;
+  }
+  $('dashboard').hidden = false;
+  if(path === '/profile'){
+    showDashboardProfile();
+  }else if(path === '/my-receipts'){
+    showDashboardReceipts();
+    showDashboardHistory();
+  }else if(path === '/admin'){
+    if(isAdmin) showAdminPanel();
+    else { showDashboardHome(); setAuthStatus('You do not have permission to access Super Admin.', true); navigateTo('/dashboard', true); }
+  }else{
+    showDashboardHome();
+    if(path !== '/dashboard') navigateTo('/dashboard', true);
+  }
+}
+window.addEventListener('popstate', renderRoute);
+
+// Route navigation buttons to their own URLs.
+$('loginTab').onclick = () => navigateTo('/login');
+$('registerTab').onclick = () => navigateTo('/register');
+$('dashboardHomeBtn').onclick = () => navigateTo('/dashboard');
+$('showProfileBtn').onclick = () => { showDashboardProfile(); navigateTo('/dashboard'); };
+$('showHistoryBtn').onclick = () => navigateTo('/my-receipts');
+$('newReceiptBtn').onclick = () => navigateTo('/create-receipt');
+$('adminNavBtn').onclick = () => navigateTo('/admin');
+$('dashboardLogoutBtn').onclick = async () => {
+  const {error}=await sb.auth.signOut();
+  if(error) setAuthStatus(error.message,true);
+  else navigateTo('/login', true);
+};
+$('signOutBtn').onclick = async () => {
+  const {error}=await sb.auth.signOut();
+  if(error) setAuthStatus(error.message,true);
+  else navigateTo('/login', true);
+};
+
+// Re-render the selected route after login/logout and initial session restore.
+sb.auth.onAuthStateChange((_event, session) => {
+  currentUser = session?.user || null;
+  updateAuthUI();
+  renderRoute();
+});
+sb.auth.getSession().then(({data,error}) => {
+  if(error) setAuthStatus(error.message,true);
+  currentUser = data.session?.user || null;
+  updateAuthUI();
+  renderRoute();
+});
+
+</script>
 <script>
 const $=id=>document.getElementById(id);
 const safe=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -214,6 +406,102 @@ $('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=next
 $('loginTab').onclick=()=>{setAuthMode('login');updateAuthUI()};$('registerTab').onclick=()=>{setAuthMode('register');updateAuthUI()};$('signInBtn').onclick=signIn;$('signUpBtn').onclick=signUp;$('resetBtn').onclick=resetPassword;$('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};
 sb.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;updateAuthUI()});
 sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,true);currentUser=data.session?.user||null;updateAuthUI()});
+
+// URL routing: each main screen has its own shareable path.
+function navigateTo(path, replace=false){
+  if(replace) history.replaceState({}, '', path);
+  else if(location.pathname !== path) history.pushState({}, '', path);
+  renderRoute();
+}
+function renderRoute(){
+  const path = (location.pathname || '/').replace(/\/+$/, '') || '/';
+  const isAdmin = !!(currentUser && currentUser.email && currentUser.email.toLowerCase() === 'isahtasiumachika@gmail.com');
+
+  // Protect private pages: users must sign in first.
+  if(!currentUser && ['/dashboard','/profile','/create-receipt','/my-receipts','/admin'].includes(path)){
+    navigateTo('/login', true);
+    setAuthMode('login');
+    updateAuthUI();
+    return;
+  }
+  // Send signed-in users from auth pages to their dashboard.
+  if(currentUser && (path === '/login' || path === '/register' || path === '/')){
+    navigateTo('/dashboard', true);
+    return;
+  }
+  if(!currentUser && path === '/'){
+    navigateTo('/login', true);
+    setAuthMode('login');
+    updateAuthUI();
+    return;
+  }
+
+  $('authCard').hidden = true;
+  $('dashboard').hidden = true;
+  $('appArea').hidden = true;
+
+  if(path === '/login' || path === '/register'){
+    $('authCard').hidden = false;
+    setAuthMode(path === '/register' ? 'register' : 'login');
+    updateAuthUI();
+    $('authCard').hidden = false;
+    $('dashboard').hidden = true;
+    $('appArea').hidden = true;
+    return;
+  }
+  if(path === '/create-receipt'){
+    $('appArea').hidden = false;
+    loadProfileIntoReceipt();
+    return;
+  }
+  $('dashboard').hidden = false;
+  if(path === '/profile'){
+    showDashboardProfile();
+  }else if(path === '/my-receipts'){
+    showDashboardReceipts();
+    showDashboardHistory();
+  }else if(path === '/admin'){
+    if(isAdmin) showAdminPanel();
+    else { showDashboardHome(); setAuthStatus('You do not have permission to access Super Admin.', true); navigateTo('/dashboard', true); }
+  }else{
+    showDashboardHome();
+    if(path !== '/dashboard') navigateTo('/dashboard', true);
+  }
+}
+window.addEventListener('popstate', renderRoute);
+
+// Route navigation buttons to their own URLs.
+$('loginTab').onclick = () => navigateTo('/login');
+$('registerTab').onclick = () => navigateTo('/register');
+$('dashboardHomeBtn').onclick = () => navigateTo('/dashboard');
+$('showProfileBtn').onclick = () => { showDashboardProfile(); navigateTo('/dashboard'); };
+$('showHistoryBtn').onclick = () => navigateTo('/my-receipts');
+$('newReceiptBtn').onclick = () => navigateTo('/create-receipt');
+$('adminNavBtn').onclick = () => navigateTo('/admin');
+$('dashboardLogoutBtn').onclick = async () => {
+  const {error}=await sb.auth.signOut();
+  if(error) setAuthStatus(error.message,true);
+  else navigateTo('/login', true);
+};
+$('signOutBtn').onclick = async () => {
+  const {error}=await sb.auth.signOut();
+  if(error) setAuthStatus(error.message,true);
+  else navigateTo('/login', true);
+};
+
+// Re-render the selected route after login/logout and initial session restore.
+sb.auth.onAuthStateChange((_event, session) => {
+  currentUser = session?.user || null;
+  updateAuthUI();
+  renderRoute();
+});
+sb.auth.getSession().then(({data,error}) => {
+  if(error) setAuthStatus(error.message,true);
+  currentUser = data.session?.user || null;
+  updateAuthUI();
+  renderRoute();
+});
+
 </script>
 </body>
 </html>
