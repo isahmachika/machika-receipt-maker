@@ -147,7 +147,7 @@ function showDashboardHome(){ $('dashboardHome').hidden=false; $('profilePanel')
 function showDashboardProfile(){ $('dashboardHome').hidden=true; $('profilePanel').hidden=false; $('dashboardHistory').hidden=true; hideAdminPanel(); }
 function showDashboardReceipts(){ $('dashboardHome').hidden=true; $('profilePanel').hidden=true; $('dashboardHistory').hidden=false; hideAdminPanel(); }
 function showAdminPanel(){ $('dashboardHome').hidden=true; $('profilePanel').hidden=true; $('dashboardHistory').hidden=true; $('adminPanel').hidden=false; loadAdminData('stats'); }
-async function callAdmin(action){
+async function callAdmin(action, extraData={}){
   const {data,error}=await sb.auth.getSession();
   if(error || !data.session) throw new Error('Please log in again.');
   const response=await fetch(SUPABASE_URL+'/functions/v1/machika-admin',{
@@ -157,7 +157,7 @@ async function callAdmin(action){
       'apikey':SUPABASE_PUBLISHABLE_KEY,
       'Authorization':'Bearer '+data.session.access_token
     },
-    body:JSON.stringify({action})
+    body:JSON.stringify({action,...extraData})
   });
   let result={};
   try{result=await response.json()}catch{}
@@ -169,6 +169,20 @@ async function callAdmin(action){
     throw new Error((result.error || ('Admin request failed ('+response.status+').')) + code + (details ? ' — ' + details : ''));
   }
   return result;
+}
+async function adminUserAction(action,userId){
+  const isBan=action==='ban-user';
+  const message=isBan
+    ? 'Ban this user? They will be blocked from signing in until an admin unbans them.'
+    : 'Unban this user and allow them to sign in again?';
+  if(!userId || !confirm(message)) return;
+  try{
+    await callAdmin(action,{user_id:userId});
+    alert(isBan?'User has been banned.':'User has been unbanned.');
+    await loadAdminData('users');
+  }catch(error){
+    alert('Could not '+(isBan?'ban':'unban')+' user: '+error.message);
+  }
 }
 function statCard(label,value){
   return '<div class="card" style="padding:16px;border-radius:12px"><div class="small">'+safe(label)+'</div><div style="font-size:26px;font-weight:800;margin-top:6px">'+safe(value)+'</div></div>';
@@ -185,8 +199,37 @@ async function loadAdminData(action='stats'){
     }else if(action==='users'){
       $('adminStats').innerHTML='';
       const users=result.users||[];
-      $('adminResults').innerHTML=users.length?'<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Email</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Registered</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Last sign-in</th></tr></thead><tbody>'+users.map(u=>'<tr><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.email||'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.created_at?new Date(u.created_at).toLocaleString():'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleString():'Never')+'</td></tr>').join('')+'</tbody></table>':'<p class="small">No users returned.</p>';
-      $('adminStatus').textContent='Showing '+users.length+' users (maximum 100 per request).';
+      if(!users.length){
+        $('adminResults').innerHTML='<p class="small">No users returned.</p>';
+        $('adminStatus').textContent='No users returned.';
+      }else{
+        $('adminResults').innerHTML=
+          '<div style="margin:8px 0 14px"><label for="adminUserSearch" style="display:block;font-weight:700;margin-bottom:6px">Search users by email</label><input id="adminUserSearch" type="search" placeholder="Type an email to search..." autocomplete="off" style="width:100%;max-width:440px;padding:11px 12px;border:1px solid #cbd5e1;border-radius:9px;font:inherit"></div>'+
+          '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Email</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Registered</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Last sign-in</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Status</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>';
+        const renderUsers=(query='')=>{
+          const q=query.trim().toLowerCase();
+          const filtered=users.filter(u=>(u.email||'').toLowerCase().includes(q));
+          $('adminUsersBody').innerHTML=filtered.map(u=>{
+            const isBanned=!!(u.banned_until && new Date(u.banned_until).getTime()>Date.now());
+            const status=isBanned?'Banned':'Active';
+            const action=isBanned?'unban-user':'ban-user';
+            const label=isBanned?'Unban':'Ban';
+            const buttonStyle=isBanned?'background:#15803d;color:white':'background:#b91c1c;color:white';
+            const userId=safe(u.id||'');
+            return '<tr><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.email||'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.created_at?new Date(u.created_at).toLocaleString():'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleString():'Never')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+status+'</td><td style="padding:9px;border-bottom:1px solid #eee"><button type="button" data-user-action="'+action+'" data-user-id="'+userId+'" style="'+buttonStyle+';border:0;border-radius:7px;padding:7px 11px;cursor:pointer">'+label+'</button></td></tr>';
+          }).join('')||'<tr><td colspan="5" style="padding:12px">No users match that search.</td></tr>';
+          $('adminStatus').textContent='Showing '+filtered.length+' of '+users.length+' users (maximum 100 per request). Admin accounts and your own account are protected.';
+        };
+        $('adminUserSearch').addEventListener('input',e=>renderUsers(e.target.value));
+        $('adminUsersBody').addEventListener('click',async e=>{
+          const button=e.target.closest('button[data-user-action]');
+          if(!button) return;
+          const action=button.dataset.userAction;
+          const userId=button.dataset.userId;
+          await adminUserAction(action,userId);
+        });
+        renderUsers();
+      }
     }else if(action==='receipts'){
       $('adminStats').innerHTML='';
       const receipts=result.receipts||[];
