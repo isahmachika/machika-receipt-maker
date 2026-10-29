@@ -28,6 +28,10 @@ footer{text-align:center;padding:8px 14px 24px;color:var(--muted);font-size:12px
 
 
 #siteBackBtn{display:block} @media print{#siteBackBtn{display:none}}
+
+.button-link{display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;background:#229ED9;color:#fff;font-weight:600}
+#telegramConnectCard{border:1px solid #d7e2ee;border-radius:12px;background:#f8fbff}
+#telegramLinkResult{margin-top:12px;padding:12px;border-radius:8px;background:#eef7ff}
 </style>
 
 <style id="machika-bottom-nav-style">
@@ -68,14 +72,17 @@ body{padding-bottom:94px!important}
 <h2>Account Overview</h2>
 <p id="accountEmail" class="small"></p>
 <p class="small">Your business details and saved receipts are stored in your account and can be accessed again after you sign in.</p>
-<div class="card" style="margin-top:18px;padding:16px;border:1px solid #d9e2ec;border-radius:12px">
+<div class="card" id="telegramConnectCard" style="margin-top:18px;padding:18px">
   <h3 style="margin-top:0">Connect Telegram</h3>
-  <p class="small">Connect your Telegram account securely so you can create receipts through your bot and keep them linked to this website account.</p>
+  <p class="small">Link your Telegram account to Machika Receipt Maker so you can create receipts through your Telegram bot. You must be signed in to link your account.</p>
   <button class="primary" id="telegramConnectBtn" type="button">Generate Telegram Link Code</button>
   <p id="telegramConnectStatus" class="small" role="status" aria-live="polite"></p>
   <div id="telegramLinkResult" hidden>
     <p>One-time link code: <strong id="telegramLinkCode"></strong></p>
-    <p class="small">Open your Machika Telegram bot, press Start, and follow its instructions to enter this code. Do not share the code with anyone else.</p>
+    <p class="small">Open your Machika Telegram bot and send:</p>
+    <p><code id="telegramStartCommand"></code></p>
+    <p class="small">Use this code only once and do not share it. If it expires, generate a new one.</p>
+    <a id="telegramOpenBot" class="button-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open Telegram Bot</a>
   </div>
 </div>
 </section>
@@ -407,29 +414,48 @@ async function saveImage(){
     link.download=number+'.png';link.href=canvas.toDataURL('image/png');link.click();
   }catch(err){alert('Could not download the receipt image. Please try again.');}
 }
-$('telegramConnectBtn').onclick=async()=>{
-  const btn=$('telegramConnectBtn');
-  const status=$('telegramConnectStatus');
-  const result=$('telegramLinkResult');
-  result.hidden=true;
-  status.textContent='Generating a secure one-time code...';
-  status.style.color='';
-  btn.disabled=true;
-  try{
-    const {data,error}=await sb.functions.invoke('machika-telegram-link',{body:{action:'generate'}});
-    if(error) throw error;
-    if(!data || !data.code) throw new Error(data?.error || 'The linking service did not return a code.');
-    $('telegramLinkCode').textContent=data.code;
-    result.hidden=false;
-    status.textContent='Code generated. It may expire soon; use it only in your own Telegram bot chat.';
-  }catch(err){
-    status.style.color='#b42318';
-    status.textContent='Telegram linking is not active yet. The secure Supabase Edge Function “machika-telegram-link” must be deployed first. Details: '+(err?.message||'Unknown error');
-  }finally{
-    btn.disabled=false;
+async function generateTelegramLinkCode(){
+  const status = $('telegramConnectStatus');
+  const result = $('telegramLinkResult');
+  const btn = $('telegramConnectBtn');
+  result.hidden = true;
+  if (!currentUser) {
+    status.textContent = 'Please sign in to your Machika account first.';
+    return;
   }
-};
-$('adminNavBtn').onclick=showAdminPanel;$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('newReceiptBtn').onclick=()=>{if(!currentUser)return;$('dashboard').hidden=true;$('appArea').hidden=false;loadProfileIntoReceipt();clearForm();window.scrollTo({top:0,behavior:'smooth'})};$('showHistoryBtn').onclick=()=>{showDashboardReceipts();showDashboardHistory()};$('showProfileBtn').onclick=()=>showDashboardProfile();$('dashboardHomeBtn').onclick=()=>showDashboardHome();$('dashboardLogoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
+  btn.disabled = true;
+  status.textContent = 'Generating a secure one-time link code...';
+  try {
+    // This requires the matching Supabase Edge Function to be deployed.
+    // The function must authenticate the current user and return a one-time code.
+    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: {} });
+    if (error) throw error;
+    if (!data || !data.code) {
+      throw new Error('The linking service did not return a code. Please try again later.');
+    }
+    $('telegramLinkCode').textContent = data.code;
+    $('telegramStartCommand').textContent = '/link ' + data.code;
+    const botUsername = (data.bot_username || '').replace(/^@/, '');
+    const botLink = $('telegramOpenBot');
+    if (botUsername) {
+      botLink.href = 'https://t.me/' + encodeURIComponent(botUsername);
+      botLink.hidden = false;
+    } else {
+      botLink.hidden = true;
+    }
+    result.hidden = false;
+    status.textContent = data.expires_at
+      ? 'Link code generated. It expires at ' + new Date(data.expires_at).toLocaleString() + '.'
+      : 'Link code generated. Send the command to your Machika Telegram bot to finish linking.';
+  } catch (err) {
+    console.error('Telegram link code error:', err);
+    status.textContent = 'Could not generate a Telegram link code. The secure machika-telegram-link Edge Function must be deployed and configured first.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$('telegramConnectBtn').onclick=generateTelegramLinkCode;$('adminNavBtn').onclick=showAdminPanel;$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('newReceiptBtn').onclick=()=>{if(!currentUser)return;$('dashboard').hidden=true;$('appArea').hidden=false;loadProfileIntoReceipt();clearForm();window.scrollTo({top:0,behavior:'smooth'})};$('showHistoryBtn').onclick=()=>{showDashboardReceipts();showDashboardHistory()};$('showProfileBtn').onclick=()=>showDashboardProfile();$('dashboardHomeBtn').onclick=()=>showDashboardHome();$('dashboardLogoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
 ['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>$(k).addEventListener('input',render));
 $('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();render();setAuthMode('login');
 $('loginTab').onclick=()=>{setAuthMode('login');updateAuthUI()};$('registerTab').onclick=()=>{setAuthMode('register');updateAuthUI()};$('signInBtn').onclick=signIn;$('signUpBtn').onclick=signUp;$('resetBtn').onclick=resetPassword;$('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};
