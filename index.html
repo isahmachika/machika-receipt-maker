@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2722843106597613"
-     crossorigin="anonymous"></script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#123b70">
@@ -67,7 +64,21 @@ body{padding-bottom:94px!important}
 <section id="dashboard" class="card" hidden style="max-width:1100px;margin:20px auto;padding:20px">
 <h2>Account Dashboard</h2><p id="welcome" class="small"></p>
 <div class="actions"><button class="primary" id="dashboardHomeBtn" type="button">Dashboard</button><button class="secondary" id="showProfileBtn" type="button">Business Profile</button><button class="secondary" id="showHistoryBtn" type="button">Receipt History</button><button class="secondary" id="newReceiptBtn" type="button">+ Create New Receipt</button><button class="primary" id="adminNavBtn" type="button" hidden>Super Admin</button><button class="danger" id="dashboardLogoutBtn" type="button">Logout</button></div>
-<section id="dashboardHome" style="margin-top:18px"><h2>Account Overview</h2><p id="accountEmail" class="small"></p><p class="small">Your business details and saved receipts are stored in your account and can be accessed again after you sign in.</p></section>
+<section id="dashboardHome" style="margin-top:18px">
+<h2>Account Overview</h2>
+<p id="accountEmail" class="small"></p>
+<p class="small">Your business details and saved receipts are stored in your account and can be accessed again after you sign in.</p>
+<div class="card" style="margin-top:18px;padding:16px;border:1px solid #d9e2ec;border-radius:12px">
+  <h3 style="margin-top:0">Connect Telegram</h3>
+  <p class="small">Connect your Telegram account securely so you can create receipts through your bot and keep them linked to this website account.</p>
+  <button class="primary" id="telegramConnectBtn" type="button">Generate Telegram Link Code</button>
+  <p id="telegramConnectStatus" class="small" role="status" aria-live="polite"></p>
+  <div id="telegramLinkResult" hidden>
+    <p>One-time link code: <strong id="telegramLinkCode"></strong></p>
+    <p class="small">Open your Machika Telegram bot, press Start, and follow its instructions to enter this code. Do not share the code with anyone else.</p>
+  </div>
+</div>
+</section>
 <section id="profilePanel" hidden style="margin-top:18px"><h2>Business Profile (saved to your account)</h2><p class="small">Save your shop name, address, and phone number once. They will be filled in automatically for future receipts.</p><div class="grid"><div class="field"><label>Business / Shop Name</label><input id="profileBusiness" placeholder="Machika Store"></div><div class="field"><label>Phone Number</label><input id="profilePhone" placeholder="080..."></div><div class="field full"><label>Business Address</label><input id="profileAddress" placeholder="Shop address"></div></div><div class="actions"><button class="primary" id="saveProfileBtn" type="button">Save Business Profile</button></div><p id="profileStatus" class="small" role="status"></p></section>
 <section id="dashboardHistory" hidden style="margin-top:18px"><h2>Your Saved Receipts</h2><div id="dashboardHistoryList"></div></section>
 <section id="adminPanel" hidden style="margin-top:18px">
@@ -396,6 +407,28 @@ async function saveImage(){
     link.download=number+'.png';link.href=canvas.toDataURL('image/png');link.click();
   }catch(err){alert('Could not download the receipt image. Please try again.');}
 }
+$('telegramConnectBtn').onclick=async()=>{
+  const btn=$('telegramConnectBtn');
+  const status=$('telegramConnectStatus');
+  const result=$('telegramLinkResult');
+  result.hidden=true;
+  status.textContent='Generating a secure one-time code...';
+  status.style.color='';
+  btn.disabled=true;
+  try{
+    const {data,error}=await sb.functions.invoke('machika-telegram-link',{body:{action:'generate'}});
+    if(error) throw error;
+    if(!data || !data.code) throw new Error(data?.error || 'The linking service did not return a code.');
+    $('telegramLinkCode').textContent=data.code;
+    result.hidden=false;
+    status.textContent='Code generated. It may expire soon; use it only in your own Telegram bot chat.';
+  }catch(err){
+    status.style.color='#b42318';
+    status.textContent='Telegram linking is not active yet. The secure Supabase Edge Function “machika-telegram-link” must be deployed first. Details: '+(err?.message||'Unknown error');
+  }finally{
+    btn.disabled=false;
+  }
+};
 $('adminNavBtn').onclick=showAdminPanel;$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('newReceiptBtn').onclick=()=>{if(!currentUser)return;$('dashboard').hidden=true;$('appArea').hidden=false;loadProfileIntoReceipt();clearForm();window.scrollTo({top:0,behavior:'smooth'})};$('showHistoryBtn').onclick=()=>{showDashboardReceipts();showDashboardHistory()};$('showProfileBtn').onclick=()=>showDashboardProfile();$('dashboardHomeBtn').onclick=()=>showDashboardHome();$('dashboardLogoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
 ['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>$(k).addEventListener('input',render));
 $('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();render();setAuthMode('login');
