@@ -75,8 +75,11 @@ body{padding-bottom:94px!important}
 <div class="card" id="telegramConnectCard" style="margin-top:18px;padding:18px">
   <h3 style="margin-top:0">Connect Telegram</h3>
   <p class="small">Link your Telegram account to Machika Receipt Maker so you can create receipts through your Telegram bot. You must be signed in to link your account.</p>
-  <button class="primary" id="telegramConnectBtn" type="button">Generate Telegram Link Code</button>
-  <p id="telegramConnectStatus" class="small" role="status" aria-live="polite"></p>
+  <p id="telegramConnectStatus" class="small" role="status" aria-live="polite">Checking Telegram connection...</p>
+  <div class="actions">
+    <button class="primary" id="telegramConnectBtn" type="button">Generate Telegram Link Code</button>
+    <button class="danger" id="telegramDisconnectBtn" type="button" hidden>Disconnect Telegram</button>
+  </div>
   <div id="telegramLinkResult" hidden>
     <p>One-time link code: <strong id="telegramLinkCode"></strong></p>
     <p class="small">Open your Machika Telegram bot and send:</p>
@@ -414,6 +417,55 @@ async function saveImage(){
     link.download=number+'.png';link.href=canvas.toDataURL('image/png');link.click();
   }catch(err){alert('Could not download the receipt image. Please try again.');}
 }
+async function checkTelegramStatus(){
+  const status = $('telegramConnectStatus');
+  const generateBtn = $('telegramConnectBtn');
+  const disconnectBtn = $('telegramDisconnectBtn');
+  if (!status || !generateBtn || !disconnectBtn) return;
+  if (!currentUser) {
+    status.textContent = 'Please sign in to check your Telegram connection.';
+    generateBtn.hidden = false;
+    disconnectBtn.hidden = true;
+    return;
+  }
+  status.textContent = 'Checking Telegram connection...';
+  try {
+    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: { action: 'status' } });
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error(data?.error || 'Status check failed.');
+    if (data.connected) {
+      status.textContent = 'Telegram is connected to your Machika account.';
+      generateBtn.hidden = true;
+      disconnectBtn.hidden = false;
+      $('telegramLinkResult').hidden = true;
+    } else {
+      status.textContent = 'Telegram is not connected yet.';
+      generateBtn.hidden = false;
+      disconnectBtn.hidden = true;
+    }
+  } catch (err) {
+    console.error('Telegram status error:', err);
+    status.textContent = 'Could not check Telegram connection. Please refresh or sign in again.';
+  }
+}
+async function disconnectTelegram(){
+  const btn = $('telegramDisconnectBtn');
+  if (!currentUser || !confirm('Disconnect your Telegram account from Machika Receipt Maker?')) return;
+  btn.disabled = true;
+  $('telegramConnectStatus').textContent = 'Disconnecting Telegram...';
+  try {
+    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: { action: 'disconnect' } });
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error(data?.error || 'Disconnect failed.');
+    $('telegramLinkResult').hidden = true;
+    await checkTelegramStatus();
+  } catch (err) {
+    console.error('Telegram disconnect error:', err);
+    $('telegramConnectStatus').textContent = 'Could not disconnect Telegram. Please try again.';
+  } finally {
+    btn.disabled = false;
+  }
+}
 async function generateTelegramLinkCode(){
   const status = $('telegramConnectStatus');
   const result = $('telegramLinkResult');
@@ -426,13 +478,9 @@ async function generateTelegramLinkCode(){
   btn.disabled = true;
   status.textContent = 'Generating a secure one-time link code...';
   try {
-    // This requires the matching Supabase Edge Function to be deployed.
-    // The function must authenticate the current user and return a one-time code.
-    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: {} });
+    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: { action: 'generate' } });
     if (error) throw error;
-    if (!data || !data.code) {
-      throw new Error('The linking service did not return a code. Please try again later.');
-    }
+    if (!data || !data.code) throw new Error(data?.error || 'The linking service did not return a code.');
     $('telegramLinkCode').textContent = data.code;
     $('telegramStartCommand').textContent = '/link ' + data.code;
     const botUsername = (data.bot_username || '').replace(/^@/, '');
@@ -444,18 +492,16 @@ async function generateTelegramLinkCode(){
       botLink.hidden = true;
     }
     result.hidden = false;
-    status.textContent = data.expires_at
-      ? 'Link code generated. It expires at ' + new Date(data.expires_at).toLocaleString() + '.'
-      : 'Link code generated. Send the command to your Machika Telegram bot to finish linking.';
+    status.textContent = 'Link code generated. It expires in ' + (data.expires_in_minutes || 10) + ' minutes. Send the command to your Machika Telegram bot to finish linking.';
   } catch (err) {
     console.error('Telegram link code error:', err);
-    status.textContent = 'Could not generate a Telegram link code. The secure machika-telegram-link Edge Function must be deployed and configured first.';
+    status.textContent = err?.message || 'Could not generate a Telegram link code. Please try again.';
   } finally {
     btn.disabled = false;
   }
 }
-
-$('telegramConnectBtn').onclick=generateTelegramLinkCode;$('adminNavBtn').onclick=showAdminPanel;$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('newReceiptBtn').onclick=()=>{if(!currentUser)return;$('dashboard').hidden=true;$('appArea').hidden=false;loadProfileIntoReceipt();clearForm();window.scrollTo({top:0,behavior:'smooth'})};$('showHistoryBtn').onclick=()=>{showDashboardReceipts();showDashboardHistory()};$('showProfileBtn').onclick=()=>showDashboardProfile();$('dashboardHomeBtn').onclick=()=>showDashboardHome();$('dashboardLogoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
+$('telegramConnectBtn').onclick=generateTelegramLinkCode;
+$('telegramDisconnectBtn').onclick=disconnectTelegram;$('adminNavBtn').onclick=showAdminPanel;$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('newReceiptBtn').onclick=()=>{if(!currentUser)return;$('dashboard').hidden=true;$('appArea').hidden=false;loadProfileIntoReceipt();clearForm();window.scrollTo({top:0,behavior:'smooth'})};$('showHistoryBtn').onclick=()=>{showDashboardReceipts();showDashboardHistory()};$('showProfileBtn').onclick=()=>showDashboardProfile();$('dashboardHomeBtn').onclick=()=>showDashboardHome();$('dashboardLogoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
 ['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>$(k).addEventListener('input',render));
 $('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();render();setAuthMode('login');
 $('loginTab').onclick=()=>{setAuthMode('login');updateAuthUI()};$('registerTab').onclick=()=>{setAuthMode('register');updateAuthUI()};$('signInBtn').onclick=signIn;$('signUpBtn').onclick=signUp;$('resetBtn').onclick=resetPassword;$('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};
