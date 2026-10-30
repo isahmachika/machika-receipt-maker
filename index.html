@@ -581,7 +581,7 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
    const p=path();
    const loggedIn=!!(window.currentUser);
    nav.style.display=loggedIn && !['/login','/register'].includes(p)?'grid':'none';
-   items.forEach(b=>{const target=b.dataset.path;let active=(target===p)||(target==='/dashboard'&&p==='/')||(target==='/account'&&p==='/account');b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});
+   items.forEach(b=>{const target=b.dataset.path;let active=(target===p)||(target==='/dashboad'&&p==='/')||(target==='/account'&&p==='/account');b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});
  }
  items.forEach(b=>b.addEventListener('click',()=>{
    const target=b.dataset.path;
