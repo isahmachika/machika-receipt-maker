@@ -47,12 +47,166 @@ body{padding-bottom:94px!important}
 @media(min-width:700px){#machikaBottomNav{left:50%;right:auto;transform:translateX(-50%);width:min(760px,calc(100% - 40px));border:1px solid #eee;border-radius:22px 22px 0 0}body{padding-bottom:100px!important}}
 @media print{#machikaBottomNav{display:none!important}body{padding-bottom:0!important}}
 </style>
+
+<style id="machika-sidebar-style">
+#machikaSidebar{display:none}
+#mobileSidebarToggle{display:none;background:#ffffff20;color:#fff;border:1px solid #ffffff55;border-radius:10px;padding:9px 12px;font-size:20px;line-height:1;min-width:44px}
+#machikaSidebarOverlay{display:none}
+@media(max-width:899px){
+ #mobileSidebarToggle{display:none;align-items:center;justify-content:center}
+ #machikaSidebar{display:flex;position:fixed;inset:0 auto 0 0;width:min(290px,82vw);z-index:3001;background:linear-gradient(180deg,#102a56 0%,#123b70 58%,#175cd3 100%);color:#fff;padding:24px 15px;flex-direction:column;box-shadow:8px 0 28px #102a5640;transform:translateX(-105%);transition:transform .22s ease;visibility:hidden;display:flex!important}
+ body.machika-sidebar-open #machikaSidebar{transform:translateX(0);visibility:visible}
+ #machikaSidebar .side-brand{display:flex;align-items:center;gap:11px;padding:4px 8px 25px;border-bottom:1px solid #ffffff25;margin-bottom:20px}
+ #machikaSidebar .side-logo{width:42px;height:42px;border-radius:13px;background:#ffffff20;border:1px solid #ffffff45;display:grid;place-items:center;font-size:22px;font-weight:800}
+ #machikaSidebar .side-title{font-size:16px;font-weight:800;line-height:1.25}
+ #machikaSidebar .side-sub{font-size:11px;color:#cbdcff;margin-top:4px}
+ #machikaSidebar .side-section{font-size:10px;letter-spacing:1.4px;color:#a9c7f7;font-weight:800;padding:0 11px 9px}
+ #machikaSidebar .side-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:3px 0;padding:12px 13px;border-radius:11px;background:transparent;color:#eaf2ff;font-size:13px;font-weight:700}
+ #machikaSidebar .side-link:hover,#machikaSidebar .side-link.active{background:#ffffff20;color:#fff}
+ #machikaSidebar .side-icon{width:22px;text-align:center;font-size:17px}
+ #machikaSidebar .side-spacer{flex:1}
+ #machikaSidebar .side-logout{background:#ffffff16;color:#fff}
+ #machikaSidebarOverlay{position:fixed;inset:0;background:#081a33a8;z-index:3000}
+ body.machika-sidebar-open #machikaSidebarOverlay{display:block}
+ body.machika-sidebar-open{overflow:hidden}
+}
+@media(min-width:900px){
+ body{padding-bottom:0!important;padding-left:264px!important}
+ #machikaSidebar{display:flex;position:fixed;inset:0 auto 0 0;width:244px;z-index:1000;background:linear-gradient(180deg,#102a56 0%,#123b70 58%,#175cd3 100%);color:#fff;padding:24px 15px;flex-direction:column;box-shadow:8px 0 28px #102a5618}
+ #machikaSidebar .side-brand{display:flex;align-items:center;gap:11px;padding:4px 8px 25px;border-bottom:1px solid #ffffff25;margin-bottom:20px}
+ #machikaSidebar .side-logo{width:42px;height:42px;border-radius:13px;background:#ffffff20;border:1px solid #ffffff45;display:grid;place-items:center;font-size:22px;font-weight:800}
+ #machikaSidebar .side-title{font-size:16px;font-weight:800;line-height:1.25}
+ #machikaSidebar .side-sub{font-size:11px;color:#cbdcff;margin-top:4px}
+ #machikaSidebar .side-section{font-size:10px;letter-spacing:1.4px;color:#a9c7f7;font-weight:800;padding:0 11px 9px}
+ #machikaSidebar .side-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:3px 0;padding:12px 13px;border-radius:11px;background:transparent;color:#eaf2ff;font-size:13px;font-weight:700}
+ #machikaSidebar .side-link:hover,#machikaSidebar .side-link.active{background:#ffffff20;color:#fff}
+ #machikaSidebar .side-icon{width:22px;text-align:center;font-size:17px}
+ #machikaSidebar .side-spacer{flex:1}
+ #machikaSidebar .side-logout{background:#ffffff16;color:#fff}
+ header{padding-left:30px;padding-right:30px}
+ #dashboard{max-width:1200px!important;margin:22px 24px!important}
+ .wrap{max-width:1400px;margin:22px 24px}
+ #machikaBottomNav{display:none!important}
+ #siteBackBtn{margin-left:24px!important}
+}
+@media print{#machikaSidebar{display:none!important}}
+</style>
+
+
+<style id="machika-landing-style">
+#landingPage[hidden]{display:none!important}
+#landingPage{max-width:1200px;margin:0 auto;padding:28px 18px 12px;color:#10284b}
+.landing-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:4px 0 34px}
+.landing-logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:#10284b}
+.landing-logo-mark{width:52px;height:52px;display:grid;place-items:center;color:#1764dc}
+.landing-logo-mark svg{width:100%;height:100%}
+.landing-logo-text strong{display:block;font-size:25px;line-height:1.05;letter-spacing:-.7px}
+.landing-logo-text span{display:block;font-size:18px;font-weight:800;color:#1764dc;margin-top:3px}
+.landing-nav-actions{display:flex;align-items:center;gap:9px}
+.landing-nav-actions a,.landing-cta{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;border-radius:999px;padding:12px 19px;font-weight:800}
+.landing-login{color:#174078;background:#edf3fc;border:1px solid #d7e3f4}
+.landing-register,.landing-cta{background:#1764dc;color:white;box-shadow:0 8px 20px #1764dc2a}
+.landing-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);align-items:center;gap:35px;min-height:500px}
+.landing-kicker{font-size:15px;color:#25466f;letter-spacing:.3px;margin:0 0 17px}
+.landing-copy h2{font-size:clamp(36px,5vw,61px);line-height:1.08;letter-spacing:-1.8px;margin:0 0 20px;color:#10284b}
+.landing-copy h2 span{color:#1764dc}
+.landing-copy>p{font-size:clamp(17px,2vw,21px);line-height:1.55;color:#475569;margin:0 0 27px;max-width:560px}
+.landing-features{display:grid;grid-template-columns:1fr 1fr;gap:22px 18px;margin:28px 0 30px}
+.landing-feature{display:flex;align-items:flex-start;gap:12px}
+.landing-feature-icon{width:48px;height:48px;flex:0 0 48px;border-radius:50%;background:#1764dc;color:white;display:grid;place-items:center;font-size:22px;font-weight:800}
+.landing-feature strong{display:block;font-size:16px;color:#10284b;margin:2px 0 5px}
+.landing-feature small{font-size:13px;line-height:1.4;color:#64748b}
+.landing-cta{font-size:18px;padding:15px 24px}
+.landing-url{display:block;margin-top:13px;color:#123b70;font-weight:700;font-size:14px;overflow-wrap:anywhere}
+.landing-visual{position:relative;min-height:465px;border-radius:30px;background:linear-gradient(140deg,#eaf3ff 0%,#d9e9ff 55%,#1764dc 55%,#1553b7 100%);padding:28px 24px 20px;overflow:hidden;box-shadow:0 20px 50px #153b7020}
+.landing-slogan{position:absolute;right:25px;top:15px;color:white;font-size:clamp(18px,2.4vw,27px);font-weight:800;font-style:italic;text-align:right;max-width:210px;line-height:1.2}
+.mock-laptop{position:absolute;left:7%;right:5%;top:85px;height:290px;background:#14243b;border:8px solid #26364d;border-bottom-width:15px;border-radius:18px 18px 12px 12px;box-shadow:0 18px 25px #0d244455;transform:perspective(900px) rotateY(-5deg)}
+.mock-screen{height:100%;background:#f8fbff;border-radius:6px;padding:13px;display:grid;grid-template-columns:26% 1fr 1fr;gap:10px;overflow:hidden}
+.mock-menu{background:#eaf1fb;border-radius:8px;padding:9px 6px;font-size:9px;color:#28466e}
+.mock-menu b{display:block;font-size:12px;color:#123b70;margin-bottom:14px}
+.mock-menu span{display:block;padding:7px 4px;border-radius:5px;margin:4px 0}
+.mock-menu span:first-of-type{background:#1764dc;color:white}
+.mock-form,.mock-receipt{background:white;border:1px solid #dce5f0;border-radius:8px;padding:10px;color:#1d2939;font-size:9px}
+.mock-form h4,.mock-receipt h4{font-size:12px;margin:0 0 10px}
+.mock-input{border:1px solid #dce5f0;border-radius:4px;padding:7px;margin:5px 0 9px;color:#64748b}
+.mock-blue{background:#1764dc;color:#fff;text-align:center;border-radius:5px;padding:7px;margin-top:9px;font-weight:bold}
+.mock-receipt{text-align:center;padding:12px 9px;border-style:dashed}
+.mock-receipt .receipt-lines{border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;margin:10px 0;padding:8px 0;text-align:left;line-height:2}
+.mock-phone{position:absolute;z-index:2;left:2%;bottom:35px;width:135px;height:230px;border:7px solid #182338;border-radius:24px;background:#fff;padding:10px 7px;box-shadow:0 12px 24px #10284b55}
+.mock-phone-inner{border-radius:13px;background:#fff;height:100%;padding:12px 5px;text-align:center;font-size:8px;color:#172033}
+.mock-phone-inner b{display:block;font-size:12px;margin:7px 0}
+.mock-phone-inner .receipt-lines{text-align:left;border-top:1px dashed #64748b;border-bottom:1px dashed #64748b;margin-top:12px;padding:7px 0;line-height:2}
+.landing-bottom-caption{position:absolute;right:22px;bottom:20px;color:white;font-weight:800;text-align:right;font-size:17px;line-height:1.25}
+.landing-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:40px 0 20px}
+.landing-benefit{background:white;border:1px solid #e2eaf5;border-radius:16px;padding:19px;text-align:center;box-shadow:0 8px 25px #10284b08}
+.landing-benefit b{display:block;color:#123b70;margin:8px 0 5px}.landing-benefit span{font-size:13px;color:#64748b;line-height:1.4}
+#landingPage~#siteFooter{margin-top:22px}
+@media(max-width:850px){#landingPage{padding:18px 14px}.landing-hero{grid-template-columns:1fr;gap:24px}.landing-copy h2{font-size:clamp(36px,9vw,54px)}.landing-visual{min-height:420px}.mock-laptop{top:80px;height:260px}.mock-phone{bottom:25px}.landing-benefits{margin-top:25px}}
+@media(max-width:520px){.landing-nav{margin-bottom:26px}.landing-logo-mark{width:42px;height:42px}.landing-logo-text strong{font-size:20px}.landing-logo-text span{font-size:15px}.landing-nav-actions a{padding:10px 12px;font-size:12px}.landing-features{gap:17px 10px}.landing-feature{gap:8px}.landing-feature-icon{width:39px;height:39px;flex-basis:39px;font-size:18px}.landing-feature strong{font-size:13px}.landing-feature small{font-size:11px}.landing-cta{font-size:16px;width:100%}.landing-visual{min-height:350px;padding:15px}.mock-laptop{left:8%;right:3%;top:83px;height:210px;border-width:6px;border-bottom-width:12px}.mock-screen{padding:7px;gap:5px;grid-template-columns:24% 1fr 1fr}.mock-menu{font-size:6px;padding:5px 3px}.mock-menu b{font-size:8px;margin-bottom:8px}.mock-menu span{padding:5px 2px}.mock-form,.mock-receipt{padding:6px;font-size:6px}.mock-form h4,.mock-receipt h4{font-size:8px}.mock-input{padding:4px;margin:3px 0 5px}.mock-blue{padding:5px}.mock-phone{width:105px;height:180px;left:1%;bottom:23px;border-width:5px;padding:6px}.mock-phone-inner{font-size:6px;padding:8px 3px}.mock-phone-inner b{font-size:9px}.landing-slogan{font-size:16px;right:12px;top:12px;max-width:145px}.landing-bottom-caption{font-size:12px;right:12px;bottom:15px}.landing-benefits{grid-template-columns:1fr;gap:10px}.landing-benefit{display:flex;align-items:center;text-align:left;gap:12px;padding:13px}.landing-benefit b{margin:0 0 3px}}
+</style>
+
 </head>
 <body>
 <header>
-  <div class="brandmark"><div class="brand-icon">M</div><div><h1>Machika Receipt Maker</h1><p>Create receipts quickly • Simple, neat and professional</p></div></div>
+  <button id="mobileSidebarToggle" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button><div class="brandmark"><div class="brand-icon">M</div><div><h1>Machika Receipt Maker</h1><p>Create receipts quickly • Simple, neat and professional</p></div></div>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="accountBadge" style="font-size:12px;background:#ffffff18;border:1px solid #ffffff35;padding:8px 11px;border-radius:999px">Cloud receipts</span></div>
 </header>
+
+
+<main id="landingPage" hidden>
+ <nav class="landing-nav" aria-label="Public navigation">
+  <a class="landing-logo" href="/" aria-label="Machika Receipt Maker home">
+   <span class="landing-logo-mark"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M15 7h34l7 7v43l-7-5-7 5-7-5-7 5-7-5-7 5V14l8-7Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M23 24h20M23 34h20M23 44h14" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg></span>
+   <span class="landing-logo-text"><strong>Machika</strong><span>Receipt Maker</span></span>
+  </a>
+  <div class="landing-nav-actions"><a class="landing-login" href="/login" data-landing-route="/login">Login</a><a class="landing-register" href="/register" data-landing-route="/register">Create Account</a></div>
+ </nav>
+ <section class="landing-hero">
+  <div class="landing-copy">
+   <p class="landing-kicker">Professional Receipts&nbsp; • &nbsp;Simple&nbsp; • &nbsp;Fast</p>
+   <h2>Make Your Business <span>Look Professional!</span></h2>
+   <p>Create beautiful and professional receipts for your business in minutes. No more handwriting, no more stress!</p>
+   <div class="landing-features">
+    <div class="landing-feature"><span class="landing-feature-icon">ϟ</span><span><strong>Create Receipts in Minutes</strong><small>Fast and easy to use</small></span></div>
+    <div class="landing-feature"><span class="landing-feature-icon">▦</span><span><strong>Add Your Business Details</strong><small>Name, address, phone and more</small></span></div>
+    <div class="landing-feature"><span class="landing-feature-icon">▧</span><span><strong>Download as Image</strong><small>Save and share easily as PNG</small></span></div>
+    <div class="landing-feature"><span class="landing-feature-icon">✓</span><span><strong>Perfect for All Businesses</strong><small>Shops, online stores, services and more</small></span></div>
+   </div>
+   <a class="landing-cta" href="/register" data-landing-route="/register">Try It Now for FREE <span aria-hidden="true">→</span></a>
+   <span class="landing-url">↗ machika-receipt-maker.netlify.app</span>
+  </div>
+  <div class="landing-visual" aria-label="Preview of Machika Receipt Maker on laptop and mobile">
+   <div class="landing-slogan">Small Tool<br>Big Impact!</div>
+   <div class="mock-laptop"><div class="mock-screen">
+    <div class="mock-menu"><b>▤ Machika<br>Receipt Maker</b><span>⌂ Home</span><span>▧ Create Receipt</span><span>▤ Receipt History</span><span>♙ Business</span><span>♙ Account</span></div>
+    <div class="mock-form"><h4>Create Your Receipt</h4>Business Name<div class="mock-input">Machika Store</div>Address<div class="mock-input">123 Market Street</div>Phone Number<div class="mock-input">08012345678</div>Items<div class="mock-input">Rice　 Qty 2　 ₦1,500</div><div class="mock-input">Soap　 Qty 1　 ₦500</div><div class="mock-blue">Generate Receipt</div></div>
+    <div class="mock-receipt"><h4>🛒 MACHIKA STORE</h4><small>123 Market Street, Nigeria</small><h4 style="margin-top:12px">RECEIPT</h4><div class="receipt-lines">Item　　 Qty　 Price<br>Rice　　 2　 3,000<br>Soap　　 1　　 500<br><b>Total　　　 ₦3,500</b></div><small>Thank you for your support!</small><div style="font-size:23px;letter-spacing:2px;margin-top:8px">▥▥▥▥▥</div></div>
+   </div></div>
+   <div class="mock-phone"><div class="mock-phone-inner">9:41<br><b>🛒 MACHIKA STORE</b><small>123 Market Street</small><b>RECEIPT</b><div class="receipt-lines">Rice　2　3,000<br>Soap　1　500<br><b>Total　₦3,500</b></div><small>Thank you!</small><div style="font-size:18px;margin-top:7px">▥▥▥</div></div></div>
+   <div class="landing-bottom-caption">Perfect Receipts<br>for a Better Business!</div>
+  </div>
+ </section>
+ <section class="landing-benefits" aria-label="Who can use Machika Receipt Maker">
+  <div class="landing-benefit"><span style="font-size:28px">🏪</span><span><b>Shops</b><span>For retail shops and small businesses</span></span></div>
+  <div class="landing-benefit"><span style="font-size:28px">💻</span><span><b>Online Stores</b><span>For online sellers and vendors</span></span></div>
+  <div class="landing-benefit"><span style="font-size:28px">🧰</span><span><b>Services</b><span>For service providers and professionals</span></span></div>
+ </section>
+</main>
+
+<aside id="machikaSidebar" aria-label="Main navigation">
+ <div class="side-brand"><div class="side-logo">M</div><div><div class="side-title">Machika Receipt Maker</div><div class="side-sub">Business workspace</div></div></div>
+ <div class="side-section">MAIN MENU</div>
+ <button class="side-link" data-side-path="/dashboard" type="button"><span class="side-icon">⌂</span>Dashboard</button>
+ <button class="side-link" data-side-path="/create-receipt" type="button"><span class="side-icon">🧾</span>Create Receipt</button>
+ <button class="side-link" data-side-path="/my-receipts" type="button"><span class="side-icon">▤</span>Receipt History</button>
+ <button class="side-link" data-side-path="/profile" type="button"><span class="side-icon">🏪</span>Business Profile</button>
+ <button class="side-link" data-side-path="/account" type="button"><span class="side-icon">♙</span>My Account</button>
+ <button class="side-link" id="sidebarAdminBtn" data-side-path="/admin" type="button" hidden><span class="side-icon">🛡️</span>Super Admin</button>
+ <div class="side-spacer"></div>
+ <button class="side-link side-logout" id="sidebarLogoutBtn" type="button"><span class="side-icon">↪</span>Logout</button>
+</aside>
+<div id="machikaSidebarOverlay" aria-hidden="true"></div>
+
 <button id="siteBackBtn" type="button" aria-label="Go back" style="position:sticky;top:0;z-index:20;margin:10px 14px 0;background:#e8eef8;color:#19345d;border:1px solid #cbd5e1;border-radius:999px;padding:10px 16px;font-weight:700;box-shadow:0 3px 10px #14213d12">← Back</button>
 <section class="card" id="authCard" style="max-width:760px;margin:20px auto 0;padding:20px;">
 <h2 id="authHeading">Login to your account</h2>
@@ -66,9 +220,8 @@ body{padding-bottom:94px!important}
 <p id="authStatus" class="small" role="status">You are not logged in.</p>
 </section>
 <section id="dashboard" class="card" hidden style="max-width:1100px;margin:20px auto;padding:20px">
-<h2>Account Dashboard</h2><p id="welcome" class="small"></p>
-<div class="actions"><button class="primary" id="dashboardHomeBtn" type="button">Dashboard</button><button class="secondary" id="showProfileBtn" type="button">Business Profile</button><button class="secondary" id="showHistoryBtn" type="button">Receipt History</button><button class="secondary" id="newReceiptBtn" type="button">+ Create New Receipt</button><button class="primary" id="adminNavBtn" type="button" hidden>Super Admin</button><button class="danger" id="dashboardLogoutBtn" type="button">Logout</button></div>
-<section id="dashboardHome" style="margin-top:18px">
+<section id="dashboardHome" style="margin-top:0">
+<h2>Dashboard</h2><p id="welcome" class="small"></p>
 <h2>Account Overview</h2>
 <p id="accountEmail" class="small"></p>
 <p class="small">Your business details and saved receipts are stored in your account and can be accessed again after you sign in.</p>
@@ -89,9 +242,10 @@ body{padding-bottom:94px!important}
   </div>
 </div>
 </section>
-<section id="profilePanel" hidden style="margin-top:18px"><h2>Business Profile (saved to your account)</h2><p class="small">Save your shop name, address, and phone number once. They will be filled in automatically for future receipts.</p><div class="grid"><div class="field"><label>Business / Shop Name</label><input id="profileBusiness" placeholder="Machika Store"></div><div class="field"><label>Phone Number</label><input id="profilePhone" placeholder="080..."></div><div class="field full"><label>Business Address</label><input id="profileAddress" placeholder="Shop address"></div></div><div class="actions"><button class="primary" id="saveProfileBtn" type="button">Save Business Profile</button></div><p id="profileStatus" class="small" role="status"></p></section>
-<section id="dashboardHistory" hidden style="margin-top:18px"><h2>Your Saved Receipts</h2><div id="dashboardHistoryList"></div></section>
-<section id="adminPanel" hidden style="margin-top:18px">
+<section id="profilePanel" hidden style="margin-top:0"><h2>Business Profile</h2><p class="small">Save your shop name, address, and phone number once. They will be filled in automatically for future receipts.</p><div class="grid"><div class="field"><label>Business / Shop Name</label><input id="profileBusiness" placeholder="Machika Store"></div><div class="field"><label>Phone Number</label><input id="profilePhone" placeholder="080..."></div><div class="field full"><label>Business Address</label><input id="profileAddress" placeholder="Shop address"></div></div><div class="actions"><button class="primary" id="saveProfileBtn" type="button">Save Business Profile</button></div><p id="profileStatus" class="small" role="status"></p></section>
+<section id="dashboardHistory" hidden style="margin-top:0"><h2>Your Saved Receipts</h2><div id="dashboardHistoryList"></div></section>
+<section id="accountPanel" hidden style="margin-top:0"><h2>My Account</h2><p class="small">Manage your signed-in account information.</p><div class="card" style="margin-top:14px"><p><strong>Email address</strong></p><p id="myAccountEmail" class="small"></p><div class="actions"><button class="danger" id="accountLogoutBtn" type="button">Logout</button></div></div></section>
+<section id="adminPanel" hidden style="margin-top:0">
   <h2>Super Admin Dashboard</h2>
   <p class="small">Restricted administration area. The server checks admin permissions for every request.</p>
   <div class="actions">
@@ -111,7 +265,7 @@ body{padding-bottom:94px!important}
 <h2>1. Business and Purchase Details</h2>
 <div class="grid">
  <div class="field full"><label>Business Logo (optional)</label><input id="logoFile" type="file" accept="image/*"><p class="small">Your logo will appear on the receipt. The selected image stays in this browser.</p></div>
- <div class="field full"><label>Business / Shop Name</label><input id="business" placeholder="Misali: Machika Stores"></div>
+ <div class="field full"><label>Business / Shop Name</label><input id="business" placeholder="Machika Stores"></div>
  <div class="field"><label>Phone Number</label><input id="phone" placeholder="080..."></div>
  <div class="field"><label>Address</label><input id="address" placeholder="Katsina, Nigeria"></div>
  <div class="field"><label>Receipt Number</label><input id="receiptNo"></div>
@@ -119,13 +273,13 @@ body{padding-bottom:94px!important}
  <div class="field"><label>Customer Name</label><input id="customer" placeholder="Cash customer"></div>
  <div class="field"><label>Payment Method</label><select id="payment"><option>Cash</option><option>Transfer</option><option>POS</option><option>Card</option><option>Credit</option></select></div>
 </div>
-<h2 style="margin-top:10px">Kayayyakin da aka sayar</h2>
-<div class="items-head"><span>Kaya / sabis</span><span>Adadi</span><span>Farashi (₦)</span><span></span></div>
+<h2 style="margin-top:10px">Items Sold</h2>
+<div class="items-head"><span>Item / Service</span><span>Quantity</span><span>Price (₦)</span><span></span></div>
 <div id="items"></div>
 <button class="secondary" id="addItem" type="button">+ Add Item</button>
 <div class="grid" style="margin-top:16px">
  <div class="field"><label>Discount (₦)</label><input id="discount" type="number" min="0" value="0"></div>
- <div class="field"><label>Ƙarin bayani</label><input id="note" placeholder="Na gode da ciniki"></div>
+ <div class="field"><label>Additional Notes</label><input id="note" placeholder="Thank you for your business"></div>
 </div>
 <div class="actions">
 <button class="primary" id="update" type="button">Update Receipt</button>
@@ -134,7 +288,7 @@ body{padding-bottom:94px!important}
 
 <button class="danger" id="clear" type="button">New Receipt</button>
 </div>
-<p class="small">Sai ka shiga account kafin ka ƙirƙiri ko ka adana receipt. Za ka iya sauke receipt a PNG kawai. Babu zaɓin PDF a wannan app ɗin.</p>
+<p class="small">Sign in before creating or saving a receipt. You can download receipts as PNG images. PDF downloads are not available.</p>
 <div class="history"><h2>Receipt History</h2><div id="history"></div></div>
 </section>
 <section class="card">
@@ -240,20 +394,22 @@ function render(){const d=values();$('receipt').innerHTML=`${logoData?`<div clas
 const SUPABASE_URL='https://caicmftfgrxzqdmxeshx.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_0cLxI9qxCDG4kQG_80CIxw_pp6BJ_Zv';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let currentUser=null;
+let currentUser=null; Object.defineProperty(window,'currentUser',{get:()=>currentUser});
 // Count one visit per browser tab session. This is visits, not unique people.
 try { if (!sessionStorage.getItem('machika_visit_counted')) { sb.from('site_visits').insert({}).then(({error})=>{ if(!error) sessionStorage.setItem('machika_visit_counted','1'); }); } } catch(e) { console.warn('Visit tracking unavailable',e); }
 function snapshot(){return {...values(),savedAt:new Date().toISOString()}}
 function setAuthStatus(msg,isError=false){$('authStatus').textContent=msg;$('authStatus').style.color=isError?'#b91c1c':'#475569'}
 let authMode='login';
 function setAuthMode(mode){authMode=mode;const isLogin=mode==='login';$('authHeading').textContent=isLogin?'Login to your account':'Create a new account';$('authIntro').textContent=isLogin?'Log in to use the receipt maker.':'Create an account with your email and password to get started.';$('signInBtn').style.display=isLogin&&!currentUser?'':'none';$('signUpBtn').style.display=!isLogin&&!currentUser?'':'none';$('resetBtn').style.display=isLogin&&!currentUser?'':'none';$('loginTab').className=isLogin?'primary active':'secondary';$('registerTab').className=!isLogin?'primary active':'secondary';$('authPassword').autocomplete=isLogin?'current-password':'new-password';}
-function updateAuthUI(){const signed=!!currentUser;$('adminNavBtn').hidden=!(signed && currentUser.email?.toLowerCase()==='isahtasiumachika@gmail.com');$('appArea').hidden=true;$('dashboard').hidden=!signed;$('authCard').hidden=signed;$('authTabs').style.display=signed?'none':'flex';$('signInBtn').style.display=signed?'none':(authMode==='login'?'':'none');$('signUpBtn').style.display=signed?'none':(authMode==='register'?'':'none');$('resetBtn').style.display=signed||authMode!=='login'?'none':'';$('signOutBtn').style.display=signed?'':'none';$('accountBadge').textContent=signed?('Signed in: '+currentUser.email):'Ba a shiga ba';$('authEmail').disabled=signed;$('authPassword').disabled=signed;if(signed){$('welcome').textContent='Signed in as '+currentUser.email;$('accountEmail').textContent='Account email: '+currentUser.email;showDashboardHome();$('profileBusiness').value=currentUser.user_metadata?.business_name||'';$('profilePhone').value=currentUser.user_metadata?.business_phone||'';$('profileAddress').value=currentUser.user_metadata?.business_address||'';loadProfileIntoReceipt();showHistory();showDashboardHistory()}else{$('authHeading').textContent=authMode==='login'?'Login to your account':'Create a new account';$('authIntro').textContent=authMode==='login'?'Log in to use the receipt maker.':'Create an account with your email and password to get started.';$('history').innerHTML='<p class="small">Ka shiga account domin ganin tarihin receipts ɗinka na online.</p>'}}
+function updateAuthUI(){const signed=!!currentUser;$('appArea').hidden=true;$('dashboard').hidden=!signed;$('authCard').hidden=signed;$('authTabs').style.display=signed?'none':'flex';$('signInBtn').style.display=signed?'none':(authMode==='login'?'':'none');$('signUpBtn').style.display=signed?'none':(authMode==='register'?'':'none');$('resetBtn').style.display=signed||authMode!=='login'?'none':'';$('signOutBtn').style.display=signed?'':'none';$('accountBadge').textContent=signed?('Signed in: '+currentUser.email):'Not signed in';$('authEmail').disabled=signed;$('authPassword').disabled=signed;if(signed){$('welcome').textContent='Signed in as '+currentUser.email;$('accountEmail').textContent='Account email: '+currentUser.email;showDashboardHome();checkTelegramStatus();$('profileBusiness').value=currentUser.user_metadata?.business_name||'';$('profilePhone').value=currentUser.user_metadata?.business_phone||'';$('profileAddress').value=currentUser.user_metadata?.business_address||'';loadProfileIntoReceipt();showHistory();showDashboardHistory()}else{$('authHeading').textContent=authMode==='login'?'Login to your account':'Create a new account';$('authIntro').textContent=authMode==='login'?'Log in to use the receipt maker.':'Create an account with your email and password to get started.';$('history').innerHTML='<p class="small">Sign in to view your online receipt history.</p>'}}
 function loadProfileIntoReceipt(){const m=currentUser?.user_metadata||{};if(m.business_name)$('business').value=m.business_name;if(m.business_phone)$('phone').value=m.business_phone;if(m.business_address)$('address').value=m.business_address;render()}
 function hideAdminPanel(){ $('adminPanel').hidden=true; }
-function showDashboardHome(){ $('dashboardHome').hidden=false; $('profilePanel').hidden=true; $('dashboardHistory').hidden=true; hideAdminPanel(); }
-function showDashboardProfile(){ $('dashboardHome').hidden=true; $('profilePanel').hidden=false; $('dashboardHistory').hidden=true; hideAdminPanel(); }
-function showDashboardReceipts(){ $('dashboardHome').hidden=true; $('profilePanel').hidden=true; $('dashboardHistory').hidden=false; hideAdminPanel(); }
-function showAdminPanel(){ $('dashboardHome').hidden=true; $('profilePanel').hidden=true; $('dashboardHistory').hidden=true; $('adminPanel').hidden=false; loadAdminData('stats'); }
+function hideAllDashboardPanels(){ ['dashboardHome','profilePanel','dashboardHistory','accountPanel','adminPanel'].forEach(id=>$(id).hidden=true); }
+function showDashboardHome(){ hideAllDashboardPanels(); $('dashboardHome').hidden=false; }
+function showDashboardProfile(){ hideAllDashboardPanels(); $('profilePanel').hidden=false; }
+function showDashboardReceipts(){ hideAllDashboardPanels(); $('dashboardHistory').hidden=false; }
+function showAccountPanel(){ hideAllDashboardPanels(); $('accountPanel').hidden=false; $('myAccountEmail').textContent=currentUser?.email||''; }
+function showAdminPanel(){ hideAllDashboardPanels(); $('adminPanel').hidden=false; loadAdminData('stats'); }
 async function callAdmin(action, extraData={}){
   const {data,error}=await sb.auth.getSession();
   if(error || !data.session) throw new Error('Please log in again.');
@@ -360,8 +516,8 @@ async function loadAdminData(action='stats'){
 async function saveProfile(){if(!currentUser)return;const meta={...(currentUser.user_metadata||{}),business_name:$('profileBusiness').value.trim(),business_phone:$('profilePhone').value.trim(),business_address:$('profileAddress').value.trim()};$('profileStatus').textContent='Saving profile...';const {data,error}=await sb.auth.updateUser({data:meta});if(error){$('profileStatus').textContent='Could not save: '+error.message;return}currentUser=data.user;$('profileStatus').textContent='Business profile saved to your account.';loadProfileIntoReceipt()}
 async function showDashboardHistory(){if(!currentUser)return;const {data,error}=await sb.from('receipts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);const el=$('dashboardHistoryList');if(error){el.textContent='Could not load receipts: '+error.message;return}const all=data||[];el.innerHTML=all.length?all.map((r,i)=>`<div class="history-row"><div><b>${safe(r.receipt_number)}</b><br>${safe(r.customer_name||'Customer')} · ${safe(r.receipt_date||'')}</div><div style="text-align:right"><b>₦${money(r.total)}</b><br><button class="secondary" data-dash-load="${i}" type="button">Open</button> <button class="secondary" data-dash-image="${i}" type="button">View Image</button> <button class="secondary" data-dash-download="${i}" type="button">Download PNG</button> <button class="danger" data-dash-del="${i}" type="button">Delete</button></div></div>`).join(''):'<p class="small">No saved receipts yet.</p>';el.querySelectorAll('[data-dash-load]').forEach(b=>b.onclick=()=>{loadCloudReceipt(all[Number(b.dataset.dashLoad)]);$('dashboard').hidden=true;$('appArea').hidden=false;window.scrollTo({top:0,behavior:'smooth'})});el.querySelectorAll('[data-dash-image]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.dashImage)].image_path));el.querySelectorAll('[data-dash-download]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.dashDownload)].image_path,true));el.querySelectorAll('[data-dash-del]').forEach(b=>b.onclick=async()=>{const r=all[Number(b.dataset.dashDel)];if(confirm('Delete this receipt permanently?')){const {error}=await sb.from('receipts').delete().eq('id',r.id).eq('user_id',currentUser.id);if(error)alert(error.message);else{showDashboardHistory();showHistory()}}})}
 async function signIn(){const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){setAuthStatus('Enter your email and password.',true);return}setAuthStatus('Logging in...');const {error}=await sb.auth.signInWithPassword({email,password});if(error)setAuthStatus(error.message,true)}
-async function signUp(){const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){setAuthStatus('Enter your email and password.',true);return}if(password.length<6){setAuthStatus('Password must be at least 6 characters.',true);return}setAuthStatus('Creating account...');const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin}});if(error){setAuthStatus(error.message,true);return}if(data.session){setAuthStatus('An ƙirƙiri account kuma ka shiga.')}else{setAuthStatus('A confirmation email may have been sent. Check your inbox or spam folder, confirm your email, then log in.')}}
-async function resetPassword(){const email=$('authEmail').value.trim();if(!email){setAuthStatus('Enter your email first.',true);return}setAuthStatus('Sending password reset link...');const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin});setAuthStatus(error?error.message:'Idan email ɗin yana da account, za a aika masa link na canza password. Duba inbox/spam.',!!error)}
+async function signUp(){const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){setAuthStatus('Enter your email and password.',true);return}if(password.length<6){setAuthStatus('Password must be at least 6 characters.',true);return}setAuthStatus('Creating account...');const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin}});if(error){setAuthStatus(error.message,true);return}if(data.session){setAuthStatus('Your account has been created and you are now signed in.')}else{setAuthStatus('A confirmation email may have been sent. Check your inbox or spam folder, confirm your email, then log in.')}}
+async function resetPassword(){const email=$('authEmail').value.trim();if(!email){setAuthStatus('Enter your email first.',true);return}setAuthStatus('Sending password reset link...');const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin});setAuthStatus(error?error.message:'If an account exists for this email, a password reset link will be sent. Check your inbox and spam folder.',!!error)}
 async function makeReceiptPngBlob(){
   render();
   const receipt=$('receipt');
@@ -391,17 +547,17 @@ async function save(){
   setAuthStatus('Creating receipt image and saving to your account...');
   let imagePath;
   try { imagePath=await saveReceiptImage(d.receiptNo); }
-  catch(err){ setAuthStatus('Image not saved: '+err.message,true); alert('Ba a iya ajiye hoton receipt ba. '+err.message); return; }
+  catch(err){ setAuthStatus('Image not saved: '+err.message,true); alert('Could not save the receipt image. '+err.message); return; }
   const row={user_id:currentUser.id,receipt_number:d.receiptNo,business_name:d.business,customer_name:d.customer,receipt_date:d.date||new Date().toLocaleDateString('en-CA'),items:{lines:d.items,discount:d.discount,phone:d.phone,address:d.address,payment:d.payment,note:d.note},subtotal:d.subtotal,tax:0,total:d.total,currency:'NGN',image_path:imagePath};
   const {data:existing,error:findErr}=await sb.from('receipts').select('id,image_path').eq('user_id',currentUser.id).eq('receipt_number',d.receiptNo).maybeSingle();
   if(findErr){setAuthStatus('Could not check receipt: '+findErr.message,true);alert('Could not save receipt. Check the receipts table and policies.');return}
   let result;
   if(existing){result=await sb.from('receipts').update(row).eq('id',existing.id).eq('user_id',currentUser.id)}
   else{result=await sb.from('receipts').insert(row)}
-  if(result.error){setAuthStatus('An kasa ajiye receipt: '+result.error.message,true);alert('Could not save receipt details: '+result.error.message+' If it mentions image_path, run the SQL setup instructions first.');return}
-  await showHistory();await showDashboardHistory();$('appArea').hidden=true;$('dashboard').hidden=false;setAuthStatus('Receipt and PNG image saved to your online account.');alert('An ajiye receipt da hotonsa a account ɗinka. Za ka iya sake buɗe shi idan ka dawo.');
+  if(result.error){setAuthStatus('Could not save receipt: '+result.error.message,true);alert('Could not save receipt details: '+result.error.message+' If it mentions image_path, run the SQL setup instructions first.');return}
+  await showHistory();await showDashboardHistory();$('appArea').hidden=true;$('dashboard').hidden=false;setAuthStatus('Receipt and PNG image saved to your online account.');alert('The receipt and its image have been saved to your account. You can view them again when you return.');
 }
-async function showHistory(){if(!currentUser){$('history').innerHTML='<p class="small">Ka shiga account domin ganin tarihin receipts ɗinka na online.</p>';return}const {data,error}=await sb.from('receipts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);if(error){$('history').innerHTML='<p class="small">An kasa ɗauko tarihin: '+safe(error.message)+'</p>';return}const all=data||[];$('history').innerHTML=all.length?all.map((x,i)=>`<div class="history-row"><div><b>${safe(x.receipt_number)}</b><br>${safe(x.customer_name||'Customer')} · ${safe(x.receipt_date||'')}</div><div style="text-align:right"><b>₦${money(x.total)}</b><br><button class="secondary" style="padding:5px 8px;margin-top:4px" data-load="${i}">Buɗe</button> <button class="secondary" style="padding:5px 8px;margin-top:4px" data-image="${i}">Hoto</button> <button class="secondary" style="padding:5px 8px;margin-top:4px" data-download="${i}">Download PNG</button> <button class="danger" style="padding:5px 8px;margin-top:4px" data-del="${i}">×</button></div></div>`).join(''):'<p class="small">Babu receipt a cloud account ɗinka tukuna.</p>';document.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadCloudReceipt(all[Number(b.dataset.load)]));document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.image)].image_path));document.querySelectorAll('[data-download]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.download)].image_path,true));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=all[Number(b.dataset.del)];if(confirm('Permanently delete this receipt from your cloud account?')){const {error}=await sb.from('receipts').delete().eq('id',r.id).eq('user_id',currentUser.id);if(error){alert('Could not delete receipt: '+error.message)}else{await showHistory();setAuthStatus('Receipt deleted.')}}})}
+async function showHistory(){if(!currentUser){$('history').innerHTML='<p class="small">Sign in to view your online receipt history.</p>';return}const {data,error}=await sb.from('receipts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);if(error){$('history').innerHTML='<p class="small">Could not load receipt history: '+safe(error.message)+'</p>';return}const all=data||[];$('history').innerHTML=all.length?all.map((x,i)=>`<div class="history-row"><div><b>${safe(x.receipt_number)}</b><br>${safe(x.customer_name||'Customer')} · ${safe(x.receipt_date||'')}</div><div style="text-align:right"><b>₦${money(x.total)}</b><br><button class="secondary" style="padding:5px 8px;margin-top:4px" data-load="${i}">Open</button> <button class="secondary" style="padding:5px 8px;margin-top:4px" data-image="${i}">View Image</button> <button class="secondary" style="padding:5px 8px;margin-top:4px" data-download="${i}">Download PNG</button> <button class="danger" style="padding:5px 8px;margin-top:4px" data-del="${i}">×</button></div></div>`).join(''):'<p class="small">No receipts have been saved to your cloud account yet.</p>';document.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadCloudReceipt(all[Number(b.dataset.load)]));document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.image)].image_path));document.querySelectorAll('[data-download]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.download)].image_path,true));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=all[Number(b.dataset.del)];if(confirm('Permanently delete this receipt from your cloud account?')){const {error}=await sb.from('receipts').delete().eq('id',r.id).eq('user_id',currentUser.id);if(error){alert('Could not delete receipt: '+error.message)}else{await showHistory();setAuthStatus('Receipt deleted.')}}})}
 function loadCloudReceipt(r){if(!r)return;const meta=r.items&&typeof r.items==='object'&&!Array.isArray(r.items)?r.items:{};const lines=Array.isArray(meta.lines)?meta.lines:(Array.isArray(r.items)?r.items:[]);const d={business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',items:lines};loadReceipt(d)}
 function loadReceipt(d){if(!d)return;['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>{if($(k))$(k).value=d[k]??''});$('items').innerHTML='';(d.items||[]).forEach(x=>addItem(x.name,x.qty,x.price));if(!$('items').children.length)addItem();render()}
 function clearForm(){['customer','note'].forEach(k=>$(k).value='');$('discount').value=0;$('receiptNo').value=nextNo();$('date').value=new Date().toLocaleDateString('en-CA');$('payment').value='Cash';$('items').innerHTML='';addItem();render()}
@@ -483,7 +639,7 @@ async function generateTelegramLinkCode(){
     if (!data || !data.code) throw new Error(data?.error || 'The linking service did not return a code.');
     $('telegramLinkCode').textContent = data.code;
     $('telegramStartCommand').textContent = '/link ' + data.code;
-    const botUsername = (data.bot_username || '').replace(/^@/, '');
+    const botUsername = (data.bot_username || 'MachikaReceiptBot').replace(/^@/, '');
     const botLink = $('telegramOpenBot');
     if (botUsername) {
       botLink.href = 'https://t.me/' + encodeURIComponent(botUsername);
@@ -492,7 +648,8 @@ async function generateTelegramLinkCode(){
       botLink.hidden = true;
     }
     result.hidden = false;
-    status.textContent = 'Link code generated. It expires in ' + (data.expires_in_minutes || 10) + ' minutes. Send the command to your Machika Telegram bot to finish linking.';
+    status.textContent = 'Link code generated. It expires in ' + (data.expires_in_minutes || 10) + ' minutes. Open the bot and send the command shown above to finish linking.';
+    checkTelegramStatus();
   } catch (err) {
     console.error('Telegram link code error:', err);
     status.textContent = err?.message || 'Could not generate a Telegram link code. Please try again.';
@@ -501,7 +658,9 @@ async function generateTelegramLinkCode(){
   }
 }
 $('telegramConnectBtn').onclick=generateTelegramLinkCode;
-$('telegramDisconnectBtn').onclick=disconnectTelegram;$('adminNavBtn').onclick=showAdminPanel;$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('newReceiptBtn').onclick=()=>{if(!currentUser)return;$('dashboard').hidden=true;$('appArea').hidden=false;loadProfileIntoReceipt();clearForm();window.scrollTo({top:0,behavior:'smooth'})};$('showHistoryBtn').onclick=()=>{showDashboardReceipts();showDashboardHistory()};$('showProfileBtn').onclick=()=>showDashboardProfile();$('dashboardHomeBtn').onclick=()=>showDashboardHome();$('dashboardLogoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
+$('telegramDisconnectBtn').onclick=disconnectTelegram;
+setInterval(()=>{if(currentUser && $('telegramLinkResult') && !$('telegramLinkResult').hidden)checkTelegramStatus();},5000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden && currentUser)checkTelegramStatus();});$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
 ['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>$(k).addEventListener('input',render));
 $('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();render();setAuthMode('login');
 $('loginTab').onclick=()=>{setAuthMode('login');updateAuthUI()};$('registerTab').onclick=()=>{setAuthMode('register');updateAuthUI()};$('signInBtn').onclick=signIn;$('signUpBtn').onclick=signUp;$('resetBtn').onclick=resetPassword;$('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};
@@ -512,7 +671,7 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
 <script>
 // MACHIKA RECEIPT URL routing and visible Back button.
 (function(){
-  const routePaths=['/','/login','/register','/dashboard','/profile','/create-receipt','/my-receipts','/admins','/account'];
+  const routePaths=['/','/login','/register','/dashboard','/profile','/create-receipt','/my-receipts','/admin','/account'];
   function routePath(){const p=(location.pathname||'/').replace(/\/+$/,'')||'/';return routePaths.includes(p)?p:'/';}
   function go(path, replace=false){if(replace)history.replaceState({machika:true},'',path);else if(location.pathname!==path)history.pushState({machika:true},'',path);renderRoute();}
   window.goToMachikaRoute=(path)=>go(path);
@@ -521,9 +680,10 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
     const path=routePath();
     if(!currentUser && ['/dashboard','/profile','/create-receipt','/my-receipts','/admin','/account'].includes(path)){go('/login',true);return;}
     if(currentUser && (path==='/'||path==='/login'||path==='/register')){go('/dashboard',true);return;}
-    if(!currentUser && path==='/'){go('/login',true);return;}
-    $('authCard').hidden=true;$('dashboard').hidden=true;$('appArea').hidden=true;
-    if(path==='/login'||path==='/register'){
+    $('landingPage').hidden=true;$('authCard').hidden=true;$('dashboard').hidden=true;$('appArea').hidden=true;
+    if(path==='/'){
+      $('landingPage').hidden=false;$('siteBackBtn').style.display='none';
+    }else if(path==='/login'||path==='/register'){
       $('authCard').hidden=false;$('dashboard').hidden=true;$('appArea').hidden=true;
       setAuthMode(path==='/register'?'register':'login');updateAuthUI();$('authCard').hidden=false;$('dashboard').hidden=true;$('appArea').hidden=true;
     }else if(path==='/create-receipt'){
@@ -532,12 +692,12 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
       $('dashboard').hidden=false;
       if(path==='/profile')showDashboardProfile();
       else if(path==='/my-receipts'){showDashboardReceipts();showDashboardHistory();}
-      else if(path==='/account'){showDashboardHome();}
+      else if(path==='/account'){showAccountPanel();}
       else if(path==='/admin'){
         if(isSuperAdmin())showAdminPanel();else{showDashboardHome();setAuthStatus('You do not have permission to access Super Admin.',true);go('/dashboard',true);return;}
       }else showDashboardHome();
     }
-    const b=$('siteBackBtn'); if(b)b.style.display=(path==='/login'||path==='/register')?'none':'block';
+    const b=$('siteBackBtn'); if(b)b.style.display=(path==='/'||path==='/login'||path==='/register')?'none':'block';
   }
   $('siteBackBtn').addEventListener('click',function(){
     const p=routePath();
@@ -550,12 +710,10 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
   window.addEventListener('popstate',renderRoute);
   $('loginTab').onclick=()=>go('/login');
   $('registerTab').onclick=()=>go('/register');
-  $('dashboardHomeBtn').onclick=()=>go('/dashboard');
-  $('showProfileBtn').onclick=()=>go('/profile');
-  $('showHistoryBtn').onclick=()=>go('/my-receipts');
-  $('newReceiptBtn').onclick=()=>{if(!currentUser)return;go('/create-receipt');clearForm();};
-  $('adminNavBtn').onclick=()=>go('/admin');
-  $('dashboardLogoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true);else go('/login',true);};
+  document.querySelectorAll('[data-landing-route]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();go(a.dataset.landingRoute);}));
+  document.querySelector('.landing-logo')?.addEventListener('click',e=>{e.preventDefault();go('/');});
+  
+  
   $('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true);else go('/login',true);};
   const priorAuthHandler=sb.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;setTimeout(renderRoute,0);});
   sb.auth.getSession().then(({data})=>{currentUser=data?.session?.user||null;renderRoute();});
@@ -585,10 +743,7 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
  }
  items.forEach(b=>b.addEventListener('click',()=>{
    const target=b.dataset.path;
-   if(target==='/account'){
-     // Account currently uses the existing account dashboard and keeps the original authentication controls.
-     if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute('/dashboard');else location.href='/dashboard';
-   }else if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute(target);else location.href=target;
+   if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute(target);else location.href=target;
  }));
  window.addEventListener('popstate',refresh);
  document.addEventListener('visibilitychange',refresh);
@@ -597,5 +752,37 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
  setInterval(refresh,700);
 })();
 </script>
+
+<script id="machika-sidebar-script">
+(function(){
+ const side=document.getElementById('machikaSidebar'); if(!side)return;
+ const links=[...side.querySelectorAll('[data-side-path]')];
+ function refresh(){
+  const signed=!!(document.getElementById('accountBadge')?.textContent||'').startsWith('Signed in:');
+  const path=(location.pathname.replace(/\/+$/,'')||'/');
+  const allowed=signed && !['/login','/register','/'].includes(path);
+  side.style.display=allowed?'flex':'none';
+  const toggle=document.getElementById('mobileSidebarToggle');
+  if(toggle) toggle.style.display=(allowed && window.matchMedia('(max-width: 899px)').matches)?'inline-flex':'none';
+  if(!allowed) closeDrawer();
+  const admin=document.getElementById('sidebarAdminBtn');
+  if(admin)admin.hidden=!(window.currentUser && window.currentUser.email && window.currentUser.email.toLowerCase()==='isahtasiumachika@gmail.com');
+  links.forEach(b=>{const target=b.dataset.sidePath;const active=target===path||(target==='/account'&&path==='/account');b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});
+ }
+ function closeDrawer(){document.body.classList.remove('machika-sidebar-open');document.getElementById('mobileSidebarToggle')?.setAttribute('aria-expanded','false');}
+ const toggle=document.getElementById('mobileSidebarToggle');
+ toggle?.addEventListener('click',()=>{const open=!document.body.classList.contains('machika-sidebar-open');document.body.classList.toggle('machika-sidebar-open',open);toggle.setAttribute('aria-expanded',String(open));});
+ document.getElementById('machikaSidebarOverlay')?.addEventListener('click',closeDrawer);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+ links.forEach(b=>b.addEventListener('click',()=>{const target=b.dataset.sidePath;closeDrawer();if(target&&typeof window.goToMachikaRoute==='function')window.goToMachikaRoute(target);else if(target)location.href=target;}));
+ document.getElementById('sidebarLogoutBtn')?.addEventListener('click',async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true);else if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute('/login',true);});
+ document.getElementById('accountLogoutBtn')?.addEventListener('click',async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true);else if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute('/login',true);});
+ window.addEventListener('popstate',refresh);window.addEventListener('resize',refresh);document.addEventListener('visibilitychange',refresh);
+ const badge=document.getElementById('accountBadge');if(badge)new MutationObserver(refresh).observe(badge,{childList:true,characterData:true,subtree:true});
+ const adminBtn=document.getElementById('adminNavBtn');if(adminBtn)new MutationObserver(refresh).observe(adminBtn,{attributes:true,attributeFilter:['hidden']});
+ setInterval(refresh,700);refresh();
+})();
+</script>
+
 </body>
 </html>
