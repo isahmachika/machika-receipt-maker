@@ -512,7 +512,7 @@ sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,
 <script>
 // MACHIKA RECEIPT URL routing and visible Back button.
 (function(){
-  const routePaths=['/','/login','/register','/dashboard','/profile','/create-receipt','/my-receipts','/admin','/account'];
+  const routePaths=['/','/login','/register','/dashboard','/profile','/create-receipt','/my-receipts','/admins','/account'];
   function routePath(){const p=(location.pathname||'/').replace(/\/+$/,'')||'/';return routePaths.includes(p)?p:'/';}
   function go(path, replace=false){if(replace)history.replaceState({machika:true},'',path);else if(location.pathname!==path)history.pushState({machika:true},'',path);renderRoute();}
   window.goToMachikaRoute=(path)=>go(path);
