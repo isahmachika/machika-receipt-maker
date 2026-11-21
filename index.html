@@ -2,967 +2,451 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#123b70">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1230">
 <title>Machika Receipt Maker</title>
-<style>
-:root{--ink:#172033;--muted:#64748b;--line:#dbe2ea;--brand:#175cd3;--bg:#f2f6fc;--navy:#123b70;--accent:#19a7a1}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:linear-gradient(120deg,#102a56,#175cd3);color:#fff;padding:22px max(18px,calc((100% - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 6px 24px #102a5625}
-header h1{font-size:clamp(20px,3vw,27px);margin:0 0 5px;letter-spacing:-.4px}header p{margin:0;color:#d7e5ff;font-size:13px}header .brandmark{display:flex;align-items:center;gap:12px}header .brand-icon{width:44px;height:44px;border-radius:13px;background:#ffffff20;border:1px solid #ffffff55;display:grid;place-items:center;font-size:23px;font-weight:800}
-.wrap{max-width:1200px;margin:22px auto;padding:0 14px;display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1fr);gap:20px}
-.card{background:white;border:1px solid var(--line);border-radius:18px;padding:clamp(15px,2.5vw,24px);box-shadow:0 8px 28px #14213d0b;min-width:0}
-h2{font-size:18px;margin:0 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:12px}.field.full{grid-column:1/-1}
-label{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px}
-input,select,textarea{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;font-size:14px;background:white;color:var(--ink);min-width:0}input:focus,select:focus{border-color:#175cd3;outline:2px solid #175cd322}
-button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer;font-size:14px;transition:transform .15s,filter .15s}button:hover{filter:brightness(.97);transform:translateY(-1px)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
-.primary{background:var(--brand);color:white}.secondary{background:#e8eef8;color:#19345d}.danger{background:#fee2e2;color:#991b1b}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.items-head,.item-row{display:grid;grid-template-columns:2fr .65fr 1fr 34px;gap:7px;align-items:center}.items-head{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:6px}.item-row{margin-bottom:8px}.item-row input{padding:9px 7px;min-width:0}.remove{padding:8px 0}
-.small{font-size:12px;color:var(--muted);line-height:1.5}.preview{border:1px dashed #cbd5e1;border-radius:14px;background:#f8fafc;padding:clamp(8px,2vw,18px);min-height:320px;overflow:visible}.receipt{width:100%;max-width:420px;min-width:0;margin:0 auto;background:#fff;padding:12px;color:#111;overflow:visible}.receipt table{width:100%;table-layout:fixed;word-break:normal}.receipt th,.receipt td{overflow-wrap:anywhere;word-break:normal}.receipt th:first-child,.receipt td:first-child{width:34%}.receipt th:nth-child(2),.receipt td:nth-child(2){width:12%}.receipt th:nth-child(3),.receipt td:nth-child(3){width:24%}.receipt th:nth-child(4),.receipt td:nth-child(4){width:30%}
-.receipt{max-width:100%;margin:auto;color:#111;font-family:Arial,sans-serif}.receipt h3{text-align:center;margin:0 0 5px;font-size:21px;overflow-wrap:anywhere}.center{text-align:center}.receipt .meta{font-size:12px;text-align:center;white-space:pre-line;line-height:1.5}.receipt hr{border:0;border-top:1px dashed #555;margin:12px 0}.receipt table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:12px}.receipt th{text-align:left;border-bottom:1px solid #222;padding:6px 3px;overflow-wrap:anywhere}.receipt td{padding:7px 3px;vertical-align:top;overflow-wrap:anywhere}.receipt th:first-child,.receipt td:first-child{width:34%;text-align:left}.receipt th:nth-child(2),.receipt td:nth-child(2){width:12%;text-align:right}.receipt th:nth-child(3),.receipt td:nth-child(3){width:24%;text-align:right}.receipt th:nth-child(4),.receipt td:nth-child(4){width:30%;text-align:right}.num{text-align:right;white-space:normal;font-variant-numeric:tabular-nums}.total{font-weight:700;font-size:16px}.receipt .foot{text-align:center;font-size:12px;margin-top:16px;white-space:pre-line}
-.history{margin-top:18px}
-.auth-tabs{display:flex;gap:8px;margin:14px 0}.auth-tabs button{flex:1}.auth-tabs .active{background:var(--brand);color:#fff}.auth-panel{margin-top:10px}.signed-out-note{padding:14px;border-radius:12px;background:#eff6ff;color:#1e3a8a;font-size:13px}
-#appArea[hidden],#authCard[hidden]{display:none!important}.history-row{padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;gap:10px;font-size:13px}
-footer{text-align:center;padding:8px 14px 24px;color:var(--muted);font-size:12px}
-@media(max-width:800px){.wrap{grid-template-columns:1fr;margin:14px auto}.grid{grid-template-columns:1fr 1fr}.card{border-radius:14px}}@media(max-width:480px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.items-head,.item-row{grid-template-columns:minmax(95px,1.7fr) minmax(48px,.65fr) minmax(85px,1fr) 30px;gap:5px}.items-head{font-size:10px}.item-row input{font-size:12px;padding:9px 5px}.actions button{flex:1 1 140px}.preview{padding:10px}.receipt table{font-size:11px}}
-
-
-#siteBackBtn{display:block} @media print{#siteBackBtn{display:none}}
-
-.button-link{display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;background:#229ED9;color:#fff;font-weight:600}
-#telegramConnectCard{border:1px solid #d7e2ee;border-radius:12px;background:#f8fbff}
-#telegramLinkResult{margin-top:12px;padding:12px;border-radius:8px;background:#eef7ff}
-</style>
-
-<style id="machika-bottom-nav-style">
-body{padding-bottom:94px!important}
-#machikaBottomNav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-top:1px solid #eee;box-shadow:0 -8px 28px rgba(31,35,80,.10);padding:9px max(8px,env(safe-area-inset-left)) calc(9px + env(safe-area-inset-bottom));grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;font-family:inherit}
-#machikaBottomNav .nav-item{border:0;background:transparent;color:#193a91;min-width:0;border-radius:999px;text-decoration:none;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:7px;padding:12px 5px;font-size:clamp(10px,2.8vw,15px);font-weight:700;white-space:nowrap;overflow:hidden}
-#machikaBottomNav .nav-item .nav-icon{font-size:clamp(21px,5vw,31px);line-height:1;flex-shrink:0}
-#machikaBottomNav .nav-item .nav-label{overflow:hidden;text-overflow:ellipsis}
-#machikaBottomNav .nav-item.active{background:#e8e2f7;color:#3510b5;padding-left:10px;padding-right:10px}
-#machikaBottomNav .nav-item:not(.active) .nav-label{display:none}
-#machikaBottomNav .nav-item.active .nav-label{display:inline}
-#siteBackBtn{margin-bottom:8px!important}
-@media(min-width:700px){#machikaBottomNav{left:50%;right:auto;transform:translateX(-50%);width:min(760px,calc(100% - 40px));border:1px solid #eee;border-radius:22px 22px 0 0}body{padding-bottom:100px!important}}
-@media print{#machikaBottomNav{display:none!important}body{padding-bottom:0!important}}
-</style>
-
-<style id="machika-sidebar-style">
-#machikaSidebar{display:none}
-#mobileSidebarToggle{display:none;background:#ffffff20;color:#fff;border:1px solid #ffffff55;border-radius:10px;padding:9px 12px;font-size:20px;line-height:1;min-width:44px}
-#machikaSidebarOverlay{display:none}
-@media(max-width:899px){
- #mobileSidebarToggle{display:none;align-items:center;justify-content:center}
- #machikaSidebar{display:flex;position:fixed;inset:0 auto 0 0;width:min(290px,82vw);z-index:3001;background:linear-gradient(180deg,#102a56 0%,#123b70 58%,#175cd3 100%);color:#fff;padding:24px 15px;flex-direction:column;box-shadow:8px 0 28px #102a5640;transform:translateX(-105%);transition:transform .22s ease;visibility:hidden;display:flex!important}
- body.machika-sidebar-open #machikaSidebar{transform:translateX(0);visibility:visible}
- #machikaSidebar .side-brand{display:flex;align-items:center;gap:11px;padding:4px 8px 25px;border-bottom:1px solid #ffffff25;margin-bottom:20px}
- #machikaSidebar .side-logo{width:42px;height:42px;border-radius:13px;background:#ffffff20;border:1px solid #ffffff45;display:grid;place-items:center;font-size:22px;font-weight:800}
- #machikaSidebar .side-title{font-size:16px;font-weight:800;line-height:1.25}
- #machikaSidebar .side-sub{font-size:11px;color:#cbdcff;margin-top:4px}
- #machikaSidebar .side-section{font-size:10px;letter-spacing:1.4px;color:#a9c7f7;font-weight:800;padding:0 11px 9px}
- #machikaSidebar .side-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:3px 0;padding:12px 13px;border-radius:11px;background:transparent;color:#eaf2ff;font-size:13px;font-weight:700}
- #machikaSidebar .side-link:hover,#machikaSidebar .side-link.active{background:#ffffff20;color:#fff}
- #machikaSidebar .side-icon{width:22px;text-align:center;font-size:17px}
- #machikaSidebar .side-spacer{flex:1}
- #machikaSidebar .side-logout{background:#ffffff16;color:#fff}
- #machikaSidebarOverlay{position:fixed;inset:0;background:#081a33a8;z-index:3000}
- body.machika-sidebar-open #machikaSidebarOverlay{display:block}
- body.machika-sidebar-open{overflow:hidden}
-}
-@media(min-width:900px){
- body{padding-bottom:0!important;padding-left:264px!important}
- #machikaSidebar{display:flex;position:fixed;inset:0 auto 0 0;width:244px;z-index:1000;background:linear-gradient(180deg,#102a56 0%,#123b70 58%,#175cd3 100%);color:#fff;padding:24px 15px;flex-direction:column;box-shadow:8px 0 28px #102a5618}
- #machikaSidebar .side-brand{display:flex;align-items:center;gap:11px;padding:4px 8px 25px;border-bottom:1px solid #ffffff25;margin-bottom:20px}
- #machikaSidebar .side-logo{width:42px;height:42px;border-radius:13px;background:#ffffff20;border:1px solid #ffffff45;display:grid;place-items:center;font-size:22px;font-weight:800}
- #machikaSidebar .side-title{font-size:16px;font-weight:800;line-height:1.25}
- #machikaSidebar .side-sub{font-size:11px;color:#cbdcff;margin-top:4px}
- #machikaSidebar .side-section{font-size:10px;letter-spacing:1.4px;color:#a9c7f7;font-weight:800;padding:0 11px 9px}
- #machikaSidebar .side-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:3px 0;padding:12px 13px;border-radius:11px;background:transparent;color:#eaf2ff;font-size:13px;font-weight:700}
- #machikaSidebar .side-link:hover,#machikaSidebar .side-link.active{background:#ffffff20;color:#fff}
- #machikaSidebar .side-icon{width:22px;text-align:center;font-size:17px}
- #machikaSidebar .side-spacer{flex:1}
- #machikaSidebar .side-logout{background:#ffffff16;color:#fff}
- header{padding-left:30px;padding-right:30px}
- #dashboard{max-width:1200px!important;margin:22px 24px!important}
- .wrap{max-width:1400px;margin:22px 24px}
- #machikaBottomNav{display:none!important}
- #siteBackBtn{margin-left:24px!important}
-}
-@media print{#machikaSidebar{display:none!important}}
-</style>
-
-
-<style id="machika-landing-style">
-#landingPage[hidden]{display:none!important}
-#landingPage{max-width:1200px;margin:0 auto;padding:28px 18px 12px;color:#10284b}
-.landing-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:4px 0 34px}
-.landing-logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:#10284b}
-.landing-logo-mark{width:52px;height:52px;display:grid;place-items:center;color:#1764dc}
-.landing-logo-mark svg{width:100%;height:100%}
-.landing-logo-text strong{display:block;font-size:25px;line-height:1.05;letter-spacing:-.7px}
-.landing-logo-text span{display:block;font-size:18px;font-weight:800;color:#1764dc;margin-top:3px}
-.landing-nav-actions{display:flex;align-items:center;gap:9px}
-.landing-nav-actions a,.landing-cta{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;border-radius:999px;padding:12px 19px;font-weight:800}
-.landing-login{color:#174078;background:#edf3fc;border:1px solid #d7e3f4}
-.landing-register,.landing-cta{background:#1764dc;color:white;box-shadow:0 8px 20px #1764dc2a}
-.landing-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);align-items:center;gap:35px;min-height:500px}
-.landing-kicker{font-size:15px;color:#25466f;letter-spacing:.3px;margin:0 0 17px}
-.landing-copy h2{font-size:clamp(36px,5vw,61px);line-height:1.08;letter-spacing:-1.8px;margin:0 0 20px;color:#10284b}
-.landing-copy h2 span{color:#1764dc}
-.landing-copy>p{font-size:clamp(17px,2vw,21px);line-height:1.55;color:#475569;margin:0 0 27px;max-width:560px}
-.landing-features{display:grid;grid-template-columns:1fr 1fr;gap:22px 18px;margin:28px 0 30px}
-.landing-feature{display:flex;align-items:flex-start;gap:12px}
-.landing-feature-icon{width:48px;height:48px;flex:0 0 48px;border-radius:50%;background:#1764dc;color:white;display:grid;place-items:center;font-size:22px;font-weight:800}
-.landing-feature strong{display:block;font-size:16px;color:#10284b;margin:2px 0 5px}
-.landing-feature small{font-size:13px;line-height:1.4;color:#64748b}
-.landing-cta{font-size:18px;padding:15px 24px}
-.landing-url{display:block;margin-top:13px;color:#123b70;font-weight:700;font-size:14px;overflow-wrap:anywhere}
-.landing-visual{position:relative;min-height:465px;border-radius:30px;background:linear-gradient(140deg,#eaf3ff 0%,#d9e9ff 55%,#1764dc 55%,#1553b7 100%);padding:28px 24px 20px;overflow:hidden;box-shadow:0 20px 50px #153b7020}
-.landing-slogan{position:absolute;right:25px;top:15px;color:white;font-size:clamp(18px,2.4vw,27px);font-weight:800;font-style:italic;text-align:right;max-width:210px;line-height:1.2}
-.mock-laptop{position:absolute;left:7%;right:5%;top:85px;height:290px;background:#14243b;border:8px solid #26364d;border-bottom-width:15px;border-radius:18px 18px 12px 12px;box-shadow:0 18px 25px #0d244455;transform:perspective(900px) rotateY(-5deg)}
-.mock-screen{height:100%;background:#f8fbff;border-radius:6px;padding:13px;display:grid;grid-template-columns:26% 1fr 1fr;gap:10px;overflow:hidden}
-.mock-menu{background:#eaf1fb;border-radius:8px;padding:9px 6px;font-size:9px;color:#28466e}
-.mock-menu b{display:block;font-size:12px;color:#123b70;margin-bottom:14px}
-.mock-menu span{display:block;padding:7px 4px;border-radius:5px;margin:4px 0}
-.mock-menu span:first-of-type{background:#1764dc;color:white}
-.mock-form,.mock-receipt{background:white;border:1px solid #dce5f0;border-radius:8px;padding:10px;color:#1d2939;font-size:9px}
-.mock-form h4,.mock-receipt h4{font-size:12px;margin:0 0 10px}
-.mock-input{border:1px solid #dce5f0;border-radius:4px;padding:7px;margin:5px 0 9px;color:#64748b}
-.mock-blue{background:#1764dc;color:#fff;text-align:center;border-radius:5px;padding:7px;margin-top:9px;font-weight:bold}
-.mock-receipt{text-align:center;padding:12px 9px;border-style:dashed}
-.mock-receipt .receipt-lines{border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;margin:10px 0;padding:8px 0;text-align:left;line-height:2}
-.mock-phone{position:absolute;z-index:2;left:2%;bottom:35px;width:135px;height:230px;border:7px solid #182338;border-radius:24px;background:#fff;padding:10px 7px;box-shadow:0 12px 24px #10284b55}
-.mock-phone-inner{border-radius:13px;background:#fff;height:100%;padding:12px 5px;text-align:center;font-size:8px;color:#172033}
-.mock-phone-inner b{display:block;font-size:12px;margin:7px 0}
-.mock-phone-inner .receipt-lines{text-align:left;border-top:1px dashed #64748b;border-bottom:1px dashed #64748b;margin-top:12px;padding:7px 0;line-height:2}
-.landing-bottom-caption{position:absolute;right:22px;bottom:20px;color:white;font-weight:800;text-align:right;font-size:17px;line-height:1.25}
-.landing-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:40px 0 20px}
-.landing-benefit{background:white;border:1px solid #e2eaf5;border-radius:16px;padding:19px;text-align:center;box-shadow:0 8px 25px #10284b08}
-.landing-benefit b{display:block;color:#123b70;margin:8px 0 5px}.landing-benefit span{font-size:13px;color:#64748b;line-height:1.4}
-#landingPage~#siteFooter{margin-top:22px}
-@media(max-width:850px){#landingPage{padding:18px 14px}.landing-hero{grid-template-columns:1fr;gap:24px}.landing-copy h2{font-size:clamp(36px,9vw,54px)}.landing-visual{min-height:420px}.mock-laptop{top:80px;height:260px}.mock-phone{bottom:25px}.landing-benefits{margin-top:25px}}
-@media(max-width:520px){.landing-nav{margin-bottom:26px}.landing-logo-mark{width:42px;height:42px}.landing-logo-text strong{font-size:20px}.landing-logo-text span{font-size:15px}.landing-nav-actions a{padding:10px 12px;font-size:12px}.landing-features{gap:17px 10px}.landing-feature{gap:8px}.landing-feature-icon{width:39px;height:39px;flex-basis:39px;font-size:18px}.landing-feature strong{font-size:13px}.landing-feature small{font-size:11px}.landing-cta{font-size:16px;width:100%}.landing-visual{min-height:350px;padding:15px}.mock-laptop{left:8%;right:3%;top:83px;height:210px;border-width:6px;border-bottom-width:12px}.mock-screen{padding:7px;gap:5px;grid-template-columns:24% 1fr 1fr}.mock-menu{font-size:6px;padding:5px 3px}.mock-menu b{font-size:8px;margin-bottom:8px}.mock-menu span{padding:5px 2px}.mock-form,.mock-receipt{padding:6px;font-size:6px}.mock-form h4,.mock-receipt h4{font-size:8px}.mock-input{padding:4px;margin:3px 0 5px}.mock-blue{padding:5px}.mock-phone{width:105px;height:180px;left:1%;bottom:23px;border-width:5px;padding:6px}.mock-phone-inner{font-size:6px;padding:8px 3px}.mock-phone-inner b{font-size:9px}.landing-slogan{font-size:16px;right:12px;top:12px;max-width:145px}.landing-bottom-caption{font-size:12px;right:12px;bottom:15px}.landing-benefits{grid-template-columns:1fr;gap:10px}.landing-benefit{display:flex;align-items:center;text-align:left;gap:12px;padding:13px}.landing-benefit b{margin:0 0 3px}}
-</style>
-
-<!-- FULL REDESIGN: visual layer only. No IDs, scripts, routes or features were changed. #receipt is not restyled, so PNG output stays identical. -->
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style id="machika-redesign">
-:root{
- --ink:#111827;--muted:#6b7280;--line:#e7e9f2;--brand:#4f46e5;--brand2:#7c3aed;--brand-soft:#eef0ff;--bg:#f5f6fb;--navy:#161a3a;--accent:#10b981;
- --r:22px;--sh1:0 1px 2px rgba(17,24,39,.04),0 6px 20px rgba(40,44,110,.06);--sh2:0 2px 6px rgba(17,24,39,.05),0 22px 50px rgba(40,44,110,.14);--ring:0 0 0 4px rgba(79,70,229,.16);
- --grad:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%)
-}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{font-family:"Plus Jakarta Sans",Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif!important;background:radial-gradient(900px 480px at 8% -10%,#e4e6ff 0%,transparent 60%),radial-gradient(800px 460px at 100% 0%,#e3f8f0 0%,transparent 55%),var(--bg)!important;background-attachment:fixed;color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
-button,input,select,textarea{font-family:inherit}
-
-/* ---------- Header ---------- */
-header{background:rgba(255,255,255,.82)!important;backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);color:var(--ink)!important;box-shadow:0 1px 0 var(--line)!important;position:sticky;top:0;z-index:900;padding-top:14px!important;padding-bottom:14px!important}
-header h1{font-weight:800!important;letter-spacing:-.5px!important;font-size:clamp(18px,2.6vw,23px)!important;margin:0 0 2px!important;color:var(--navy)}
-header p{color:var(--muted)!important;font-size:12.5px!important}
-header .brand-icon{background:var(--grad)!important;border:0!important;color:#fff;border-radius:14px!important;box-shadow:0 8px 18px rgba(79,70,229,.35)}
-#accountBadge{background:var(--brand-soft)!important;border:1px solid #dcdfff!important;color:#3730a3;font-weight:700;padding:8px 14px!important;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#mobileSidebarToggle{background:var(--brand-soft)!important;color:var(--brand)!important;border:1px solid #dcdfff!important}
-
-/* ---------- Typography ---------- */
-h2{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--navy);display:flex;align-items:center;gap:10px;margin:0 0 16px}
-h2::before{content:"";width:6px;height:20px;border-radius:6px;background:var(--grad);flex:0 0 6px}
-#authHeading::before,.landing-copy h2::before,.legal-dialog-head h2::before{display:none}
-#dashboard h3,.legal-content h3{color:var(--navy);letter-spacing:-.2px}
-.small{color:var(--muted)!important}
-code{background:var(--brand-soft);color:#3730a3;border-radius:8px;padding:4px 9px;font-size:13px;font-weight:700}
-
-/* ---------- Cards ---------- */
-.card{border:1px solid var(--line)!important;border-radius:var(--r)!important;box-shadow:var(--sh1)!important;background:#fff}
-.wrap{gap:24px!important}
-.wrap>.card{padding:clamp(18px,2.6vw,28px)}
-#dashboard{box-shadow:var(--sh2)!important;padding:clamp(18px,3vw,32px)!important}
-#dashboard .card{box-shadow:none!important;background:#fafbff}
-
-/* ---------- Forms ---------- */
-label{color:#374151;font-weight:700;font-size:12.5px;letter-spacing:.1px}
-input,select,textarea{border:1.5px solid #e3e6ef!important;border-radius:14px!important;padding:13px 14px!important;background:#f9fafc!important;font-size:14.5px!important;color:var(--ink);transition:border-color .15s,box-shadow .15s,background .15s;outline:none!important}
-input:hover,select:hover{border-color:#c9cee0!important}
-input:focus,select:focus,textarea:focus{border-color:var(--brand)!important;background:#fff!important;box-shadow:var(--ring)!important}
-input::placeholder{color:#a3a9bd}
-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 14px center!important;padding-right:38px!important}
-input[type=file]{padding:12px!important;border-style:dashed!important;background:var(--brand-soft)!important;cursor:pointer}
-input[type=file]::file-selector-button{border:0;background:var(--grad);color:#fff;font-weight:700;border-radius:10px;padding:9px 14px;margin-right:12px;cursor:pointer}
-
-/* ---------- Buttons ---------- */
-button{border-radius:14px!important;padding:12px 18px;letter-spacing:.1px;font-weight:700;transition:transform .15s,box-shadow .15s,background .15s,filter .15s}
-button:hover{filter:none!important}
-button:active{transform:scale(.97)!important}
-.primary{background:var(--grad)!important;color:#fff!important;box-shadow:0 8px 20px rgba(79,70,229,.32)}
-.primary:hover{box-shadow:0 12px 26px rgba(79,70,229,.42);transform:translateY(-2px)}
-.secondary{background:#fff!important;color:#3730a3!important;box-shadow:inset 0 0 0 1.5px #dcdfff}
-.secondary:hover{background:var(--brand-soft)!important;transform:translateY(-1px)}
-.danger{background:#fff5f5!important;color:#dc2626!important;box-shadow:inset 0 0 0 1.5px #fecaca}
-.danger:hover{background:#fee2e2!important}
-button:disabled{opacity:.55;cursor:not-allowed}
-.actions{gap:10px!important;margin-top:16px!important}
-:focus-visible{outline:3px solid #c7caff!important;outline-offset:2px}
-
-/* ---------- Items ---------- */
-.items-head{text-transform:uppercase;letter-spacing:.8px;font-size:10.5px!important;color:#9aa1b5!important}
-.item-row input{padding:11px 9px!important;border-radius:12px!important}
-.remove{border-radius:12px!important;font-size:20px;line-height:1;padding:8px 0!important}
-#addItem{width:100%;border-style:dashed;margin-top:4px;padding:13px}
-
-/* ---------- Receipt preview wrapper (receipt itself untouched) ---------- */
-.preview{background:linear-gradient(160deg,#e9ebff,#e4f6ef)!important;border:0!important;border-radius:20px!important;padding:clamp(14px,3vw,30px)!important}
-.preview .receipt{box-shadow:0 18px 44px rgba(30,34,90,.22),0 2px 6px rgba(30,34,90,.08);border-radius:6px}
-
-/* ---------- History ---------- */
-.history-row{background:#fafbff;border:1px solid var(--line)!important;border-radius:16px;padding:14px 16px!important;margin:10px 0;align-items:center;transition:transform .15s,box-shadow .15s,border-color .15s}
-.history-row:hover{transform:translateY(-2px);box-shadow:var(--sh1);border-color:#cfd3ff!important}
-.history-row button{margin:4px 2px 0;padding:8px 12px!important;font-size:12.5px}
-.history-row b{color:var(--navy)}
-
-/* ---------- Back button ---------- */
-#siteBackBtn{border-radius:999px!important;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(10px);border:1px solid var(--line)!important;color:var(--brand)!important;box-shadow:var(--sh1)!important;padding:9px 18px!important;font-weight:800!important;top:78px!important}
-
-/* ---------- Login / Register ---------- */
-#authCard{max-width:460px!important;margin:clamp(24px,6vh,64px) auto 0!important;padding:clamp(24px,5vw,38px)!important;border-radius:28px!important;box-shadow:var(--sh2)!important;position:relative;overflow:hidden}
-#authCard::before{content:"";position:absolute;inset:0 0 auto 0;height:6px;background:var(--grad)}
-#authCard h2{font-size:26px;letter-spacing:-.8px;margin-top:6px}
-.auth-tabs{background:#eff1f9;padding:5px!important;border-radius:16px!important;gap:5px!important;margin:18px 0!important}
-.auth-tabs button{box-shadow:none!important;padding:11px!important;border-radius:12px!important}
-.auth-tabs button:not(.active){background:transparent!important;color:#6b7280!important}
-.auth-tabs button.active{background:#fff!important;color:var(--brand)!important;box-shadow:0 3px 10px rgba(30,34,90,.12)!important}
-#authCard .actions button.primary{flex:1 1 100%;padding:14px}
-#authCard .actions .secondary,#authCard .actions .danger{flex:1 1 100%}
-.signed-out-note{background:var(--brand-soft)!important;color:#3730a3!important;border-radius:14px!important}
-
-/* ---------- Dashboard / Telegram / Admin ---------- */
-#telegramConnectCard{background:linear-gradient(135deg,#eef9ff,#f1efff)!important;border:1px solid #d8e6fb!important;border-radius:20px!important}
-.button-link{background:linear-gradient(135deg,#2aabee,#1c8ad6)!important;border-radius:14px!important;padding:12px 18px!important;box-shadow:0 8px 18px rgba(34,158,217,.32);font-weight:700}
-#telegramLinkResult{background:#fff!important;border:1.5px dashed #a9b4ff!important;border-radius:16px!important}
-#telegramLinkCode{font-size:26px;letter-spacing:4px;color:var(--brand);font-weight:800}
-#adminStats .card{background:#fff!important;border-radius:18px!important;position:relative;overflow:hidden;box-shadow:var(--sh1)!important;border-left:5px solid var(--brand)!important}
-#adminStats .card div:nth-child(2){color:var(--navy);letter-spacing:-.5px}
-#adminResults table{border-radius:14px;overflow:hidden}
-#adminResults th{background:#f1f3fb!important;color:#6b7280!important;font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--line)!important}
-#adminResults td{border-bottom:1px solid #f0f2f8!important}
-#adminResults tbody tr:hover{background:#fafbff}
-#adminResults button{border-radius:10px!important}
-#adminResults input{max-width:460px}
-
-/* ---------- Sidebar ---------- */
-#machikaSidebar{background:linear-gradient(190deg,#14173a 0%,#1d1b5e 60%,#3b2fa8 130%)!important;overflow-y:auto;box-shadow:10px 0 40px rgba(20,23,58,.25)!important;font-family:inherit}
-#machikaSidebar .side-brand{border-bottom:1px solid rgba(255,255,255,.12)!important}
-#machikaSidebar .side-logo{background:var(--grad)!important;border:0!important;box-shadow:0 8px 18px rgba(0,0,0,.3)}
-#machikaSidebar .side-title{letter-spacing:-.3px}
-#machikaSidebar .side-section{color:#9aa0e8!important}
-#machikaSidebar .side-link{border-radius:14px!important;color:#d9dcff!important;background:transparent!important;box-shadow:none!important;position:relative;transition:background .15s,transform .15s}
-#machikaSidebar .side-link:hover{background:rgba(255,255,255,.09)!important;transform:translateX(3px)}
-#machikaSidebar .side-link.active{background:rgba(255,255,255,.16)!important;color:#fff!important}
-#machikaSidebar .side-link.active::before{content:"";position:absolute;left:-15px;top:11px;bottom:11px;width:4px;border-radius:0 5px 5px 0;background:#34d399}
-#machikaSidebar .side-logout{background:rgba(255,255,255,.08)!important;margin-top:8px}
-
-/* ---------- Bottom nav ---------- */
-#machikaBottomNav{background:rgba(255,255,255,.94)!important;backdrop-filter:blur(14px);border:1px solid var(--line)!important;box-shadow:0 14px 40px rgba(30,34,90,.2)!important}
-#machikaBottomNav .nav-item{background:transparent!important;color:#6b7280!important;box-shadow:none!important;border-radius:999px!important}
-#machikaBottomNav .nav-item.active{background:var(--brand-soft)!important;color:var(--brand)!important}
-@media(max-width:699px){#machikaBottomNav{left:10px!important;right:10px!important;bottom:10px!important;border-radius:26px!important}}
-
-/* ---------- Landing ---------- */
-#landingPage{padding-top:20px}
-.landing-logo{color:var(--navy)}
-.landing-logo-mark{color:var(--brand)!important}
-.landing-logo-text span{color:var(--brand)!important}
-.landing-nav{background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;padding:10px 12px 10px 20px;box-shadow:var(--sh1);margin-bottom:46px!important}
-.landing-nav-actions a,.landing-cta{border-radius:999px!important;transition:transform .15s,box-shadow .15s,background .15s}
-.landing-nav-actions a:hover,.landing-cta:hover{transform:translateY(-2px)}
-.landing-login{background:#fff!important;color:var(--navy)!important;border:1px solid var(--line)!important}
-.landing-register,.landing-cta{background:var(--grad)!important;color:#fff!important;box-shadow:0 12px 28px rgba(79,70,229,.38)!important;border:0!important}
-.landing-kicker{display:inline-block;background:var(--brand-soft);color:#3730a3!important;font-weight:800;font-size:12.5px!important;letter-spacing:.4px;padding:9px 16px;border-radius:999px;border:1px solid #dcdfff}
-.landing-copy h2{font-size:clamp(38px,5.4vw,66px)!important;line-height:1.04!important;letter-spacing:-2.4px!important;font-weight:800!important;color:var(--navy)!important}
-.landing-copy h2 span{background:linear-gradient(90deg,#4f46e5,#a855f7 60%,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent}
-.landing-copy>p{color:#4b5563!important}
-.landing-feature-icon{background:var(--grad)!important;border-radius:16px!important;box-shadow:0 10px 20px rgba(79,70,229,.3)}
-.landing-feature strong{color:var(--navy)!important}
-.landing-url{color:var(--brand)!important}
-.landing-visual{background:linear-gradient(140deg,#eef0ff 0%,#e0e3ff 52%,#4f46e5 52%,#7c3aed 100%)!important;border-radius:34px!important;box-shadow:0 34px 80px rgba(60,50,170,.32)!important}
-.mock-laptop{background:#1b1f3b!important;border-color:#2c3158!important}
-.mock-menu{background:#f0f1ff!important}
-.mock-menu b{color:var(--navy)!important}
-.mock-menu span:first-of-type,.mock-blue{background:var(--grad)!important}
-.landing-benefit{border:1px solid var(--line)!important;border-radius:22px!important;padding:24px!important;box-shadow:var(--sh1)!important;transition:transform .2s,box-shadow .2s,border-color .2s}
-.landing-benefit:hover{transform:translateY(-6px);box-shadow:var(--sh2)!important;border-color:#cfd3ff!important}
-.landing-benefit b{color:var(--navy)!important;font-size:17px}
-
-/* ---------- Footer & legal ---------- */
-#siteFooter{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--sh1);margin-top:40px!important}
-#siteFooter .footer-brand{color:var(--navy)!important;letter-spacing:-.4px}
-#siteFooter a,#siteFooter .footer-link{color:var(--brand)!important}
-#siteFooter .footer-social a{border-color:var(--line)!important;background:#fafbff!important;color:#3730a3!important;transition:transform .15s,box-shadow .15s}
-#siteFooter .footer-social a:hover{transform:translateY(-3px);box-shadow:var(--sh1);text-decoration:none}
-.legal-dialog{border-radius:26px!important;box-shadow:0 40px 100px rgba(10,12,40,.45)!important}
-.legal-backdrop{background:rgba(14,16,48,.6)!important;backdrop-filter:blur(5px)}
-.legal-dialog-head h2{color:var(--navy)!important}
-.legal-close{background:var(--brand-soft)!important;color:var(--brand)!important;border-radius:12px!important}
-
-
-/* fixes */
-.landing-copy h2,.legal-dialog-head h2{display:block}
-.legal-dialog-head h2{display:flex}
-@media(min-width:900px){
- body{padding-left:0!important}
- body:has(#machikaSidebar[style*="flex"]){padding-left:264px!important}
-}
-
-/* ---------- Misc ---------- */
-::selection{background:#c7caff;color:#1e1b4b}
-*{scrollbar-width:thin;scrollbar-color:#c4c9e0 transparent}
-@keyframes mrUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.card,.landing-hero,.landing-benefit{animation:mrUp .5s ease both}
-
-@media(max-width:899px){header{padding-left:16px!important;padding-right:16px!important}#siteBackBtn{top:70px!important}}
-@media(max-width:480px){h2{font-size:18px}.card{padding:16px}.history-row{flex-direction:column;align-items:stretch}.history-row>div:last-child{text-align:left!important}.landing-nav{border-radius:26px;padding:10px 12px}header p{display:none}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
-@media print{body{background:#fff!important}header{display:none}.card{box-shadow:none!important;border:0!important}}
-</style>
-
+<meta name="description" content="Create professional receipts for your shop, online store or service business in minutes. Add your business details, download as PNG and keep every receipt saved in your account.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Machika Receipt Maker">
+<meta property="og:description" content="Create professional receipts in minutes. No more handwriting, no more stress.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/layout.css">
+<link rel="stylesheet" href="/css/public.css">
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/receipt.css">
 </head>
 <body>
-<header>
-  <button id="mobileSidebarToggle" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button><div class="brandmark"><div class="brand-icon">M</div><div><h1>Machika Receipt Maker</h1><p>Create receipts quickly • Simple, neat and professional</p></div></div>
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="accountBadge" style="font-size:12px;background:#ffffff18;border:1px solid #ffffff35;padding:8px 11px;border-radius:999px">Cloud receipts</span></div>
-</header>
+<noscript><p style="padding:24px;font-family:sans-serif">Machika Receipt Maker needs JavaScript to run. Please turn it on and reload.</p></noscript>
 
+<!-- Icon sprite (Feather-style strokes). The logo is the original Machika receipt mark. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+ <defs>
+  <symbol id="i-logo" viewBox="0 0 64 64" fill="none"><path d="M15 7h34l7 7v43l-7-5-7 5-7-5-7 5-7-5-7 5V14l8-7Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M23 24h20M23 34h20M23 44h14" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+ </defs>
+</svg>
 
-<main id="landingPage" hidden>
- <nav class="landing-nav" aria-label="Public navigation">
-  <a class="landing-logo" href="/" aria-label="Machika Receipt Maker home">
-   <span class="landing-logo-mark"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M15 7h34l7 7v43l-7-5-7 5-7-5-7 5-7-5-7 5V14l8-7Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M23 24h20M23 34h20M23 44h14" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg></span>
-   <span class="landing-logo-text"><strong>Machika</strong><span>Receipt Maker</span></span>
-  </a>
-  <div class="landing-nav-actions"><a class="landing-login" href="/login" data-landing-route="/login">Login</a><a class="landing-register" href="/register" data-landing-route="/register">Create Account</a></div>
- </nav>
- <section class="landing-hero">
-  <div class="landing-copy">
-   <p class="landing-kicker">Professional Receipts&nbsp; • &nbsp;Simple&nbsp; • &nbsp;Fast</p>
-   <h2>Make Your Business <span>Look Professional!</span></h2>
-   <p>Create beautiful and professional receipts for your business in minutes. No more handwriting, no more stress!</p>
-   <div class="landing-features">
-    <div class="landing-feature"><span class="landing-feature-icon">ϟ</span><span><strong>Create Receipts in Minutes</strong><small>Fast and easy to use</small></span></div>
-    <div class="landing-feature"><span class="landing-feature-icon">▦</span><span><strong>Add Your Business Details</strong><small>Name, address, phone and more</small></span></div>
-    <div class="landing-feature"><span class="landing-feature-icon">▧</span><span><strong>Download as Image</strong><small>Save and share easily as PNG</small></span></div>
-    <div class="landing-feature"><span class="landing-feature-icon">✓</span><span><strong>Perfect for All Businesses</strong><small>Shops, online stores, services and more</small></span></div>
+<div id="splash" class="splash" role="status" aria-label="Loading"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span></div>
+
+<!-- ============ PUBLIC: LANDING ============ -->
+<div id="landingView" hidden>
+ <header class="site-nav">
+  <div class="wrap nav-in">
+   <a class="brand" href="/" data-route="/" aria-label="Machika Receipt Maker home"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></a>
+   <nav class="nav-links" aria-label="Page sections"><a href="#how">How it works</a><a href="#features">Features</a></nav>
+   <div class="nav-actions"><a class="btn btn-ghost btn-sm" href="/login" data-route="/login">Login</a><a class="btn btn-primary btn-sm" href="/register" data-route="/register">Create account</a></div>
+  </div>
+ </header>
+
+ <main>
+  <section class="hero">
+   <div class="hero-copy">
+    <h1>Make your business look professional</h1>
+    <p class="lead">Create beautiful and professional receipts for your business in minutes. No more handwriting, no more stress!</p>
+    <div class="hero-cta">
+     <a class="btn btn-primary btn-lg" href="/register" data-route="/register">Try it now for free</a>
+     <a class="btn btn-lg" href="#how">See how it works</a>
+    </div>
+    <label class="try" for="heroShopInput"><span>Type your shop name and watch the receipt change</span><input class="input" id="heroShopInput" maxlength="28" placeholder="Machika Store" autocomplete="off"></label>
    </div>
-   <a class="landing-cta" href="/register" data-landing-route="/register">Try It Now for FREE <span aria-hidden="true">→</span></a>
-   <span class="landing-url">↗ machika-receipt-maker.netlify.app</span>
-  </div>
-  <div class="landing-visual" aria-label="Preview of Machika Receipt Maker on laptop and mobile">
-   <div class="landing-slogan">Small Tool<br>Big Impact!</div>
-   <div class="mock-laptop"><div class="mock-screen">
-    <div class="mock-menu"><b>▤ Machika<br>Receipt Maker</b><span>⌂ Home</span><span>▧ Create Receipt</span><span>▤ Receipt History</span><span>♙ Business</span><span>♙ Account</span></div>
-    <div class="mock-form"><h4>Create Your Receipt</h4>Business Name<div class="mock-input">Machika Store</div>Address<div class="mock-input">123 Market Street</div>Phone Number<div class="mock-input">08012345678</div>Items<div class="mock-input">Rice　 Qty 2　 ₦1,500</div><div class="mock-input">Soap　 Qty 1　 ₦500</div><div class="mock-blue">Generate Receipt</div></div>
-    <div class="mock-receipt"><h4>🛒 MACHIKA STORE</h4><small>123 Market Street, Nigeria</small><h4 style="margin-top:12px">RECEIPT</h4><div class="receipt-lines">Item　　 Qty　 Price<br>Rice　　 2　 3,000<br>Soap　　 1　　 500<br><b>Total　　　 ₦3,500</b></div><small>Thank you for your support!</small><div style="font-size:23px;letter-spacing:2px;margin-top:8px">▥▥▥▥▥</div></div>
-   </div></div>
-   <div class="mock-phone"><div class="mock-phone-inner">9:41<br><b>🛒 MACHIKA STORE</b><small>123 Market Street</small><b>RECEIPT</b><div class="receipt-lines">Rice　2　3,000<br>Soap　1　500<br><b>Total　₦3,500</b></div><small>Thank you!</small><div style="font-size:18px;margin-top:7px">▥▥▥</div></div></div>
-   <div class="landing-bottom-caption">Perfect Receipts<br>for a Better Business!</div>
-  </div>
- </section>
- <section class="landing-benefits" aria-label="Who can use Machika Receipt Maker">
-  <div class="landing-benefit"><span style="font-size:28px">🏪</span><span><b>Shops</b><span>For retail shops and small businesses</span></span></div>
-  <div class="landing-benefit"><span style="font-size:28px">💻</span><span><b>Online Stores</b><span>For online sellers and vendors</span></span></div>
-  <div class="landing-benefit"><span style="font-size:28px">🧰</span><span><b>Services</b><span>For service providers and professionals</span></span></div>
- </section>
-</main>
 
-<aside id="machikaSidebar" aria-label="Main navigation">
- <div class="side-brand"><div class="side-logo">M</div><div><div class="side-title">Machika Receipt Maker</div><div class="side-sub">Business workspace</div></div></div>
- <div class="side-section">MAIN MENU</div>
- <button class="side-link" data-side-path="/dashboard" type="button"><span class="side-icon">⌂</span>Dashboard</button>
- <button class="side-link" data-side-path="/create-receipt" type="button"><span class="side-icon">🧾</span>Create Receipt</button>
- <button class="side-link" data-side-path="/my-receipts" type="button"><span class="side-icon">▤</span>Receipt History</button>
- <button class="side-link" data-side-path="/profile" type="button"><span class="side-icon">🏪</span>Business Profile</button>
- <button class="side-link" data-side-path="/account" type="button"><span class="side-icon">♙</span>My Account</button>
- <button class="side-link" id="sidebarAdminBtn" data-side-path="/admin" type="button" hidden><span class="side-icon">🛡️</span>Super Admin</button>
- <div class="side-spacer"></div>
- <button class="side-link side-logout" id="sidebarLogoutBtn" type="button"><span class="side-icon">↪</span>Logout</button>
-</aside>
-<div id="machikaSidebarOverlay" aria-hidden="true"></div>
-
-<button id="siteBackBtn" type="button" aria-label="Go back" style="position:sticky;top:0;z-index:20;margin:10px 14px 0;background:#e8eef8;color:#19345d;border:1px solid #cbd5e1;border-radius:999px;padding:10px 16px;font-weight:700;box-shadow:0 3px 10px #14213d12">← Back</button>
-<section class="card" id="authCard" style="max-width:760px;margin:20px auto 0;padding:20px;">
-<h2 id="authHeading">Login to your account</h2>
-<p class="small" id="authIntro">Please log in or create an account before creating and saving receipts. Your receipts will be saved to your account.</p>
-<div class="auth-tabs" id="authTabs"><button class="primary active" id="loginTab" type="button">Login</button><button class="secondary" id="registerTab" type="button">Create Account</button></div>
-<div class="grid auth-panel">
- <div class="field full"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
- <div class="field full"><label>Password (at least 6 characters)</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Password"></div>
-</div>
-<div class="actions"><button class="primary" id="signInBtn" type="button">Login</button><button class="primary" id="signUpBtn" type="button" style="display:none">Create Account</button><button class="secondary" id="resetBtn" type="button">Forgot Password</button><button class="danger" id="signOutBtn" type="button" style="display:none">Logout</button></div>
-<p id="authStatus" class="small" role="status">You are not logged in.</p>
-</section>
-<section id="dashboard" class="card" hidden style="max-width:1100px;margin:20px auto;padding:20px">
-<section id="dashboardHome" style="margin-top:0">
-<h2>Dashboard</h2><p id="welcome" class="small"></p>
-<h2>Account Overview</h2>
-<p id="accountEmail" class="small"></p>
-<p class="small">Your business details and saved receipts are stored in your account and can be accessed again after you sign in.</p>
-<div class="card" id="telegramConnectCard" style="margin-top:18px;padding:18px">
-  <h3 style="margin-top:0">Connect Telegram</h3>
-  <p class="small">Link your Telegram account to Machika Receipt Maker so you can create receipts through your Telegram bot. You must be signed in to link your account.</p>
-  <p id="telegramConnectStatus" class="small" role="status" aria-live="polite">Checking Telegram connection...</p>
-  <div class="actions">
-    <button class="primary" id="telegramConnectBtn" type="button">Generate Telegram Link Code</button>
-    <button class="danger" id="telegramDisconnectBtn" type="button" hidden>Disconnect Telegram</button>
-  </div>
-  <div id="telegramLinkResult" hidden>
-    <p>One-time link code: <strong id="telegramLinkCode"></strong></p>
-    <p class="small">Open your Machika Telegram bot and send:</p>
-    <p><code id="telegramStartCommand"></code></p>
-    <p class="small">Use this code only once and do not share it. If it expires, generate a new one.</p>
-    <a id="telegramOpenBot" class="button-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open Telegram Bot</a>
-  </div>
-</div>
-</section>
-<section id="profilePanel" hidden style="margin-top:0"><h2>Business Profile</h2><p class="small">Save your shop name, address, and phone number once. They will be filled in automatically for future receipts.</p><div class="grid"><div class="field"><label>Business / Shop Name</label><input id="profileBusiness" placeholder="Machika Store"></div><div class="field"><label>Phone Number</label><input id="profilePhone" placeholder="080..."></div><div class="field full"><label>Business Address</label><input id="profileAddress" placeholder="Shop address"></div></div><div class="actions"><button class="primary" id="saveProfileBtn" type="button">Save Business Profile</button></div><p id="profileStatus" class="small" role="status"></p></section>
-<section id="dashboardHistory" hidden style="margin-top:0"><h2>Your Saved Receipts</h2><div id="dashboardHistoryList"></div></section>
-<section id="accountPanel" hidden style="margin-top:0"><h2>My Account</h2><p class="small">Manage your signed-in account information.</p><div class="card" style="margin-top:14px"><p><strong>Email address</strong></p><p id="myAccountEmail" class="small"></p><div class="actions"><button class="danger" id="accountLogoutBtn" type="button">Logout</button></div></div></section>
-<section id="adminPanel" hidden style="margin-top:0">
-  <h2>Super Admin Dashboard</h2>
-  <p class="small">Restricted administration area. The server checks admin permissions for every request.</p>
-  <div class="actions">
-    <button class="primary" id="adminStatsBtn" type="button">Overview</button>
-    <button class="secondary" id="adminUsersBtn" type="button">Users</button>
-    <button class="secondary" id="adminReceiptsBtn" type="button">All Receipts</button>
-    <button class="secondary" id="adminAnalyticsBtn" type="button">Analytics (7 days)</button>
-    <button class="secondary" id="adminRefreshBtn" type="button">Refresh</button>
-  </div>
-  <p id="adminStatus" class="small" role="status"></p>
-  <div id="adminStats" class="grid" style="margin-top:14px"></div>
-  <div id="adminResults" style="margin-top:14px;overflow-x:auto"></div>
-</section>
-</section>
-<main class="wrap" id="appArea" hidden>
-<section class="card no-print">
-<h2>1. Business and Purchase Details</h2>
-<div class="grid">
- <div class="field full"><label>Business Logo (optional)</label><input id="logoFile" type="file" accept="image/*"><p class="small">Your logo will appear on the receipt. The selected image stays in this browser.</p></div>
- <div class="field full"><label>Business / Shop Name</label><input id="business" placeholder="Machika Stores"></div>
- <div class="field"><label>Phone Number</label><input id="phone" placeholder="080..."></div>
- <div class="field"><label>Address</label><input id="address" placeholder="Katsina, Nigeria"></div>
- <div class="field"><label>Receipt Number</label><input id="receiptNo"></div>
- <div class="field"><label>Receipt Date</label><input id="date" type="date"></div>
- <div class="field"><label>Customer Name</label><input id="customer" placeholder="Cash customer"></div>
- <div class="field"><label>Payment Method</label><select id="payment"><option>Cash</option><option>Transfer</option><option>POS</option><option>Card</option><option>Credit</option></select></div>
-</div>
-<h2 style="margin-top:10px">Items Sold</h2>
-<div class="items-head"><span>Item / Service</span><span>Quantity</span><span>Price (₦)</span><span></span></div>
-<div id="items"></div>
-<button class="secondary" id="addItem" type="button">+ Add Item</button>
-<div class="grid" style="margin-top:16px">
- <div class="field"><label>Discount (₦)</label><input id="discount" type="number" min="0" value="0"></div>
- <div class="field"><label>Additional Notes</label><input id="note" placeholder="Thank you for your business"></div>
-</div>
-<div class="actions">
-<button class="primary" id="update" type="button">Update Receipt</button>
-<button class="secondary" id="save" type="button">Save Receipt</button>
-<button class="secondary" id="image" type="button">Download PNG</button>
-
-<button class="danger" id="clear" type="button">New Receipt</button>
-</div>
-<p class="small">Sign in before creating or saving a receipt. You can download receipts as PNG images. PDF downloads are not available.</p>
-<div class="history"><h2>Receipt History</h2><div id="history"></div></div>
-</section>
-<section class="card">
-<h2 class="no-print">Receipt Preview</h2>
-<div class="preview"><div class="receipt" id="receipt"></div></div>
-
-</section>
-</main>
-<footer id="siteFooter">
-  <div class="footer-brand">Machika Receipt Maker</div>
-  <p>Built for shops and small businesses. Create professional receipts and download them as PNG images.</p>
-  <div class="footer-links">
-    <button type="button" class="footer-link" data-open-legal="privacy">Privacy Policy</button>
-    <button type="button" class="footer-link" data-open-legal="terms">Terms of Service</button>
-    <a href="mailto:support.machikareceiptmaker@gmail.com">Contact Support</a>
-  </div>
-  <div class="footer-social" aria-label="Machika Receipt Maker social media">
-    <a href="https://x.com/Mareceipt_maker" target="_blank" rel="noopener noreferrer">𝕏 <span>X (Twitter)</span></a>
-    <a href="https://t.me/mareceipt_maker" target="_blank" rel="noopener noreferrer">✈ <span>Telegram</span></a>
-    <a href="https://www.instagram.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">◎ <span>Instagram</span></a>
-    <a href="https://www.facebook.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">f <span>Facebook</span></a>
-    <a href="mailto:support.machikareceiptmaker@gmail.com">✉ <span>Email</span></a>
-  </div>
-  <p class="footer-copy">© <span id="footerYear">2026</span> Machika Receipt Maker. All rights reserved.</p>
-</footer>
-
-<div id="legalModal" class="legal-modal" hidden role="dialog" aria-modal="true" aria-labelledby="legalTitle">
-  <div class="legal-backdrop" data-close-legal="true"></div>
-  <section class="legal-dialog">
-    <div class="legal-dialog-head"><h2 id="legalTitle">Legal information</h2><button type="button" class="legal-close" aria-label="Close legal information" data-close-legal="true">×</button></div>
-    <div id="legalContent" class="legal-content"></div>
-    <div class="actions"><button type="button" class="primary" data-close-legal="true">Close</button></div>
+   <div class="hero-desk">
+    <div class="printer" aria-hidden="true">
+     <div class="printer-body"><span class="led"></span><span class="printer-name">MACHIKA</span></div>
+     <div class="slot"></div>
+     <div class="feed">
+      <div class="slip">
+       <div class="slip-head"><b id="heroShop">MACHIKA STORE</b><span>123 Market Street, Katsina</span></div>
+       <div class="slip-meta"><span>REC-20261120-48213</span><span>20 Nov 2026</span></div>
+       <div class="slip-row"><span>Rice</span><span>2 x 1,500.00</span><b>3,000.00</b></div>
+       <div class="slip-row"><span>Soap</span><span>1 x 500.00</span><b>500.00</b></div>
+       <div class="slip-total"><span>TOTAL</span><b>₦3,500.00</b></div>
+       <div class="slip-foot">Thank you for your patronage!</div>
+       <div class="barcode"></div>
+       <div class="stamp">PAID</div>
+      </div>
+     </div>
+    </div>
+   </div>
   </section>
+
+  <section id="how" class="band">
+   <div class="wrap">
+    <h2 class="band-title">From blank page to finished receipt in three steps</h2>
+    <ol class="steps">
+     <li><span class="step-n">1</span><h3>Create your free account</h3><p>Sign up with your email and a password. It takes a minute.</p></li>
+     <li><span class="step-n">2</span><h3>Add your business and items</h3><p>Enter your shop details once, then list what you sold. The preview updates as you type.</p></li>
+     <li><span class="step-n">3</span><h3>Save or download</h3><p>Download the receipt as a PNG to share, and find it again any time in your account.</p></li>
+    </ol>
+   </div>
+  </section>
+
+  <section id="features" class="band band-white">
+   <div class="wrap split">
+    <h2 class="band-title">Everything a good receipt needs</h2>
+    <dl class="ruled">
+     <div><dt>Create receipts in minutes</dt><dd>Fast and easy to use</dd></div>
+     <div><dt>Add your business details</dt><dd>Name, address, phone and more</dd></div>
+     <div><dt>Download as image</dt><dd>Save and share easily as PNG</dd></div>
+     <div><dt>Perfect for all businesses</dt><dd>Shops, online stores, services and more</dd></div>
+    </dl>
+   </div>
+  </section>
+
+  <section class="band">
+   <div class="wrap">
+    <h2 class="band-title">Who can use Machika Receipt Maker</h2>
+    <div class="trio">
+     <article><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><h3>Shops</h3><p>For retail shops and small businesses</p></article>
+     <article><svg class="ico" aria-hidden="true"><use href="#i-monitor"/></svg><h3>Online stores</h3><p>For online sellers and vendors</p></article>
+     <article><svg class="ico" aria-hidden="true"><use href="#i-wrench"/></svg><h3>Services</h3><p>For service providers and professionals</p></article>
+    </div>
+   </div>
+  </section>
+
+  <section class="cta-band">
+   <div class="wrap cta-in">
+    <div><h2>Small tool. Big impact.</h2><p>Perfect receipts for a better business!</p></div>
+    <a class="btn btn-light btn-lg" href="/register" data-route="/register">Create your free account</a>
+   </div>
+  </section>
+ </main>
+
+ <footer class="site-foot">
+  <div class="wrap foot-in">
+   <div class="foot-brand"><strong>Machika Receipt Maker</strong><p>Built for shops and small businesses. Create professional receipts and download them as PNG images.</p></div>
+   <div class="foot-nav">
+   <div class="foot-links">
+    <button type="button" class="link-btn" data-open-legal="privacy">Privacy Policy</button>
+    <button type="button" class="link-btn" data-open-legal="terms">Terms of Service</button>
+    <a href="mailto:support.machikareceiptmaker@gmail.com">Contact Support</a>
+   </div>
+   <div class="foot-social" aria-label="Machika Receipt Maker social media">
+    <a href="https://x.com/Mareceipt_maker" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
+    <a href="https://t.me/mareceipt_maker" target="_blank" rel="noopener noreferrer">Telegram</a>
+    <a href="https://www.instagram.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">Instagram</a>
+    <a href="https://www.facebook.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">Facebook</a>
+    <a href="mailto:support.machikareceiptmaker@gmail.com">Email</a>
+   </div>
+   </div>
+   <p class="foot-copy">© <span id="footerYear">2026</span> Machika Receipt Maker. All rights reserved.</p>
+  </div>
+ </footer>
 </div>
 
-<style id="machika-footer-style">
-#siteFooter{margin:28px auto 110px;padding:26px 18px 22px;max-width:1100px;text-align:center;color:#475569;font-size:13px;line-height:1.6}
-#siteFooter .footer-brand{font-size:18px;font-weight:800;color:#123b70}#siteFooter p{margin:7px 0 14px}
-#siteFooter .footer-links,#siteFooter .footer-social{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px 18px;margin:14px auto}
-#siteFooter a,#siteFooter .footer-link{color:#175cd3;text-decoration:none;font:inherit;font-weight:700}
-#siteFooter a:hover,#siteFooter .footer-link:hover{text-decoration:underline}
-#siteFooter .footer-link{border:0;background:transparent;padding:0;cursor:pointer}
-#siteFooter .footer-social a{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border:1px solid #dbe2ea;border-radius:999px;background:#fff}
-#siteFooter .footer-copy{font-size:11px;color:#64748b;margin-top:18px}
-.legal-modal[hidden]{display:none!important}.legal-modal{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:18px}
-.legal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.62)}
-.legal-dialog{position:relative;z-index:1;background:#fff;width:min(760px,100%);max-height:min(85vh,850px);overflow:auto;border-radius:16px;padding:20px;box-shadow:0 20px 70px #0004}
-.legal-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:14px}
-.legal-dialog-head h2{margin:0;color:#123b70}.legal-close{background:#e8eef8;color:#19345d;font-size:24px;padding:4px 12px}
-.legal-content{font-size:14px;line-height:1.65;color:#334155}.legal-content h3{font-size:16px;color:#123b70;margin:18px 0 6px}
-.legal-content p{margin:8px 0}.legal-content ul{padding-left:22px}
-@media(max-width:480px){#siteFooter .footer-social{gap:8px}#siteFooter .footer-social a{padding:8px 9px}.legal-dialog{padding:15px}}
-@media print{#siteFooter,.legal-modal{display:none!important}}
-</style>
+<!-- ============ PUBLIC: LOGIN / REGISTER ============ -->
+<div id="authView" class="auth" hidden>
+ <aside class="auth-side" aria-hidden="true">
+  <div class="brand brand-light"><span class="brand-mark brand-mark-light"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></div>
+  <div class="auth-pitch">
+   <p class="auth-big">Perfect receipts for a better business!</p>
+   <ul class="auth-points"><li>Create receipts in minutes</li><li>Download them as PNG images</li><li>Every receipt saved in your account</li></ul>
+  </div>
+  <div class="slip slip-static">
+   <div class="slip-head"><b>MACHIKA STORE</b><span>123 Market Street, Katsina</span></div>
+   <div class="slip-row"><span>Rice</span><span>2 x 1,500.00</span><b>3,000.00</b></div>
+   <div class="slip-row"><span>Soap</span><span>1 x 500.00</span><b>500.00</b></div>
+   <div class="slip-total"><span>TOTAL</span><b>₦3,500.00</b></div>
+   <div class="slip-foot">Thank you for your patronage!</div>
+   <div class="barcode"></div>
+   <div class="stamp stamp-static">PAID</div>
+  </div>
+ </aside>
 
-<script id="machika-legal-script">
-(function(){
- const modal=document.getElementById('legalModal'), title=document.getElementById('legalTitle'), content=document.getElementById('legalContent');
- const year=document.getElementById('footerYear'); if(year)year.textContent=String(new Date().getFullYear());
- const policies={
- privacy:{title:'Privacy Policy',html:`<p><b>Last updated:</b> October 24, 2026</p>
- <p>Machika Receipt Maker helps users create, save, view, and download business receipts. This policy describes information the website may process when you use these features.</p>
- <h3>1. Information we process</h3><ul><li><b>Account information:</b> your email address and authentication information handled by our authentication provider.</li><li><b>Business and receipt information:</b> business name, phone number, address, receipt number, customer name, items, quantities, prices, discounts, payment method, notes, totals, and receipt dates you enter.</li><li><b>Saved receipt images:</b> when you save a receipt, the website may store a PNG image and related receipt information in your account.</li><li><b>Basic visit records:</b> the website may record a browser-tab visit for site statistics. These records are not necessarily a count of unique people.</li></ul>
- <h3>2. How information is used</h3><p>Information is used to authenticate users, create and display receipts, save receipts to the correct account, provide receipt history, support the website, and understand general site usage.</p>
- <h3>3. Storage and service providers</h3><p>The website uses Supabase for account authentication and online data/storage, and Netlify for website hosting. These providers process information as needed to deliver their services under their own terms and privacy practices.</p>
- <h3>4. Sharing</h3><p>We do not intend to sell your receipt or business information. Information may be processed by service providers that operate the website, or disclosed where required by law or necessary to protect the service and its users.</p>
- <h3>5. Security and account access</h3><p>We use account-based access controls intended to restrict saved receipts to the relevant account. No online service can guarantee absolute security. Keep your password private and sign out on shared devices.</p>
- <h3>6. Retention and deletion</h3><p>Saved information may remain in your account until you delete it or request help. To ask a question about your information or request assistance with deletion, email <a href="mailto:support.machikareceiptmaker@gmail.com">support.machikareceiptmaker@gmail.com</a>.</p>
- <h3>7. Children</h3><p>This service is not designed specifically for children.</p><h3>8. Changes and contact</h3><p>This policy may be updated as the service changes. For privacy questions, contact <a href="mailto:support.machikareceiptmaker@gmail.com">support.machikareceiptmaker@gmail.com</a>.</p>
- <p><i>Note: This is a general policy template. Check it against the website's actual data practices and applicable law before public launch.</i></p>`},
- terms:{title:'Terms of Service',html:`<p><b>Last updated:</b> October 24, 2026</p><p>By accessing or using Machika Receipt Maker, you agree to these terms. If you do not agree, do not use the service.</p>
- <h3>1. What the service does</h3><p>Machika Receipt Maker provides tools to create, save, view, and download receipts as PNG images. Availability and features may change as the service is improved.</p>
- <h3>2. Your account</h3><p>You are responsible for keeping your login details confidential and for activity carried out through your account. Provide accurate account information and contact support if you believe your account has been accessed without permission.</p>
- <h3>3. Accurate and lawful use</h3><p>You are responsible for checking that business names, customer details, items, quantities, prices, discounts, payment methods, dates, and totals are correct. Do not use the service to create deceptive, fraudulent, unlawful, or misleading documents, or to violate another person's rights.</p>
- <h3>4. Your information</h3><p>You are responsible for having permission to enter and store any customer or business information you submit. Do not enter sensitive information that is unnecessary for creating a receipt.</p>
- <h3>5. Storage and availability</h3><p>We aim to keep the service available, but we do not guarantee uninterrupted access or permanent storage. Keep your own business records and copies of important receipts. Some features depend on third-party providers and internet connectivity.</p>
- <h3>6. Intellectual property</h3><p>You are responsible for the content you enter and may use receipts you create for lawful business purposes. Website design and code may be protected by applicable intellectual-property laws.</p>
- <h3>7. Disclaimer</h3><p>The service is provided on an “as available” basis to the extent permitted by law. You are responsible for determining whether receipts meet your business, accounting, tax, and legal requirements.</p>
- <h3>8. Suspension or changes</h3><p>Access may be restricted where necessary to protect the service, users, or comply with law, including in cases of suspected abuse or unlawful use.</p>
- <h3>9. Limits and applicable law</h3><p>To the extent permitted by applicable law, Machika Receipt Maker is not responsible for indirect loss arising from inability to use the service or reliance on inaccurate information entered by a user. These terms do not remove rights that cannot legally be excluded.</p>
- <h3>10. Changes and contact</h3><p>These terms may be updated as the service changes. Questions can be sent to <a href="mailto:support.machikareceiptmaker@gmail.com">support.machikareceiptmaker@gmail.com</a>.</p><p><i>Note: This is a general terms template, not legal advice. Have it reviewed for your business and applicable law before public launch.</i></p>`}
- };
- function open(which){const p=policies[which];if(!p)return;title.textContent=p.title;content.innerHTML=p.html;modal.hidden=false;document.body.style.overflow='hidden';}
- function close(){modal.hidden=true;document.body.style.overflow='';}
- document.querySelectorAll('[data-open-legal]').forEach(b=>b.addEventListener('click',()=>open(b.dataset.openLegal)));
- modal.querySelectorAll('[data-close-legal]').forEach(e=>e.addEventListener('click',close));
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close();});
-})();
-</script>
+ <main class="auth-main">
+  <div class="auth-card">
+   <a class="back-link" href="/" data-route="/"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left"/></svg>Back to home</a>
+   <a class="brand brand-auth" href="/" data-route="/" aria-label="Machika Receipt Maker home"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></a>
+   <h1 id="authHeading">Login to your account</h1>
+   <p class="muted" id="authIntro">Log in to use the receipt maker.</p>
+   <div class="seg" id="authTabs" role="tablist" aria-label="Login or create account">
+    <button class="seg-btn is-active" id="loginTab" type="button" role="tab" aria-selected="true">Login</button>
+    <button class="seg-btn" id="registerTab" type="button" role="tab" aria-selected="false">Create account</button>
+   </div>
+   <form id="authForm" class="stack" novalidate>
+    <div class="field"><label for="authEmail">Email</label><input class="input" id="authEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com"></div>
+    <div class="field"><label for="authPassword">Password (at least 6 characters)</label>
+     <div class="pw"><input class="input" id="authPassword" type="password" autocomplete="current-password" placeholder="Password"><button class="pw-toggle" id="pwToggle" type="button" aria-label="Show password" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-eye"/></svg></button></div>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" id="authSubmit" type="submit">Login</button>
+    <button class="btn btn-ghost btn-block" id="resetBtn" type="button">Forgot password</button>
+   </form>
+   <p id="authStatus" class="status" role="status" aria-live="polite"></p>
+  </div>
+ </main>
+</div>
+
+<!-- ============ APP SHELL (signed in) ============ -->
+<div id="appShell" class="shell" hidden>
+ <aside class="sidebar" aria-label="Main navigation">
+  <a class="brand" href="/dashboard" data-route="/dashboard"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></a>
+  <nav class="nav">
+   <a class="nav-link" data-nav="/dashboard" data-route="/dashboard" href="/dashboard"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>Dashboard</span></a>
+   <a class="nav-link" data-nav="/create-receipt" data-route="/create-receipt" href="/create-receipt"><svg class="ico" aria-hidden="true"><use href="#i-file-plus"/></svg><span>Create receipt</span></a>
+   <a class="nav-link" data-nav="/my-receipts" data-route="/my-receipts" href="/my-receipts"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg><span>Receipts</span></a>
+   <a class="nav-link" data-nav="/profile" data-route="/profile" href="/profile"><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><span>Business profile</span></a>
+   <a class="nav-link" data-nav="/account" data-route="/account" href="/account"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span>My account</span></a>
+   <a class="nav-link" id="navAdmin" data-nav="/admin" data-route="/admin" href="/admin" hidden><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span>Super admin</span></a>
+  </nav>
+  <div class="sidebar-foot">
+   <div class="user-chip"><span class="avatar" id="sideAvatar">M</span><span class="user-meta"><b id="sideName">Your business</b><small id="sideEmail"></small></span></div>
+   <button class="btn btn-side" id="logoutBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-logout"/></svg>Logout</button>
+  </div>
+ </aside>
+
+ <div class="main">
+  <header class="topbar">
+   <a class="brand brand-mini" href="/dashboard" data-route="/dashboard" aria-label="Dashboard"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span></a>
+   <div class="topbar-title"><h1 id="pageTitle">Dashboard</h1><p id="pageSub"></p></div>
+   <a class="btn btn-primary btn-sm topbar-new" href="/create-receipt" data-route="/create-receipt"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>New receipt</a>
+   <a class="avatar avatar-top" id="topAvatar" href="/account" data-route="/account" aria-label="My account">M</a>
+  </header>
+
+  <main id="view" class="view" tabindex="-1">
+
+   <!-- Dashboard -->
+   <section class="page" id="page-dashboard" hidden>
+    <div class="strip" id="statStrip">
+     <div><small>Receipts saved</small><b id="statCount">—</b></div>
+     <div><small>Sales total</small><b id="statTotal">—</b></div>
+     <div><small>Receipts this month</small><b id="statMonth">—</b></div>
+    </div>
+    <p class="hint strip-note" id="statTotalNote"></p>
+    <div class="dash-grid">
+     <section class="panel">
+      <div class="panel-head"><h2>Recent receipts</h2><a class="link" href="/my-receipts" data-route="/my-receipts">View all</a></div>
+      <div id="dashboardHistoryList" class="rlist"></div>
+     </section>
+     <div class="stack">
+      <section class="panel" id="telegramConnectCard">
+       <div class="panel-head"><h2>Connect Telegram</h2><span class="pill" id="telegramPill" hidden>Connected</span></div>
+       <p class="muted">Link your Telegram account to Machika Receipt Maker so you can create receipts through your Telegram bot. You must be signed in to link your account.</p>
+       <p id="telegramConnectStatus" class="status" role="status" aria-live="polite">Checking Telegram connection...</p>
+       <div class="actions">
+        <button class="btn btn-primary" id="telegramConnectBtn" type="button">Generate Telegram link code</button>
+        <button class="btn btn-danger" id="telegramDisconnectBtn" type="button" hidden>Disconnect Telegram</button>
+       </div>
+       <div id="telegramLinkResult" class="linkbox" hidden>
+        <p>One-time link code</p>
+        <strong id="telegramLinkCode" class="mono"></strong>
+        <p class="hint">Open your Machika Telegram bot and send:</p>
+        <div class="cmd"><code id="telegramStartCommand"></code><button class="icon-btn" id="copyCommandBtn" type="button" title="Copy command" aria-label="Copy command"><svg class="ico" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
+        <p class="hint">Use this code only once and do not share it. If it expires, generate a new one.</p>
+        <a id="telegramOpenBot" class="btn btn-sm" href="#" target="_blank" rel="noopener noreferrer" hidden>Open Telegram bot</a>
+       </div>
+      </section>
+      <section class="panel tip" id="profileTip" hidden>
+       <h2>Add your business details</h2>
+       <p class="muted">Save your shop name, address and phone number once and every new receipt starts filled in.</p>
+       <a class="btn btn-sm" href="/profile" data-route="/profile">Open business profile</a>
+      </section>
+     </div>
+    </div>
+   </section>
+
+   <!-- Create receipt -->
+   <section class="page page-editor" id="page-create-receipt" hidden>
+    <div class="seg seg-sticky editor-tabs" role="tablist" aria-label="Receipt editor view">
+     <button class="seg-btn is-active" type="button" role="tab" aria-selected="true" data-editor-tab="edit">Edit</button>
+     <button class="seg-btn" type="button" role="tab" aria-selected="false" data-editor-tab="preview">Preview</button>
+    </div>
+
+    <div class="editor" id="editorRoot" data-tab="edit">
+     <div class="editor-form stack">
+      <section class="panel">
+       <div class="panel-head"><h2>Business details</h2></div>
+       <div class="form-grid">
+        <div class="field span-2">
+         <span class="label">Business logo (optional)</span>
+         <div class="logo-pick">
+          <input id="logoFile" class="sr-only" type="file" accept="image/*">
+          <label class="drop" for="logoFile"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg><span><b>Choose an image</b><small>Your logo will appear on the receipt. The selected image stays in this browser.</small></span></label>
+          <div class="logo-prev" id="logoPrev" hidden><img id="logoImg" alt="Selected logo"><button class="btn btn-ghost btn-sm" id="logoRemove" type="button">Remove logo</button></div>
+         </div>
+        </div>
+        <div class="field span-2"><label for="business">Business / shop name</label><input class="input" id="business" placeholder="Machika Stores" autocomplete="organization"></div>
+        <div class="field"><label for="phone">Phone number</label><input class="input" id="phone" placeholder="080..." inputmode="tel" autocomplete="tel"></div>
+        <div class="field"><label for="address">Address</label><input class="input" id="address" placeholder="Katsina, Nigeria" autocomplete="street-address"></div>
+       </div>
+      </section>
+
+      <section class="panel">
+       <div class="panel-head"><h2>Receipt details</h2></div>
+       <div class="form-grid">
+        <div class="field"><label for="receiptNo">Receipt number</label><input class="input mono" id="receiptNo"></div>
+        <div class="field"><label for="date">Receipt date</label><input class="input" id="date" type="date"></div>
+        <div class="field"><label for="customer">Customer name</label><input class="input" id="customer" placeholder="Cash customer"></div>
+        <div class="field"><label for="payment">Payment method</label><select class="input" id="payment"><option>Cash</option><option>Transfer</option><option>POS</option><option>Card</option><option>Credit</option></select></div>
+       </div>
+      </section>
+
+      <section class="panel items-panel">
+       <div class="panel-head"><h2>Items sold</h2></div>
+       <div class="items-head" aria-hidden="true"><span>Item / service</span><span>Quantity</span><span>Price (₦)</span><span>Amount</span><span></span></div>
+       <div id="items"></div>
+       <button class="btn btn-block btn-dashed" id="addItem" type="button"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>Add item</button>
+      </section>
+
+      <section class="panel">
+       <div class="panel-head"><h2>Totals</h2></div>
+       <div class="form-grid">
+        <div class="field"><label for="discount">Discount (₦)</label><input class="input mono" id="discount" type="number" min="0" value="0" inputmode="decimal"></div>
+        <div class="field"><label for="note">Additional notes</label><input class="input" id="note" placeholder="Thank you for your business"></div>
+       </div>
+       <dl class="sum">
+        <div><dt>Subtotal</dt><dd id="sumSub" class="mono">₦0.00</dd></div>
+        <div><dt>Discount</dt><dd id="sumDisc" class="mono">₦0.00</dd></div>
+        <div class="grand"><dt>Total</dt><dd id="sumTotal" class="mono">₦0.00</dd></div>
+       </dl>
+      </section>
+     </div>
+
+     <aside class="editor-preview">
+      <div class="preview-desk"><div class="paper"><div class="receipt" id="receipt"></div></div></div>
+      <p class="hint">The preview updates as you type. Download PNG saves this exact image. PDF downloads are not available.</p>
+     </aside>
+    </div>
+
+    <div class="actionbar">
+     <button class="btn btn-primary grow" id="save" type="button"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Save receipt</button>
+     <button class="btn" id="image" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Download PNG</button>
+     <button class="btn btn-ghost" id="clear" type="button">New receipt</button>
+    </div>
+   </section>
+
+   <!-- Receipt history -->
+   <section class="page" id="page-my-receipts" hidden>
+    <div class="toolbar">
+     <label class="search"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search receipts</span><input id="receiptSearch" type="search" placeholder="Search by receipt number or customer" autocomplete="off"></label>
+    </div>
+    <section class="panel panel-flush"><div id="history" class="rlist"></div></section>
+   </section>
+
+   <!-- Business profile -->
+   <section class="page" id="page-profile" hidden>
+    <section class="panel narrow">
+     <div class="panel-head"><h2>Business details</h2></div>
+     <p class="muted lead-s">Save your shop name, address, and phone number once. They will be filled in automatically for future receipts.</p>
+     <form id="profileForm" class="stack" novalidate>
+      <div class="form-grid">
+       <div class="field span-2"><label for="profileBusiness">Business / shop name</label><input class="input" id="profileBusiness" placeholder="Machika Store"></div>
+       <div class="field"><label for="profilePhone">Phone number</label><input class="input" id="profilePhone" placeholder="080..." inputmode="tel"></div>
+       <div class="field"><label for="profileAddress">Business address</label><input class="input" id="profileAddress" placeholder="Shop address"></div>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="saveProfileBtn" type="submit">Save business profile</button></div>
+     </form>
+     <p id="profileStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+   </section>
+
+   <!-- Account -->
+   <section class="page" id="page-account" hidden>
+    <div class="narrow stack">
+     <div class="notice" id="recoveryNotice" role="status" hidden>You opened a password reset link. Choose a new password below to finish.</div>
+     <section class="panel">
+      <div class="panel-head"><h2>My account</h2></div>
+      <div class="row"><span class="avatar avatar-lg" id="accAvatar">M</span><div class="grow"><p class="label">Email address</p><p id="myAccountEmail" class="mono break"></p></div></div>
+     </section>
+     <section class="panel">
+      <div class="panel-head"><h2>Change password</h2></div>
+      <form id="passwordForm" class="stack" novalidate>
+       <div class="field"><label for="newPassword">New password (at least 6 characters)</label><input class="input" id="newPassword" type="password" autocomplete="new-password"></div>
+       <div class="field"><label for="confirmPassword">Confirm new password</label><input class="input" id="confirmPassword" type="password" autocomplete="new-password"></div>
+       <div class="actions"><button class="btn btn-primary" id="changePasswordBtn" type="submit">Update password</button></div>
+      </form>
+      <p id="passwordStatus" class="status" role="status" aria-live="polite"></p>
+     </section>
+     <section class="panel">
+      <button class="btn btn-danger" id="accountLogoutBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-logout"/></svg>Logout</button>
+     </section>
+    </div>
+   </section>
+
+   <!-- Super admin -->
+   <section class="page" id="page-admin" hidden>
+    <p class="muted lead-s">Restricted administration area. The server checks admin permissions for every request.</p>
+    <div class="toolbar">
+     <div class="seg" id="adminTabs" role="tablist" aria-label="Admin views">
+      <button class="seg-btn is-active" id="adminStatsBtn" type="button" data-admin="stats">Overview</button>
+      <button class="seg-btn" id="adminUsersBtn" type="button" data-admin="users">Users</button>
+      <button class="seg-btn" id="adminReceiptsBtn" type="button" data-admin="receipts">All receipts</button>
+      <button class="seg-btn" id="adminAnalyticsBtn" type="button" data-admin="analytics">Analytics (7 days)</button>
+     </div>
+     <button class="btn btn-sm" id="adminRefreshBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>Refresh</button>
+    </div>
+    <p id="adminStatus" class="status" role="status" aria-live="polite"></p>
+    <div id="adminStats" class="stats-grid"></div>
+    <div id="adminResults"></div>
+   </section>
+  </main>
+
+  <footer class="app-foot">
+   <span>© <span id="appFooterYear">2026</span> Machika Receipt Maker</span>
+   <button type="button" class="link-btn" data-open-legal="privacy">Privacy Policy</button>
+   <button type="button" class="link-btn" data-open-legal="terms">Terms of Service</button>
+   <a href="mailto:support.machikareceiptmaker@gmail.com">Contact Support</a>
+  </footer>
+ </div>
+
+ <nav class="tabbar" aria-label="Primary">
+  <a class="tab" data-nav="/dashboard" data-route="/dashboard" href="/dashboard"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></a>
+  <a class="tab" data-nav="/my-receipts" data-route="/my-receipts" href="/my-receipts"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg><span>Receipts</span></a>
+  <a class="tab tab-create" data-nav="/create-receipt" data-route="/create-receipt" href="/create-receipt"><span class="tab-fab"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></span><span>Create</span></a>
+  <a class="tab" data-nav="/profile" data-route="/profile" href="/profile"><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><span>Business</span></a>
+  <a class="tab" data-nav="/account" data-route="/account" href="/account"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span>Account</span></a>
+ </nav>
+</div>
+
+<!-- ============ DIALOGS + TOASTS ============ -->
+<dialog id="confirmDialog" class="dialog" aria-labelledby="confirmTitle">
+ <form method="dialog">
+  <h2 id="confirmTitle">Are you sure?</h2>
+  <p id="confirmText" class="muted"></p>
+  <div class="dialog-actions">
+   <button class="btn" value="cancel" autofocus>Cancel</button>
+   <button class="btn btn-danger-solid" id="confirmOk" value="ok">Confirm</button>
+  </div>
+ </form>
+</dialog>
+
+<dialog id="legalDialog" class="dialog dialog-wide" aria-labelledby="legalTitle">
+ <div class="dialog-head"><h2 id="legalTitle">Legal information</h2><button type="button" class="icon-btn" id="legalClose" aria-label="Close"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+ <div id="legalContent" class="legal-content"></div>
+ <div class="dialog-actions"><button type="button" class="btn btn-primary" id="legalDone">Close</button></div>
+</dialog>
+
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script>
-const $=id=>document.getElementById(id);
-const safe=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money=n=>Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
-function nextNo(){return 'REC-'+new Date().toISOString().slice(0,10).replaceAll('-','')+'-'+String(Date.now()).slice(-5)}
-function addItem(name='',qty=1,price=''){const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input class="iname" placeholder="Item name" value="${safe(name)}"><input class="iqty" type="number" min="0.01" step="any" value="${safe(qty)}"><input class="iprice" type="number" min="0" step="0.01" placeholder="0.00" value="${safe(price)}"><button class="danger remove" title="Remove item" type="button">×</button>`;$('items').appendChild(row);row.querySelectorAll('input').forEach(i=>i.addEventListener('input',render));row.querySelector('.remove').addEventListener('click',()=>{row.remove();if(!$('items').children.length)addItem();render()});render()}
-function values(){const items=[...document.querySelectorAll('.item-row')].map(r=>({name:r.querySelector('.iname').value.trim(),qty:Math.max(0,Number(r.querySelector('.iqty').value)||0),price:Math.max(0,Number(r.querySelector('.iprice').value)||0)})).filter(x=>x.name);const subtotal=items.reduce((s,x)=>s+x.qty*x.price,0);const discount=Math.max(0,Number($('discount').value)||0);return {business:$('business').value.trim()||'Business Name',phone:$('phone').value.trim(),address:$('address').value.trim(),receiptNo:$('receiptNo').value.trim()||nextNo(),date:$('date').value,customer:$('customer').value.trim()||'Walk-in Customer',payment:$('payment').value,items,subtotal,discount,total:Math.max(0,subtotal-discount),note:$('note').value.trim()}}
-let logoData = '';
-$('logoFile').addEventListener('change', e=>{const file=e.target.files&&e.target.files[0];if(!file){logoData='';render();return}if(!file.type.startsWith('image/')){alert('Please choose an image for the logo.');e.target.value='';return}if(file.size>2*1024*1024){alert('Logo is too large. Choose an image under 2MB.');e.target.value='';return}const reader=new FileReader();reader.onload=()=>{logoData=String(reader.result||'');render()};reader.readAsDataURL(file)});
-function render(){const d=values();$('receipt').innerHTML=`${logoData?`<div class="center" style="margin-bottom:8px"><img src="${logoData}" alt="Shop logo" style="max-width:90px;max-height:70px;object-fit:contain"></div>`:''}<h3>${safe(d.business)}</h3><div class="meta">${safe(d.address)}${d.phone?'\nTel: '+safe(d.phone):''}</div><hr><div style="font-size:12px;line-height:1.7"><div><b>Receipt:</b> ${safe(d.receiptNo)}</div><div><b>Date:</b> ${safe(d.date||new Date().toLocaleDateString('en-CA'))}</div><div><b>Customer:</b> ${safe(d.customer)}</div><div><b>Payment:</b> ${safe(d.payment)}</div></div><hr><table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${d.items.map(x=>`<tr><td>${safe(x.name)}</td><td class="num">${x.qty}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`).join('')||'<tr><td colspan="4" class="center">No items yet</td></tr>'}</tbody></table><hr><div style="font-size:13px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₦${money(d.subtotal)}</span></div><div style="display:flex;justify-content:space-between"><span>Discount</span><span>₦${money(d.discount)}</span></div><div class="total" style="display:flex;justify-content:space-between"><span>TOTAL</span><span>₦${money(d.total)}</span></div></div><hr><div class="foot">${safe(d.note||'Thank you for your patronage!')}</div>`}
-// Supabase public project settings. Publishable keys are intended for browser use; RLS protects user data.
-const SUPABASE_URL='https://caicmftfgrxzqdmxeshx.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_0cLxI9qxCDG4kQG_80CIxw_pp6BJ_Zv';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let currentUser=null; Object.defineProperty(window,'currentUser',{get:()=>currentUser});
-// Count one visit per browser tab session. This is visits, not unique people.
-try { if (!sessionStorage.getItem('machika_visit_counted')) { sb.from('site_visits').insert({}).then(({error})=>{ if(!error) sessionStorage.setItem('machika_visit_counted','1'); }); } } catch(e) { console.warn('Visit tracking unavailable',e); }
-function snapshot(){return {...values(),savedAt:new Date().toISOString()}}
-function setAuthStatus(msg,isError=false){$('authStatus').textContent=msg;$('authStatus').style.color=isError?'#b91c1c':'#475569'}
-let authMode='login';
-function setAuthMode(mode){authMode=mode;const isLogin=mode==='login';$('authHeading').textContent=isLogin?'Login to your account':'Create a new account';$('authIntro').textContent=isLogin?'Log in to use the receipt maker.':'Create an account with your email and password to get started.';$('signInBtn').style.display=isLogin&&!currentUser?'':'none';$('signUpBtn').style.display=!isLogin&&!currentUser?'':'none';$('resetBtn').style.display=isLogin&&!currentUser?'':'none';$('loginTab').className=isLogin?'primary active':'secondary';$('registerTab').className=!isLogin?'primary active':'secondary';$('authPassword').autocomplete=isLogin?'current-password':'new-password';}
-function updateAuthUI(){const signed=!!currentUser;$('appArea').hidden=true;$('dashboard').hidden=!signed;$('authCard').hidden=signed;$('authTabs').style.display=signed?'none':'flex';$('signInBtn').style.display=signed?'none':(authMode==='login'?'':'none');$('signUpBtn').style.display=signed?'none':(authMode==='register'?'':'none');$('resetBtn').style.display=signed||authMode!=='login'?'none':'';$('signOutBtn').style.display=signed?'':'none';$('accountBadge').textContent=signed?('Signed in: '+currentUser.email):'Not signed in';$('authEmail').disabled=signed;$('authPassword').disabled=signed;if(signed){$('welcome').textContent='Signed in as '+currentUser.email;$('accountEmail').textContent='Account email: '+currentUser.email;showDashboardHome();checkTelegramStatus();$('profileBusiness').value=currentUser.user_metadata?.business_name||'';$('profilePhone').value=currentUser.user_metadata?.business_phone||'';$('profileAddress').value=currentUser.user_metadata?.business_address||'';loadProfileIntoReceipt();showHistory();showDashboardHistory()}else{$('authHeading').textContent=authMode==='login'?'Login to your account':'Create a new account';$('authIntro').textContent=authMode==='login'?'Log in to use the receipt maker.':'Create an account with your email and password to get started.';$('history').innerHTML='<p class="small">Sign in to view your online receipt history.</p>'}}
-function loadProfileIntoReceipt(){const m=currentUser?.user_metadata||{};if(m.business_name)$('business').value=m.business_name;if(m.business_phone)$('phone').value=m.business_phone;if(m.business_address)$('address').value=m.business_address;render()}
-function hideAdminPanel(){ $('adminPanel').hidden=true; }
-function hideAllDashboardPanels(){ ['dashboardHome','profilePanel','dashboardHistory','accountPanel','adminPanel'].forEach(id=>$(id).hidden=true); }
-function showDashboardHome(){ hideAllDashboardPanels(); $('dashboardHome').hidden=false; }
-function showDashboardProfile(){ hideAllDashboardPanels(); $('profilePanel').hidden=false; }
-function showDashboardReceipts(){ hideAllDashboardPanels(); $('dashboardHistory').hidden=false; }
-function showAccountPanel(){ hideAllDashboardPanels(); $('accountPanel').hidden=false; $('myAccountEmail').textContent=currentUser?.email||''; }
-function showAdminPanel(){ hideAllDashboardPanels(); $('adminPanel').hidden=false; loadAdminData('stats'); }
-async function callAdmin(action, extraData={}){
-  const {data,error}=await sb.auth.getSession();
-  if(error || !data.session) throw new Error('Please log in again.');
-  const response=await fetch(SUPABASE_URL+'/functions/v1/machika-admin',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':SUPABASE_PUBLISHABLE_KEY,
-      'Authorization':'Bearer '+data.session.access_token
-    },
-    body:JSON.stringify({action,...extraData})
-  });
-  let result={};
-  try{result=await response.json()}catch{}
-  if(!response.ok) {
-    const details = result.details
-      ? (typeof result.details === 'string' ? result.details : JSON.stringify(result.details))
-      : '';
-    const code = result.code ? ' ['+result.code+']' : '';
-    throw new Error((result.error || ('Admin request failed ('+response.status+').')) + code + (details ? ' — ' + details : ''));
-  }
-  return result;
-}
-async function adminUserAction(action,userId){
-  const isBan=action==='ban-user';
-  const message=isBan
-    ? 'Ban this user? They will be blocked from signing in until an admin unbans them.'
-    : 'Unban this user and allow them to sign in again?';
-  if(!userId || !confirm(message)) return;
-  try{
-    await callAdmin(action,{user_id:userId});
-    alert(isBan?'User has been banned.':'User has been unbanned.');
-    await loadAdminData('users');
-  }catch(error){
-    alert('Could not '+(isBan?'ban':'unban')+' user: '+error.message);
-  }
-}
-function statCard(label,value){
-  return '<div class="card" style="padding:16px;border-radius:12px"><div class="small">'+safe(label)+'</div><div style="font-size:26px;font-weight:800;margin-top:6px">'+safe(value)+'</div></div>';
-}
-async function loadAdminData(action='stats'){
-  $('adminStatus').textContent='Loading admin data...';
-  $('adminResults').innerHTML='';
-  if(action==='stats') $('adminStats').innerHTML='';
-  try{
-    const result=await callAdmin(action);
-    if(action==='stats'){
-      $('adminStats').innerHTML=statCard('Registered Users',result.users??0)+statCard('Active Users',result.activeUsers??0)+statCard('Banned Users',result.bannedUsers??0)+statCard('Total Receipts',result.receipts??0)+statCard('Receipts Today',result.receiptsToday??0)+statCard('Total Visits',result.visitors??0);
-      $('adminStatus').textContent='Statistics loaded. Total Visits counts browser-tab sessions recorded, not unique people.';
-    }else if(action==='users'){
-      $('adminStats').innerHTML='';
-      const users=result.users||[];
-      if(!users.length){
-        $('adminResults').innerHTML='<p class="small">No users returned.</p>';
-        $('adminStatus').textContent='No users returned.';
-      }else{
-        $('adminResults').innerHTML=
-          '<div style="margin:8px 0 14px"><label for="adminUserSearch" style="display:block;font-weight:700;margin-bottom:6px">Search users by email</label><input id="adminUserSearch" type="search" placeholder="Type an email to search..." autocomplete="off" style="width:100%;max-width:440px;padding:11px 12px;border:1px solid #cbd5e1;border-radius:9px;font:inherit"></div>'+
-          '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Email</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Registered</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Last sign-in</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Status</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>';
-        const renderUsers=(query='')=>{
-          const q=query.trim().toLowerCase();
-          const filtered=users.filter(u=>(u.email||'').toLowerCase().includes(q));
-          $('adminUsersBody').innerHTML=filtered.map(u=>{
-            const isBanned=!!(u.banned_until && new Date(u.banned_until).getTime()>Date.now());
-            const status=isBanned?'Banned':'Active';
-            const action=isBanned?'unban-user':'ban-user';
-            const label=isBanned?'Unban':'Ban';
-            const buttonStyle=isBanned?'background:#15803d;color:white':'background:#b91c1c;color:white';
-            const userId=safe(u.id||'');
-            return '<tr><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.email||'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.created_at?new Date(u.created_at).toLocaleString():'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleString():'Never')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+status+'</td><td style="padding:9px;border-bottom:1px solid #eee"><button type="button" data-user-action="'+action+'" data-user-id="'+userId+'" style="'+buttonStyle+';border:0;border-radius:7px;padding:7px 11px;cursor:pointer">'+label+'</button></td></tr>';
-          }).join('')||'<tr><td colspan="5" style="padding:12px">No users match that search.</td></tr>';
-          $('adminStatus').textContent='Showing '+filtered.length+' of '+users.length+' users (maximum 100 per request). Admin accounts and your own account are protected.';
-        };
-        $('adminUserSearch').addEventListener('input',e=>renderUsers(e.target.value));
-        $('adminUsersBody').addEventListener('click',async e=>{
-          const button=e.target.closest('button[data-user-action]');
-          if(!button) return;
-          const action=button.dataset.userAction;
-          const userId=button.dataset.userId;
-          await adminUserAction(action,userId);
-        });
-        renderUsers();
-      }
-    }else if(action==='receipts'){
-      $('adminStats').innerHTML='';
-      const receipts=result.receipts||[];
-      $('adminResults').innerHTML=receipts.length?'<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Receipt</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Business</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Customer</th><th style="text-align:right;padding:9px;border-bottom:1px solid #ddd">Total</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Created</th></tr></thead><tbody>'+receipts.map(r=>'<tr><td style="padding:9px;border-bottom:1px solid #eee">'+safe(r.receipt_number||'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(r.business_name||'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(r.customer_name||'—')+'</td><td style="padding:9px;border-bottom:1px solid #eee;text-align:right">₦'+money(r.total)+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(r.created_at?new Date(r.created_at).toLocaleString():'—')+'</td></tr>').join('')+'</tbody></table>':'<p class="small">No receipts returned.</p>';
-      $('adminStatus').textContent='Showing '+receipts.length+' recent receipts (maximum 100).';
-    }else if(action==='analytics'){
-      $('adminStats').innerHTML='';
-      const days=result.analytics||[];
-      const max=Math.max(1,...days.map(d=>Math.max(Number(d.receipts)||0,Number(d.visits)||0)));
-      $('adminResults').innerHTML=days.length?'<h3>Receipts and visits — last 7 days</h3>'+days.map(d=>{const receiptWidth=Math.round((Number(d.receipts)||0)/max*100);const visitWidth=Math.round((Number(d.visits)||0)/max*100);return '<div style="padding:10px 0;border-bottom:1px solid #eee"><b>'+safe(d.date)+'</b><div class="small">Receipts: '+(d.receipts||0)+'</div><div style="height:10px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin:4px 0 8px"><div style="height:100%;width:'+receiptWidth+'%;background:#175cd3"></div></div><div class="small">Visits: '+(d.visits||0)+'</div><div style="height:10px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-top:4px"><div style="height:100%;width:'+visitWidth+'%;background:#19a7a1"></div></div></div>';}).join(''):'<p class="small">No analytics data returned.</p>';
-      $('adminStatus').textContent='Analytics loaded for the last 7 days.';
-    }
-  }catch(err){
-    $('adminStatus').textContent='Could not load admin data: '+err.message;
-    $('adminStatus').style.color='#b91c1c';
-    if(action==='stats'){
-      $('adminStats').innerHTML=statCard('Registered Users','—')+statCard('Active Users','—')+statCard('Banned Users','—')+statCard('Total Receipts','Error')+statCard('Receipts Today','Error')+statCard('Total Visits','Error');
-    }
-  }
-}
-async function saveProfile(){if(!currentUser)return;const meta={...(currentUser.user_metadata||{}),business_name:$('profileBusiness').value.trim(),business_phone:$('profilePhone').value.trim(),business_address:$('profileAddress').value.trim()};$('profileStatus').textContent='Saving profile...';const {data,error}=await sb.auth.updateUser({data:meta});if(error){$('profileStatus').textContent='Could not save: '+error.message;return}currentUser=data.user;$('profileStatus').textContent='Business profile saved to your account.';loadProfileIntoReceipt()}
-async function showDashboardHistory(){if(!currentUser)return;const {data,error}=await sb.from('receipts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);const el=$('dashboardHistoryList');if(error){el.textContent='Could not load receipts: '+error.message;return}const all=data||[];el.innerHTML=all.length?all.map((r,i)=>`<div class="history-row"><div><b>${safe(r.receipt_number)}</b><br>${safe(r.customer_name||'Customer')} · ${safe(r.receipt_date||'')}</div><div style="text-align:right"><b>₦${money(r.total)}</b><br><button class="secondary" data-dash-load="${i}" type="button">Open</button> <button class="secondary" data-dash-image="${i}" type="button">View Image</button> <button class="secondary" data-dash-download="${i}" type="button">Download PNG</button> <button class="danger" data-dash-del="${i}" type="button">Delete</button></div></div>`).join(''):'<p class="small">No saved receipts yet.</p>';el.querySelectorAll('[data-dash-load]').forEach(b=>b.onclick=()=>{loadCloudReceipt(all[Number(b.dataset.dashLoad)]);$('dashboard').hidden=true;$('appArea').hidden=false;window.scrollTo({top:0,behavior:'smooth'})});el.querySelectorAll('[data-dash-image]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.dashImage)].image_path));el.querySelectorAll('[data-dash-download]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.dashDownload)].image_path,true));el.querySelectorAll('[data-dash-del]').forEach(b=>b.onclick=async()=>{const r=all[Number(b.dataset.dashDel)];if(confirm('Delete this receipt permanently?')){const {error}=await sb.from('receipts').delete().eq('id',r.id).eq('user_id',currentUser.id);if(error)alert(error.message);else{showDashboardHistory();showHistory()}}})}
-async function signIn(){const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){setAuthStatus('Enter your email and password.',true);return}setAuthStatus('Logging in...');const {error}=await sb.auth.signInWithPassword({email,password});if(error)setAuthStatus(error.message,true)}
-async function signUp(){const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password){setAuthStatus('Enter your email and password.',true);return}if(password.length<6){setAuthStatus('Password must be at least 6 characters.',true);return}setAuthStatus('Creating account...');const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin}});if(error){setAuthStatus(error.message,true);return}if(data.session){setAuthStatus('Your account has been created and you are now signed in.')}else{setAuthStatus('A confirmation email may have been sent. Check your inbox or spam folder, confirm your email, then log in.')}}
-async function resetPassword(){const email=$('authEmail').value.trim();if(!email){setAuthStatus('Enter your email first.',true);return}setAuthStatus('Sending password reset link...');const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin});setAuthStatus(error?error.message:'If an account exists for this email, a password reset link will be sent. Check your inbox and spam folder.',!!error)}
-async function makeReceiptPngBlob(){
-  render();
-  const receipt=$('receipt');
-  if(!receipt || !receipt.innerText.trim()) throw new Error('There is no receipt to save as an image.');
-  if(typeof html2canvas==='undefined') throw new Error('The image library could not load. Check your internet connection.');
-  const canvas=await html2canvas(receipt,{backgroundColor:'#ffffff',scale:3,useCORS:true,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,receipt.scrollWidth),scrollX:0,scrollY:0});
-  return await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create receipt image.')),'image/png'));
-}
-async function saveReceiptImage(receiptNo){
-  const blob=await makeReceiptPngBlob();
-  const safeNo=String(receiptNo||'receipt').replace(/[^a-z0-9_-]/gi,'_');
-  const imagePath=currentUser.id+'/'+safeNo+'.png';
-  const {error}=await sb.storage.from('receipt-images').upload(imagePath,blob,{contentType:'image/png',upsert:true});
-  if(error) throw new Error('Image upload failed: '+error.message+' (ensure receipt-images Storage bucket and policies are set up)');
-  return imagePath;
-}
-async function openSavedReceiptImage(path,download=false){
-  if(!path){alert('This receipt was saved before image saving was enabled. Open it and save it again to store its image.');return;}
-  const {data,error}=await sb.storage.from('receipt-images').createSignedUrl(path,300,download?{download:true}:undefined);
-  if(error){alert('Could not open receipt image: '+error.message);return;}
-  window.open(data.signedUrl,'_blank','noopener');
-}
-async function save(){
-  if(!currentUser){alert('Please log in or create an account before saving a receipt online.');return}
-  const d=snapshot();
-  if(!d.items.length){alert('Please add at least one named item.');return}
-  setAuthStatus('Creating receipt image and saving to your account...');
-  let imagePath;
-  try { imagePath=await saveReceiptImage(d.receiptNo); }
-  catch(err){ setAuthStatus('Image not saved: '+err.message,true); alert('Could not save the receipt image. '+err.message); return; }
-  const row={user_id:currentUser.id,receipt_number:d.receiptNo,business_name:d.business,customer_name:d.customer,receipt_date:d.date||new Date().toLocaleDateString('en-CA'),items:{lines:d.items,discount:d.discount,phone:d.phone,address:d.address,payment:d.payment,note:d.note},subtotal:d.subtotal,tax:0,total:d.total,currency:'NGN',image_path:imagePath};
-  const {data:existing,error:findErr}=await sb.from('receipts').select('id,image_path').eq('user_id',currentUser.id).eq('receipt_number',d.receiptNo).maybeSingle();
-  if(findErr){setAuthStatus('Could not check receipt: '+findErr.message,true);alert('Could not save receipt. Check the receipts table and policies.');return}
-  let result;
-  if(existing){result=await sb.from('receipts').update(row).eq('id',existing.id).eq('user_id',currentUser.id)}
-  else{result=await sb.from('receipts').insert(row)}
-  if(result.error){setAuthStatus('Could not save receipt: '+result.error.message,true);alert('Could not save receipt details: '+result.error.message+' If it mentions image_path, run the SQL setup instructions first.');return}
-  await showHistory();await showDashboardHistory();$('appArea').hidden=true;$('dashboard').hidden=false;setAuthStatus('Receipt and PNG image saved to your online account.');alert('The receipt and its image have been saved to your account. You can view them again when you return.');
-}
-async function showHistory(){if(!currentUser){$('history').innerHTML='<p class="small">Sign in to view your online receipt history.</p>';return}const {data,error}=await sb.from('receipts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);if(error){$('history').innerHTML='<p class="small">Could not load receipt history: '+safe(error.message)+'</p>';return}const all=data||[];$('history').innerHTML=all.length?all.map((x,i)=>`<div class="history-row"><div><b>${safe(x.receipt_number)}</b><br>${safe(x.customer_name||'Customer')} · ${safe(x.receipt_date||'')}</div><div style="text-align:right"><b>₦${money(x.total)}</b><br><button class="secondary" style="padding:5px 8px;margin-top:4px" data-load="${i}">Open</button> <button class="secondary" style="padding:5px 8px;margin-top:4px" data-image="${i}">View Image</button> <button class="secondary" style="padding:5px 8px;margin-top:4px" data-download="${i}">Download PNG</button> <button class="danger" style="padding:5px 8px;margin-top:4px" data-del="${i}">×</button></div></div>`).join(''):'<p class="small">No receipts have been saved to your cloud account yet.</p>';document.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadCloudReceipt(all[Number(b.dataset.load)]));document.querySelectorAll('[data-image]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.image)].image_path));document.querySelectorAll('[data-download]').forEach(b=>b.onclick=()=>openSavedReceiptImage(all[Number(b.dataset.download)].image_path,true));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=all[Number(b.dataset.del)];if(confirm('Permanently delete this receipt from your cloud account?')){const {error}=await sb.from('receipts').delete().eq('id',r.id).eq('user_id',currentUser.id);if(error){alert('Could not delete receipt: '+error.message)}else{await showHistory();setAuthStatus('Receipt deleted.')}}})}
-function loadCloudReceipt(r){if(!r)return;const meta=r.items&&typeof r.items==='object'&&!Array.isArray(r.items)?r.items:{};const lines=Array.isArray(meta.lines)?meta.lines:(Array.isArray(r.items)?r.items:[]);const d={business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',items:lines};loadReceipt(d)}
-function loadReceipt(d){if(!d)return;['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>{if($(k))$(k).value=d[k]??''});$('items').innerHTML='';(d.items||[]).forEach(x=>addItem(x.name,x.qty,x.price));if(!$('items').children.length)addItem();render()}
-function clearForm(){['customer','note'].forEach(k=>$(k).value='');$('discount').value=0;$('receiptNo').value=nextNo();$('date').value=new Date().toLocaleDateString('en-CA');$('payment').value='Cash';$('items').innerHTML='';addItem();render()}
-async function saveImage(){
-  render();
-  const receipt=$('receipt');
-  if(!receipt || !receipt.innerText.trim()){alert('There is no receipt to download.');return}
-  if(typeof html2canvas==='undefined'){alert('The image library could not load. Check your internet connection and try again.');return}
-  try{
-    const canvas=await html2canvas(receipt,{backgroundColor:'#ffffff',scale:3,useCORS:true,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,receipt.scrollWidth),scrollX:0,scrollY:0});
-    const link=document.createElement('a');
-    const number=($('receiptNo').value.trim()||'receipt').replace(/[^a-z0-9_-]/gi,'_');
-    link.download=number+'.png';link.href=canvas.toDataURL('image/png');link.click();
-  }catch(err){alert('Could not download the receipt image. Please try again.');}
-}
-async function checkTelegramStatus(){
-  const status = $('telegramConnectStatus');
-  const generateBtn = $('telegramConnectBtn');
-  const disconnectBtn = $('telegramDisconnectBtn');
-  if (!status || !generateBtn || !disconnectBtn) return;
-  if (!currentUser) {
-    status.textContent = 'Please sign in to check your Telegram connection.';
-    generateBtn.hidden = false;
-    disconnectBtn.hidden = true;
-    return;
-  }
-  status.textContent = 'Checking Telegram connection...';
-  try {
-    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: { action: 'status' } });
-    if (error) throw error;
-    if (!data || data.success !== true) throw new Error(data?.error || 'Status check failed.');
-    if (data.connected) {
-      status.textContent = 'Telegram is connected to your Machika account.';
-      generateBtn.hidden = true;
-      disconnectBtn.hidden = false;
-      $('telegramLinkResult').hidden = true;
-    } else {
-      status.textContent = 'Telegram is not connected yet.';
-      generateBtn.hidden = false;
-      disconnectBtn.hidden = true;
-    }
-  } catch (err) {
-    console.error('Telegram status error:', err);
-    status.textContent = 'Could not check Telegram connection. Please refresh or sign in again.';
-  }
-}
-async function disconnectTelegram(){
-  const btn = $('telegramDisconnectBtn');
-  if (!currentUser || !confirm('Disconnect your Telegram account from Machika Receipt Maker?')) return;
-  btn.disabled = true;
-  $('telegramConnectStatus').textContent = 'Disconnecting Telegram...';
-  try {
-    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: { action: 'disconnect' } });
-    if (error) throw error;
-    if (!data || data.success !== true) throw new Error(data?.error || 'Disconnect failed.');
-    $('telegramLinkResult').hidden = true;
-    await checkTelegramStatus();
-  } catch (err) {
-    console.error('Telegram disconnect error:', err);
-    $('telegramConnectStatus').textContent = 'Could not disconnect Telegram. Please try again.';
-  } finally {
-    btn.disabled = false;
-  }
-}
-async function generateTelegramLinkCode(){
-  const status = $('telegramConnectStatus');
-  const result = $('telegramLinkResult');
-  const btn = $('telegramConnectBtn');
-  result.hidden = true;
-  if (!currentUser) {
-    status.textContent = 'Please sign in to your Machika account first.';
-    return;
-  }
-  btn.disabled = true;
-  status.textContent = 'Generating a secure one-time link code...';
-  try {
-    const { data, error } = await sb.functions.invoke('machika-telegram-link', { body: { action: 'generate' } });
-    if (error) throw error;
-    if (!data || !data.code) throw new Error(data?.error || 'The linking service did not return a code.');
-    $('telegramLinkCode').textContent = data.code;
-    $('telegramStartCommand').textContent = '/link ' + data.code;
-    const botUsername = (data.bot_username || 'MachikaReceiptBot').replace(/^@/, '');
-    const botLink = $('telegramOpenBot');
-    if (botUsername) {
-      botLink.href = 'https://t.me/' + encodeURIComponent(botUsername);
-      botLink.hidden = false;
-    } else {
-      botLink.hidden = true;
-    }
-    result.hidden = false;
-    status.textContent = 'Link code generated. It expires in ' + (data.expires_in_minutes || 10) + ' minutes. Open the bot and send the command shown above to finish linking.';
-    checkTelegramStatus();
-  } catch (err) {
-    console.error('Telegram link code error:', err);
-    status.textContent = err?.message || 'Could not generate a Telegram link code. Please try again.';
-  } finally {
-    btn.disabled = false;
-  }
-}
-$('telegramConnectBtn').onclick=generateTelegramLinkCode;
-$('telegramDisconnectBtn').onclick=disconnectTelegram;
-setInterval(()=>{if(currentUser && $('telegramLinkResult') && !$('telegramLinkResult').hidden)checkTelegramStatus();},5000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden && currentUser)checkTelegramStatus();});$('adminStatsBtn').onclick=()=>loadAdminData('stats');$('adminUsersBtn').onclick=()=>loadAdminData('users');$('adminReceiptsBtn').onclick=()=>loadAdminData('receipts');$('adminAnalyticsBtn').onclick=()=>loadAdminData('analytics');$('adminRefreshBtn').onclick=()=>loadAdminData('stats');$('saveProfileBtn').onclick=saveProfile;$('addItem').onclick=()=>addItem();$('update').onclick=render;$('save').onclick=save;$('image').onclick=saveImage;$('clear').onclick=()=>{if(confirm('Start a new receipt? Make sure you saved the current one if needed.'))clearForm()};
-['business','phone','address','receiptNo','date','customer','payment','discount','note'].forEach(k=>$(k).addEventListener('input',render));
-$('date').value=new Date().toLocaleDateString('en-CA');$('receiptNo').value=nextNo();addItem();render();setAuthMode('login');
-$('loginTab').onclick=()=>{setAuthMode('login');updateAuthUI()};$('registerTab').onclick=()=>{setAuthMode('register');updateAuthUI()};$('signInBtn').onclick=signIn;$('signUpBtn').onclick=signUp;$('resetBtn').onclick=resetPassword;$('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true)};
-sb.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;updateAuthUI()});
-sb.auth.getSession().then(({data,error})=>{if(error)setAuthStatus(error.message,true);currentUser=data.session?.user||null;updateAuthUI()});
-</script>
-
-<script>
-// MACHIKA RECEIPT URL routing and visible Back button.
-(function(){
-  const routePaths=['/','/login','/register','/dashboard','/profile','/create-receipt','/my-receipts','/admin','/account'];
-  function routePath(){const p=(location.pathname||'/').replace(/\/+$/,'')||'/';return routePaths.includes(p)?p:'/';}
-  function go(path, replace=false){if(replace)history.replaceState({machika:true},'',path);else if(location.pathname!==path)history.pushState({machika:true},'',path);renderRoute();}
-  window.goToMachikaRoute=(path)=>go(path);
-  function isSuperAdmin(){return !!(currentUser && currentUser.email && currentUser.email.toLowerCase()==='isahtasiumachika@gmail.com');}
-  function renderRoute(){
-    const path=routePath();
-    if(!currentUser && ['/dashboard','/profile','/create-receipt','/my-receipts','/admin','/account'].includes(path)){go('/login',true);return;}
-    if(currentUser && (path==='/'||path==='/login'||path==='/register')){go('/dashboard',true);return;}
-    $('landingPage').hidden=true;$('authCard').hidden=true;$('dashboard').hidden=true;$('appArea').hidden=true;
-    if(path==='/'){
-      $('landingPage').hidden=false;$('siteBackBtn').style.display='none';
-    }else if(path==='/login'||path==='/register'){
-      $('authCard').hidden=false;$('dashboard').hidden=true;$('appArea').hidden=true;
-      setAuthMode(path==='/register'?'register':'login');updateAuthUI();$('authCard').hidden=false;$('dashboard').hidden=true;$('appArea').hidden=true;
-    }else if(path==='/create-receipt'){
-      $('appArea').hidden=false;loadProfileIntoReceipt();
-    }else{
-      $('dashboard').hidden=false;
-      if(path==='/profile')showDashboardProfile();
-      else if(path==='/my-receipts'){showDashboardReceipts();showDashboardHistory();}
-      else if(path==='/account'){showAccountPanel();}
-      else if(path==='/admin'){
-        if(isSuperAdmin())showAdminPanel();else{showDashboardHome();setAuthStatus('You do not have permission to access Super Admin.',true);go('/dashboard',true);return;}
-      }else showDashboardHome();
-    }
-    const b=$('siteBackBtn'); if(b)b.style.display=(path==='/'||path==='/login'||path==='/register')?'none':'block';
-  }
-  $('siteBackBtn').addEventListener('click',function(){
-    const p=routePath();
-    if(p==='/create-receipt'){go('/dashboard');return;}
-    if(p==='/profile'||p==='/my-receipts'||p==='/admin'){go('/dashboard');return;}
-    if(p==='/register'){go('/login');return;}
-    if(p==='/dashboard'){if(history.length>1)history.back();else go('/dashboard',true);return;}
-    if(history.state && history.state.machika){history.back();}else go(currentUser?'/dashboard':'/login');
-  });
-  window.addEventListener('popstate',renderRoute);
-  $('loginTab').onclick=()=>go('/login');
-  $('registerTab').onclick=()=>go('/register');
-  document.querySelectorAll('[data-landing-route]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();go(a.dataset.landingRoute);}));
-  document.querySelector('.landing-logo')?.addEventListener('click',e=>{e.preventDefault();go('/');});
-  
-  
-  $('signOutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true);else go('/login',true);};
-  const priorAuthHandler=sb.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;setTimeout(renderRoute,0);});
-  sb.auth.getSession().then(({data})=>{currentUser=data?.session?.user||null;renderRoute();});
-  // Keep route UI synchronized with sign-in state changes.
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderRoute();});
-})();
-</script>
-
-
-<nav id="machikaBottomNav" aria-label="Main navigation">
- <button class="nav-item" data-path="/dashboard" type="button"><span class="nav-icon">⌂</span><span class="nav-label">Dashboard</span></button>
- <button class="nav-item" data-path="/create-receipt" type="button"><span class="nav-icon">🧾</span><span class="nav-label">Create</span></button>
- <button class="nav-item" data-path="/my-receipts" type="button"><span class="nav-icon">▤</span><span class="nav-label">History</span></button>
- <button class="nav-item" data-path="/profile" type="button"><span class="nav-icon">🏪</span><span class="nav-label">Business</span></button>
- <button class="nav-item" data-path="/account" type="button"><span class="nav-icon">♙</span><span class="nav-label">Account</span></button>
-</nav>
-<script id="machika-bottom-nav-script">
-(function(){
- const nav=document.getElementById('machikaBottomNav'); if(!nav)return;
- const items=[...nav.querySelectorAll('[data-path]')];
- function path(){return (location.pathname.replace(/\/+$/,'')||'/');}
- function refresh(){
-   const p=path();
-   const loggedIn=!!(window.currentUser);
-   nav.style.display=loggedIn && !['/login','/register'].includes(p)?'grid':'none';
-   items.forEach(b=>{const target=b.dataset.path;let active=(target===p)||(target==='/dashboard'&&p==='/')||(target==='/account'&&p==='/account');b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});
- }
- items.forEach(b=>b.addEventListener('click',()=>{
-   const target=b.dataset.path;
-   if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute(target);else location.href=target;
- }));
- window.addEventListener('popstate',refresh);
- document.addEventListener('visibilitychange',refresh);
- const observer=new MutationObserver(refresh);observer.observe(document.getElementById('dashboard'),{attributes:true,attributeFilter:['hidden']});observer.observe(document.getElementById('authCard'),{attributes:true,attributeFilter:['hidden']});
- const originalRender=window.renderMachikaRoute; if(originalRender)window.renderMachikaRoute=function(){originalRender();refresh();};
- setInterval(refresh,700);
-})();
-</script>
-
-<script id="machika-sidebar-script">
-(function(){
- const side=document.getElementById('machikaSidebar'); if(!side)return;
- const links=[...side.querySelectorAll('[data-side-path]')];
- function refresh(){
-  const signed=!!(document.getElementById('accountBadge')?.textContent||'').startsWith('Signed in:');
-  const path=(location.pathname.replace(/\/+$/,'')||'/');
-  const allowed=signed && !['/login','/register','/'].includes(path);
-  side.style.display=allowed?'flex':'none';
-  const toggle=document.getElementById('mobileSidebarToggle');
-  if(toggle) toggle.style.display=(allowed && window.matchMedia('(max-width: 899px)').matches)?'inline-flex':'none';
-  if(!allowed) closeDrawer();
-  const admin=document.getElementById('sidebarAdminBtn');
-  if(admin)admin.hidden=!(window.currentUser && window.currentUser.email && window.currentUser.email.toLowerCase()==='isahtasiumachika@gmail.com');
-  links.forEach(b=>{const target=b.dataset.sidePath;const active=target===path||(target==='/account'&&path==='/account');b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});
- }
- function closeDrawer(){document.body.classList.remove('machika-sidebar-open');document.getElementById('mobileSidebarToggle')?.setAttribute('aria-expanded','false');}
- const toggle=document.getElementById('mobileSidebarToggle');
- toggle?.addEventListener('click',()=>{const open=!document.body.classList.contains('machika-sidebar-open');document.body.classList.toggle('machika-sidebar-open',open);toggle.setAttribute('aria-expanded',String(open));});
- document.getElementById('machikaSidebarOverlay')?.addEventListener('click',closeDrawer);
- document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
- links.forEach(b=>b.addEventListener('click',()=>{const target=b.dataset.sidePath;closeDrawer();if(target&&typeof window.goToMachikaRoute==='function')window.goToMachikaRoute(target);else if(target)location.href=target;}));
- document.getElementById('sidebarLogoutBtn')?.addEventListener('click',async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true);else if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute('/login',true);});
- document.getElementById('accountLogoutBtn')?.addEventListener('click',async()=>{const {error}=await sb.auth.signOut();if(error)setAuthStatus(error.message,true);else if(typeof window.goToMachikaRoute==='function')window.goToMachikaRoute('/login',true);});
- window.addEventListener('popstate',refresh);window.addEventListener('resize',refresh);document.addEventListener('visibilitychange',refresh);
- const badge=document.getElementById('accountBadge');if(badge)new MutationObserver(refresh).observe(badge,{childList:true,characterData:true,subtree:true});
- const adminBtn=document.getElementById('adminNavBtn');if(adminBtn)new MutationObserver(refresh).observe(adminBtn,{attributes:true,attributeFilter:['hidden']});
- setInterval(refresh,700);refresh();
-})();
-</script>
-
+<script type="module" src="/js/main.js"></script>
 </body>
 </html>
