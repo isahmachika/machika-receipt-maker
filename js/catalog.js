@@ -4,7 +4,7 @@ import {state} from './state.js';
 
 // Saved items (name + usual price) and saved customers, kept per account.
 // If the two Supabase tables are not created yet, everything here quietly switches off and receipts still work.
-const cat={items:[],customers:[],ok:true};
+const cat={items:[],customers:[],ok:true,err:''};
 
 export const savedPrice=name=>{
   const n=String(name||'').trim().toLowerCase();
@@ -22,7 +22,10 @@ export async function loadCatalog(){
     sb.from('saved_customers').select('*').eq('user_id',uid).order('name',{ascending:true}).limit(500)
   ]);
   if(state.user?.id!==uid) return;
-  cat.ok=!(i.error||c.error);
+  const e=i.error||c.error;
+  cat.ok=!e;
+  cat.err=e?`${e.code||''} ${e.message||''}`.trim():'';
+  if(e) console.warn('Saved items could not load',e);
   cat.items=i.data||[];cat.customers=c.data||[];
   draw();
 }
@@ -31,6 +34,7 @@ function draw(){
   $('savedItemsData').innerHTML=cat.items.map(x=>`<option value="${safe(x.name)}"></option>`).join('');
   $('savedCustomersData').innerHTML=cat.customers.map(x=>`<option value="${safe(x.name)}"></option>`).join('');
   $('catalogOff').hidden=cat.ok;
+  $('catalogOff').textContent=cat.err?`Saved items and customers could not load (${cat.err}). Check your internet and reload the page.`:'Saved items and customers are not available yet.';
   $('catalogPanels').hidden=!cat.ok;
   const del=(kind,x)=>`<button class="icon-btn danger" type="button" data-del="${kind}" data-id="${safe(x.id)}" title="Delete" aria-label="Delete ${safe(x.name)}">${icon('trash')}</button>`;
   $('savedItemsList').innerHTML=cat.items.length
