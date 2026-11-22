@@ -142,3 +142,7 @@
 .admin-tools .admin-search{margin:0;flex:1 1 200px;max-width:320px;min-width:0}
 .admin-tools .btn{flex:0 0 auto}
 @media(max-width:600px){.admin-tools .admin-search{max-width:none;flex-basis:100%}.admin-tools .btn{width:100%}}
+
+.strip-2{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px}
+.strip-2+.strip-note{margin-top:8px}
+@media(max-width:640px){.strip.strip-2{grid-template-columns:1fr}}
