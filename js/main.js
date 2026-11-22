@@ -1,5 +1,5 @@
 import {sb} from './supa.js';
-import {$} from './utils.js';
+import {$,toast} from './utils.js';
 import {state} from './state.js';
 import {initRouter,onEnter,render,go} from './router.js';
 import {initAuth,setMode} from './auth.js';
@@ -80,3 +80,10 @@ function boot(){
 }
 
 boot();
+
+// Offline support: lets the website open like an app, even on a weak network.
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(e=>console.warn('Offline mode unavailable',e))});
+}
+window.addEventListener('offline',()=>toast('You are offline. You can still create receipts and download them, but saving needs internet.','info',8000));
+window.addEventListener('online',()=>toast('Back online.','success',3000));
