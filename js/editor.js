@@ -4,6 +4,7 @@ import {state,profileOf} from './state.js';
 import {RECEIPT_BUCKET} from './config.js';
 import {loadReceipts} from './receipts.js';
 import {go} from './router.js';
+import {savedPrice,rememberFromReceipt} from './catalog.js';
 
 let logoData='';
 const FIELDS=['business','phone','address','receiptNo','date','customer','payment','discount','note'];
@@ -12,13 +13,15 @@ const FIELDS=['business','phone','address','receiptNo','date','customer','paymen
 export function addItem(name='',qty=1,price=''){
   const row=document.createElement('div');
   row.className='item-row';
-  row.innerHTML=`<div class="cell item-name"><span class="cell-label">Item / service</span><input class="input iname" placeholder="Item name" aria-label="Item name" value="${safe(name)}"></div>`+
+  row.innerHTML=`<div class="cell item-name"><span class="cell-label">Item / service</span><input class="input iname" placeholder="Item name" aria-label="Item name" list="savedItemsData" autocomplete="off" value="${safe(name)}"></div>`+
     `<div class="cell cell-qty"><span class="cell-label">Quantity</span><input class="input iqty" type="number" min="0.01" step="any" inputmode="decimal" aria-label="Quantity" value="${safe(qty)}"></div>`+
     `<div class="cell cell-price"><span class="cell-label">Price (₦)</span><input class="input iprice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="Price" value="${safe(price)}"></div>`+
     `<output class="item-amount" aria-label="Line amount">₦0.00</output>`+
     `<button class="icon-btn danger remove" type="button" title="Remove item" aria-label="Remove item">${icon('trash')}</button>`;
   $('items').appendChild(row);
   row.querySelectorAll('input').forEach(i=>i.addEventListener('input',render));
+  // Picking a saved item fills its usual price (only when the price is still empty).
+  row.querySelector('.iname').addEventListener('change',e=>{const p=savedPrice(e.target.value),pr=row.querySelector('.iprice');if(p!==null&&!pr.value){pr.value=p;render()}});
   row.querySelector('.remove').addEventListener('click',()=>{row.remove();if(!$('items').children.length)addItem();render()});
   render();
   return row;
@@ -258,6 +261,7 @@ async function save(){
       :await sb.from('receipts').insert(row);
     if(result.error){toast('Could not save receipt details: '+result.error.message+' If it mentions image_path, run the SQL setup instructions first.','error');return}
     await loadReceipts({force:true});
+    rememberFromReceipt(d,$('customer').value);
     toast('Receipt saved to your account. You can open it again any time from Receipts.','success');
     go('/my-receipts');
   }finally{setBusy(btn,false)}
