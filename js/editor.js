@@ -4,9 +4,18 @@ import {state,profileOf} from './state.js';
 import {RECEIPT_BUCKET} from './config.js';
 import {loadReceipts} from './receipts.js';
 import {go} from './router.js';
-import {savedPrice,rememberFromReceipt} from './catalog.js';
+import {savedPrice,savedPhone,rememberFromReceipt} from './catalog.js';
 
 let logoData='';
+// Receipt colour: only these values are ever used (black = the original look).
+const COLORS=['','#1743c9','#0f7a4a','#b42318','#6d28d9','#c2410c'];
+let rcolor='';
+function setColor(c,remember=true){
+  rcolor=COLORS.includes(c)?c:'';
+  qsa('#colorPick .swatch').forEach(b=>{const on=b.dataset.color===rcolor;b.classList.toggle('is-on',on);b.setAttribute('aria-checked',String(on))});
+  if(remember){try{localStorage.setItem('machika-receipt-colour',rcolor)}catch{/* private mode */}}
+  render();
+}
 const FIELDS=['business','phone','address','receiptNo','date','customer','payment','discount','note'];
 
 /* ---------- Items ---------- */
@@ -32,12 +41,12 @@ export function values(){
   const items=qsa('.item-row').map(r=>({name:r.querySelector('.iname').value.trim(),qty:Math.max(0,Number(r.querySelector('.iqty').value)||0),price:Math.max(0,Number(r.querySelector('.iprice').value)||0)})).filter(x=>x.name);
   const subtotal=items.reduce((s,x)=>s+x.qty*x.price,0);
   const discount=Math.max(0,Number($('discount').value)||0);
-  return {business:$('business').value.trim()||'Business Name',phone:$('phone').value.trim(),address:$('address').value.trim(),receiptNo:$('receiptNo').value.trim()||nextNo(),date:$('date').value,customer:$('customer').value.trim()||'Walk-in Customer',payment:$('payment').value,items,subtotal,discount,total:Math.max(0,subtotal-discount),note:$('note').value.trim()};
+  return {business:$('business').value.trim()||'Business Name',phone:$('phone').value.trim(),address:$('address').value.trim(),receiptNo:$('receiptNo').value.trim()||nextNo(),date:$('date').value,customer:$('customer').value.trim()||'Walk-in Customer',payment:$('payment').value,items,subtotal,discount,total:Math.max(0,subtotal-discount),note:$('note').value.trim(),color:rcolor};
 }
 
 export function render(){
   const d=values();
-  $('receipt').innerHTML=`${logoData?`<div class="center" style="margin-bottom:8px"><img src="${logoData}" alt="Shop logo" style="max-width:90px;max-height:70px;object-fit:contain"></div>`:''}<h3>${safe(d.business)}</h3><div class="meta">${safe(d.address)}${d.phone?'\nTel: '+safe(d.phone):''}</div><hr><div style="font-size:12px;line-height:1.7"><div><b>Receipt:</b> ${safe(d.receiptNo)}</div><div><b>Date:</b> ${safe(d.date||new Date().toLocaleDateString('en-CA'))}</div><div><b>Customer:</b> ${safe(d.customer)}</div><div><b>Payment:</b> ${safe(d.payment)}</div></div><hr><table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${d.items.map(x=>`<tr><td>${safe(x.name)}</td><td class="num">${x.qty}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`).join('')||'<tr><td colspan="4" class="center">No items yet</td></tr>'}</tbody></table><hr><div style="font-size:13px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₦${money(d.subtotal)}</span></div><div style="display:flex;justify-content:space-between"><span>Discount</span><span>₦${money(d.discount)}</span></div><div class="total" style="display:flex;justify-content:space-between"><span>TOTAL</span><span>₦${money(d.total)}</span></div></div><hr><div class="foot">${safe(d.note||'Thank you for your patronage!')}</div>`;
+  $('receipt').innerHTML=`${logoData?`<div class="center" style="margin-bottom:8px"><img src="${logoData}" alt="Shop logo" style="max-width:90px;max-height:70px;object-fit:contain"></div>`:''}<h3${d.color?` style="color:${d.color}"`:''}>${safe(d.business)}</h3><div class="meta">${safe(d.address)}${d.phone?'\nTel: '+safe(d.phone):''}</div><hr><div style="font-size:12px;line-height:1.7"><div><b>Receipt:</b> ${safe(d.receiptNo)}</div><div><b>Date:</b> ${safe(d.date||new Date().toLocaleDateString('en-CA'))}</div><div><b>Customer:</b> ${safe(d.customer)}</div><div><b>Payment:</b> ${safe(d.payment)}</div></div><hr><table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${d.items.map(x=>`<tr><td>${safe(x.name)}</td><td class="num">${x.qty}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`).join('')||'<tr><td colspan="4" class="center">No items yet</td></tr>'}</tbody></table><hr><div style="font-size:13px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₦${money(d.subtotal)}</span></div><div style="display:flex;justify-content:space-between"><span>Discount</span><span>₦${money(d.discount)}</span></div><div class="total" style="display:flex;justify-content:space-between${d.color?`;color:${d.color}`:''}"><span>TOTAL</span><span>₦${money(d.total)}</span></div></div><hr><div class="foot">${safe(d.note||'Thank you for your patronage!')}</div>`;
   // Per-line amounts and the totals summary next to the form.
   qsa('.item-row').forEach(r=>{
     const q=Math.max(0,Number(r.querySelector('.iqty').value)||0),p=Math.max(0,Number(r.querySelector('.iprice').value)||0);
@@ -75,6 +84,10 @@ function initLogo(){
     reader.readAsDataURL(file);
   });
   $('logoRemove').addEventListener('click',()=>{$('logoFile').value='';setLogo('')});
+  let saved='';try{saved=localStorage.getItem('machika-receipt-colour')||''}catch{/* ignore */}
+  setColor(saved,false);
+  $('colorPick').addEventListener('click',e=>{const b=e.target.closest('.swatch');if(b)setColor(b.dataset.color)});
+  $('whatsapp').addEventListener('click',whatsappCustomer);
 }
 
 /* ---------- Profile defaults ---------- */
@@ -94,14 +107,14 @@ export function loadReceipt(d){
   $('items').innerHTML='';
   (d.items||[]).forEach(x=>addItem(x.name,x.qty,x.price));
   if(!$('items').children.length) addItem();
-  render();
+  setColor(d.color||'',false);
 }
 
 export function loadCloudReceipt(r){
   if(!r) return;
   const meta=r.items&&typeof r.items==='object'&&!Array.isArray(r.items)?r.items:{};
   const lines=Array.isArray(meta.lines)?meta.lines:(Array.isArray(r.items)?r.items:[]);
-  loadReceipt({business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',items:lines});
+  loadReceipt({business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',color:meta.color||'',items:lines});
 }
 
 // Copy of a saved receipt: same shop, customer and items, but a fresh receipt number and today's date.
@@ -129,6 +142,8 @@ export function hardResetEditor(){
   ['business','phone','address'].forEach(k=>$(k).value='');
   $('logoFile').value='';
   logoData='';$('logoPrev').hidden=true;$('logoImg').removeAttribute('src');
+  try{localStorage.removeItem('machika-receipt-colour')}catch{/* ignore */}
+  setColor('',false);
   clearForm();
 }
 
@@ -227,6 +242,21 @@ async function shareReceipt(){
   }finally{setBusy(btn,false)}
 }
 
+// Opens WhatsApp to the customer's saved number (or lets the person pick a contact), with the receipt details as text.
+function phoneForWhatsApp(raw){
+  let n=String(raw||'').replace(/[^\d]/g,'');
+  if(n.startsWith('00')) n=n.slice(2);
+  if(n.startsWith('0')) n='234'+n.slice(1);   // Nigerian local format 080... -> 23480...
+  return n.length>=10?n:'';
+}
+function whatsappCustomer(){
+  const d=values();
+  const num=phoneForWhatsApp(savedPhone($('customer').value));
+  const text=`Hello ${d.customer},\nHere is your receipt ${d.receiptNo} from ${d.business}.\nDate: ${d.date||today()}\nTotal: \u20a6${money(d.total)}\nThank you for your patronage!`;
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(text),'_blank','noopener');
+  if(!num) toast('No saved phone number for this customer, so choose the contact in WhatsApp. Save the number in Business profile to skip this step.','info',8000);
+}
+
 async function downloadPng(){
   const btn=$('image');
   setBusy(btn,true,'Preparing...');
@@ -262,7 +292,7 @@ async function save(){
     let imagePath;
     try{imagePath=await saveReceiptImage(d.receiptNo)}
     catch(err){toast('Could not save the receipt image. '+err.message,'error');return}
-    const row={user_id:state.user.id,receipt_number:d.receiptNo,business_name:d.business,customer_name:d.customer,receipt_date:d.date||new Date().toLocaleDateString('en-CA'),items:{lines:d.items,discount:d.discount,phone:d.phone,address:d.address,payment:d.payment,note:d.note},subtotal:d.subtotal,tax:0,total:d.total,currency:'NGN',image_path:imagePath};
+    const row={user_id:state.user.id,receipt_number:d.receiptNo,business_name:d.business,customer_name:d.customer,receipt_date:d.date||new Date().toLocaleDateString('en-CA'),items:{lines:d.items,discount:d.discount,phone:d.phone,address:d.address,payment:d.payment,note:d.note,color:d.color},subtotal:d.subtotal,tax:0,total:d.total,currency:'NGN',image_path:imagePath};
     const {data:existing,error:findErr}=await sb.from('receipts').select('id,image_path').eq('user_id',state.user.id).eq('receipt_number',d.receiptNo).maybeSingle();
     if(findErr){toast('Could not save receipt. Check the receipts table and policies. ('+findErr.message+')','error');return}
     const result=existing
