@@ -104,6 +104,15 @@ export function loadCloudReceipt(r){
   loadReceipt({business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',items:lines});
 }
 
+// Copy of a saved receipt: same shop, customer and items, but a fresh receipt number and today's date.
+export function duplicateCloudReceipt(r){
+  if(!r) return;
+  loadCloudReceipt(r);
+  $('receiptNo').value=nextNo();
+  $('date').value=today();
+  render();
+}
+
 export function clearForm(){
   ['customer','note'].forEach(k=>$(k).value='');
   $('discount').value=0;
