@@ -42,7 +42,11 @@ export async function checkTelegramStatus({silent=false}={}){
     }
   }catch(err){
     console.error('Telegram status error:',err);
-    if(!silent) status.textContent='Could not check Telegram connection. Please refresh or sign in again.';
+    if(!silent){
+      const why=String(err?.message||'').slice(0,120);
+      status.textContent='Could not check your Telegram connection'+(why?' ('+why+')':'')+'. Check your internet, then refresh the page.';
+      gen.hidden=false;dis.hidden=true;pill.hidden=true;
+    }
   }
 }
 
