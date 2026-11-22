@@ -91,7 +91,7 @@ function usersTable(users){
         '<td><span class="pill '+(banned?'bad':'ok')+'">'+(banned?'Banned':'Active')+'</span></td>'+
         '<td><button type="button" class="btn '+(banned?'btn-unban':'btn-ban')+'" data-user-action="'+action+'" data-user-id="'+safe(u.id||'')+'">'+(banned?'Unban':'Ban')+'</button></td></tr>';
     }).join('')||'<tr><td colspan="5">No users match.</td></tr>';
-    setStatus('Showing '+shown.length+' of '+users.length+' users (maximum 100 per request). Admin accounts and your own account are protected.');
+    setStatus('Showing '+shown.length+' of '+users.length+' users. Admin accounts and your own account are protected.');
   };
   ['input','change'].forEach(ev=>{$('adminUserSearch').addEventListener(ev,renderUsers);$('adminUserFilter').addEventListener(ev,renderUsers);$('adminUserSort').addEventListener(ev,renderUsers)});
   $('adminUsersCsv').addEventListener('click',()=>{
@@ -121,7 +121,7 @@ function receiptsTable(receipts){
     shown=[...shown].sort((x,y)=>so==='oldest'?time(x.created_at)-time(y.created_at):so==='high'?(Number(y.total)||0)-(Number(x.total)||0):so==='low'?(Number(x.total)||0)-(Number(y.total)||0):time(y.created_at)-time(x.created_at));
     $('adminReceiptsBody').innerHTML=shown.map(r=>'<tr><td class="mono break">'+safe(r.receipt_number||'—')+'</td><td>'+safe(r.business_name||'—')+'</td><td>'+safe(r.customer_name||'—')+'</td><td class="r mono">₦'+money(r.total)+'</td><td>'+safe(when(r.created_at))+'</td></tr>').join('')||'<tr><td colspan="5">No receipts match.</td></tr>';
     const sum=shown.reduce((t,r)=>t+(Number(r.total)||0),0);
-    setStatus('Showing '+shown.length+' of '+receipts.length+' recent receipts (maximum 100). Total of shown: ₦'+money(sum)+'.');
+    setStatus('Showing '+shown.length+' of '+receipts.length+' receipts. Total of shown: ₦'+money(sum)+'.');
   };
   $('adminReceiptSearch').addEventListener('input',render);
   $('adminReceiptSort').addEventListener('change',render);
