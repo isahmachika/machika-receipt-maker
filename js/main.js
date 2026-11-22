@@ -3,7 +3,7 @@ import {$,toast} from './utils.js';
 import {state} from './state.js';
 import {initRouter,onEnter,render,go} from './router.js';
 import {initAuth,setMode} from './auth.js';
-import {initEditor,hardResetEditor,applyProfile,loadCloudReceipt,setEditorTab} from './editor.js';
+import {initEditor,hardResetEditor,applyProfile,loadCloudReceipt,duplicateCloudReceipt,setEditorTab} from './editor.js';
 import {initReceipts,loadReceipts,resetReceiptViews} from './receipts.js';
 import {initProfile,fillProfileForm} from './profile.js';
 import {initTelegram,checkTelegramStatus,stopTelegramPolling} from './telegram.js';
@@ -42,6 +42,7 @@ function boot(){
 
   // "Open" on a saved receipt: fill the editor, then move to it (the address bar changes too).
   document.addEventListener('receipt:open',e=>{loadCloudReceipt(e.detail);go('/create-receipt')});
+  document.addEventListener('receipt:duplicate',e=>{duplicateCloudReceipt(e.detail);go('/create-receipt');toast('Copy ready. Change what you need, then save.','success')});
 
   // One visit per browser tab session. This counts visits, not unique people.
   try{
