@@ -33,7 +33,7 @@ function rowHTML(r,full){
   return `<article class="rrow" data-id="${id}">`+
     `<div class="rrow-main"><b>${num}</b><span class="who">${safe(r.customer_name||'Customer')}</span><span>${safe(fmtDate(r.receipt_date))}</span></div>`+
     `<div class="rrow-total">₦${money(r.total)}</div>`+
-    `<div class="rrow-actions">${btn('open','pencil','Open and edit')}${btn('view','image','View image')}${full?btn('download','download','Download PNG')+btn('delete','trash','Delete','danger'):''}</div>`+
+    `<div class="rrow-actions">${btn('open','pencil','Open and edit')}${full?btn('duplicate','copy','Make a copy'):''}${btn('view','image','View image')}${full?btn('download','download','Download PNG')+btn('delete','trash','Delete','danger'):''}</div>`+
     `</article>`;
 }
 
@@ -74,12 +74,15 @@ export function renderStats(){
   $('statCount').textContent=capped?HISTORY_LIMIT+'+':String(list.length);
   $('statTotal').textContent='₦'+money(total);
   $('statMonth').textContent=String(list.filter(r=>String(r.receipt_date||'').startsWith(ym)).length);
+  const sum=pre=>list.filter(r=>String(r.receipt_date||'').startsWith(pre)).reduce((s,r)=>s+(Number(r.total)||0),0);
+  $('statSalesToday').textContent='₦'+money(sum(today()));
+  $('statSalesMonth').textContent='₦'+money(sum(ym));
   $('statTotalNote').textContent=capped?`Sales total and monthly count are based on your latest ${HISTORY_LIMIT} receipts.`:'';
 }
 
 export function resetReceiptViews(){
   state.receipts=[];state.receiptsLoaded=false;state.receiptsAt=0;
-  ['statCount','statTotal','statMonth'].forEach(id=>{$(id).textContent='—'});
+  ['statCount','statTotal','statMonth','statSalesToday','statSalesMonth'].forEach(id=>{$(id).textContent='—'});
   $('statTotalNote').textContent='';
   $('history').innerHTML='';$('dashboardHistoryList').innerHTML='';
 }
@@ -116,7 +119,8 @@ function bindList(el){
     const r=row&&state.receipts.find(x=>String(x.id)===row.dataset.id);
     if(!r) return;
     const act=btn.dataset.act;
-    if(act==='open') document.dispatchEvent(new CustomEvent('receipt:open',{detail:r}));
+    if(act==='duplicate') document.dispatchEvent(new CustomEvent('receipt:duplicate',{detail:r}));
+    else if(act==='open') document.dispatchEvent(new CustomEvent('receipt:open',{detail:r}));
     else if(act==='view') openImage(r.image_path);
     else if(act==='download') openImage(r.image_path,true);
     else if(act==='delete') await deleteReceipt(r);
