@@ -246,6 +246,17 @@
      <div><small>Sales this month</small><b id="statSalesMonth">—</b></div>
     </div>
     <p class="hint strip-note" id="statTotalNote"></p>
+    <section class="panel report" id="reportPanel">
+     <div class="panel-head"><h2>Sales report</h2>
+      <div class="seg" id="reportRange" role="group" aria-label="Report period">
+       <button class="seg-btn is-active" type="button" data-range="7">7 days</button>
+       <button class="seg-btn" type="button" data-range="30">30 days</button>
+       <button class="seg-btn" type="button" data-range="12">12 months</button>
+      </div>
+     </div>
+     <p class="report-sum" id="reportSum"></p>
+     <div class="rchart" id="reportChart" role="img" aria-label="Sales per day"></div>
+    </section>
     <div class="dash-grid">
      <section class="panel">
       <div class="panel-head"><h2>Recent receipts</h2><a class="link" href="/my-receipts" data-route="/my-receipts">View all</a></div>
@@ -299,6 +310,17 @@
          </div>
         </div>
         <div class="field span-2"><label for="business">Business / shop name</label><input class="input" id="business" placeholder="Machika Stores" autocomplete="organization"></div>
+        <div class="field span-2">
+         <span class="label" id="colorLabel">Receipt colour</span>
+         <div class="swatches" id="colorPick" role="radiogroup" aria-labelledby="colorLabel">
+          <button type="button" class="swatch is-on" role="radio" aria-checked="true" aria-label="Black" data-color="" style="--sw:#111111"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Blue" data-color="#1743c9" style="--sw:#1743c9"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Green" data-color="#0f7a4a" style="--sw:#0f7a4a"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Red" data-color="#b42318" style="--sw:#b42318"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Purple" data-color="#6d28d9" style="--sw:#6d28d9"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Orange" data-color="#c2410c" style="--sw:#c2410c"></button>
+         </div>
+        </div>
         <div class="field"><label for="phone">Phone number</label><input class="input" id="phone" placeholder="080..." inputmode="tel" autocomplete="tel"></div>
         <div class="field"><label for="address">Address</label><input class="input" id="address" placeholder="Katsina, Nigeria" autocomplete="street-address"></div>
        </div>
@@ -346,6 +368,7 @@
      <button class="btn" id="image" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Download PNG</button>
      <button class="btn" id="pdf" type="button"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg>Download PDF</button>
      <button class="btn" id="share" type="button"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg>Share</button>
+     <button class="btn" id="whatsapp" type="button"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg>WhatsApp customer</button>
      <button class="btn btn-ghost" id="clear" type="button">New receipt</button>
     </div>
    </section>
