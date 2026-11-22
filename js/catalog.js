@@ -12,6 +12,12 @@ export const savedPrice=name=>{
   return hit?Number(hit.price)||0:null;
 };
 
+export const savedPhone=name=>{
+  const n=String(name||'').trim().toLowerCase();
+  const hit=n&&cat.customers.find(x=>String(x.name).toLowerCase()===n);
+  return hit&&hit.phone?String(hit.phone):'';
+};
+
 export function resetCatalog(){cat.items=[];cat.customers=[];cat.ok=true;draw()}
 
 export async function loadCatalog(){
