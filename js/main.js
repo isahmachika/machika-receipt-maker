@@ -10,6 +10,7 @@ import {initTelegram,checkTelegramStatus,stopTelegramPolling} from './telegram.j
 import {initAdmin,loadAdminData} from './admin.js';
 import {initLegal} from './legal.js';
 import {initLanding} from './landing.js';
+import {initCatalog,loadCatalog,resetCatalog} from './catalog.js';
 import {updateShellUser,displayName,greeting} from './shell.js';
 
 function boot(){
@@ -18,7 +19,7 @@ function boot(){
     return;
   }
 
-  initRouter();initAuth();initEditor();initReceipts();initProfile();initTelegram();initAdmin();initLegal();initLanding();
+  initRouter();initAuth();initEditor();initReceipts();initProfile();initTelegram();initAdmin();initLegal();initLanding();initCatalog();
 
   // Runs only when the page (or sign-in state) changes, never on tab focus.
   onEnter('/login',()=>setMode('login'));
@@ -59,12 +60,12 @@ function boot(){
     if(changed){
       // A different person (or nobody): clear everything that belongs to the previous account.
       stopTelegramPolling();
-      resetReceiptViews();
+      resetReceiptViews();resetCatalog();
       hardResetEditor();
       if(user){
         applyProfile(true);fillProfileForm();updateShellUser();
         $('authPassword').value='';
-        loadReceipts();
+        loadReceipts();loadCatalog();
       }
     }else if(event==='USER_UPDATED'&&user){
       fillProfileForm();updateShellUser();
