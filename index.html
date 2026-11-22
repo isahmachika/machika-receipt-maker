@@ -303,7 +303,7 @@
        <div class="form-grid">
         <div class="field"><label for="receiptNo">Receipt number</label><input class="input mono" id="receiptNo"></div>
         <div class="field"><label for="date">Receipt date</label><input class="input" id="date" type="date"></div>
-        <div class="field"><label for="customer">Customer name</label><input class="input" id="customer" placeholder="Cash customer"></div>
+        <div class="field"><label for="customer">Customer name</label><input class="input" id="customer" placeholder="Cash customer" list="savedCustomersData" autocomplete="off"></div>
         <div class="field"><label for="payment">Payment method</label><select class="input" id="payment"><option>Cash</option><option>Transfer</option><option>POS</option><option>Card</option><option>Credit</option></select></div>
        </div>
       </section>
@@ -367,6 +367,29 @@
      </form>
      <p id="profileStatus" class="status" role="status" aria-live="polite"></p>
     </section>
+    <div id="catalogOff" class="notice narrow" hidden>Saved items and customers are not available yet.</div>
+    <div id="catalogPanels" class="stack">
+     <section class="panel narrow">
+      <div class="panel-head"><h2>Saved items</h2></div>
+      <p class="muted lead-s">Items you sell often. Type the name on a receipt and the price fills in.</p>
+      <form id="itemForm" class="form-grid" novalidate>
+       <div class="field"><label for="newItemName">Item name</label><input class="input" id="newItemName" autocomplete="off"></div>
+       <div class="field"><label for="newItemPrice">Price (₦)</label><input class="input" id="newItemPrice" type="number" min="0" step="0.01" inputmode="decimal"></div>
+       <div class="actions span-2"><button class="btn btn-primary" id="addSavedItem" type="submit">Save item</button></div>
+      </form>
+      <div id="savedItemsList" class="slist"></div>
+     </section>
+     <section class="panel narrow">
+      <div class="panel-head"><h2>Saved customers</h2></div>
+      <p class="muted lead-s">Pick a customer from the list when you create a receipt.</p>
+      <form id="customerForm" class="form-grid" novalidate>
+       <div class="field"><label for="newCustomerName">Customer name</label><input class="input" id="newCustomerName" autocomplete="off"></div>
+       <div class="field"><label for="newCustomerPhone">Phone number (optional)</label><input class="input" id="newCustomerPhone" inputmode="tel" autocomplete="off"></div>
+       <div class="actions span-2"><button class="btn btn-primary" id="addSavedCustomer" type="submit">Save customer</button></div>
+      </form>
+      <div id="savedCustomersList" class="slist"></div>
+     </section>
+    </div>
    </section>
 
    <!-- Account -->
@@ -445,6 +468,7 @@
  <div class="dialog-actions"><button type="button" class="btn btn-primary" id="legalDone">Close</button></div>
 </dialog>
 
+<datalist id="savedItemsData"></datalist><datalist id="savedCustomersData"></datalist>
 <div id="toasts" aria-live="polite" aria-atomic="false"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
