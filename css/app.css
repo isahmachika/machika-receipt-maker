@@ -137,3 +137,8 @@
 .srow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1.5px dashed var(--rule)}
 .srow-name{flex:1;min-width:0;font-weight:500;overflow-wrap:anywhere}
 .srow-meta{color:var(--muted);font-size:14px}
+
+.admin-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:0 0 14px}
+.admin-tools .admin-search{margin:0;flex:1 1 200px;max-width:320px;min-width:0}
+.admin-tools .btn{flex:0 0 auto}
+@media(max-width:600px){.admin-tools .admin-search{max-width:none;flex-basis:100%}.admin-tools .btn{width:100%}}
