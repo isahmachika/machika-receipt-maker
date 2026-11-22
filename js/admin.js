@@ -53,23 +53,51 @@ async function adminUserAction(action,userId){
 const statCard=(label,value)=>`<div class="stat"><small>${safe(label)}</small><b>${safe(typeof value==='number'?value.toLocaleString('en-NG'):value)}</b></div>`;
 const when=v=>v?new Date(v).toLocaleString():'—';
 
+// Download rows as a CSV file that opens correctly in Excel.
+function downloadCsv(filename,headers,rows){
+  const cell=v=>{
+    let t=v==null?'':String(v);
+    if(/^[=+\-@\t\r]/.test(t)) t="'"+t;   // stops spreadsheet formulas from running
+    return '"'+t.replace(/"/g,'""')+'"';
+  };
+  const text='﻿'+[headers,...rows].map(r=>r.map(cell).join(',')).join('\r\n');
+  const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+const today=()=>new Date().toISOString().slice(0,10);
+const isBanned=u=>!!(u.banned_until&&new Date(u.banned_until).getTime()>Date.now());
+const isNew=u=>u.created_at&&Date.now()-new Date(u.created_at).getTime()<864e5;
+const time=v=>v?new Date(v).getTime():0;
+
 function usersTable(users){
   $('adminResults').innerHTML=
-    '<div class="admin-search"><label for="adminUserSearch">Search users by email</label><input id="adminUserSearch" type="search" placeholder="Type an email to search..." autocomplete="off"></div>'+
+    '<div class="admin-tools">'+
+     '<div class="admin-search"><label for="adminUserSearch">Search users by email</label><input id="adminUserSearch" type="search" placeholder="Type an email to search..." autocomplete="off"></div>'+
+     '<div class="admin-search"><label for="adminUserFilter">Show</label><select class="input" id="adminUserFilter"><option value="all">All users</option><option value="active">Active only</option><option value="banned">Banned only</option><option value="never">Never signed in</option></select></div>'+
+     '<div class="admin-search"><label for="adminUserSort">Sort by</label><select class="input" id="adminUserSort"><option value="newest">Newest registered</option><option value="oldest">Oldest registered</option><option value="signin">Last sign-in</option><option value="email">Email (A-Z)</option></select></div>'+
+     '<button type="button" class="btn btn-sm" id="adminUsersCsv">Download CSV</button>'+
+    '</div>'+
     '<div class="table-wrap"><table class="table"><thead><tr><th>Email</th><th>Registered</th><th>Last sign-in</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>';
-  const renderUsers=(query='')=>{
-    const q=query.trim().toLowerCase();
-    const filtered=users.filter(u=>(u.email||'').toLowerCase().includes(q));
-    $('adminUsersBody').innerHTML=filtered.map(u=>{
-      const banned=!!(u.banned_until&&new Date(u.banned_until).getTime()>Date.now());
+  let shown=users;
+  const renderUsers=()=>{
+    const q=$('adminUserSearch').value.trim().toLowerCase(),f=$('adminUserFilter').value,so=$('adminUserSort').value;
+    shown=users.filter(u=>(u.email||'').toLowerCase().includes(q)).filter(u=>f==='all'||(f==='active'&&!isBanned(u))||(f==='banned'&&isBanned(u))||(f==='never'&&!u.last_sign_in_at));
+    shown=[...shown].sort((x,y)=>so==='oldest'?time(x.created_at)-time(y.created_at):so==='signin'?time(y.last_sign_in_at)-time(x.last_sign_in_at):so==='email'?(x.email||'').localeCompare(y.email||''):time(y.created_at)-time(x.created_at));
+    $('adminUsersBody').innerHTML=shown.map(u=>{
+      const banned=isBanned(u);
       const action=banned?'unban-user':'ban-user';
-      return '<tr><td class="break">'+safe(u.email||'—')+'</td><td>'+safe(when(u.created_at))+'</td><td>'+safe(u.last_sign_in_at?when(u.last_sign_in_at):'Never')+'</td>'+
+      return '<tr><td class="break">'+safe(u.email||'—')+(isNew(u)?' <span class="pill">New</span>':'')+'</td><td>'+safe(when(u.created_at))+'</td><td>'+safe(u.last_sign_in_at?when(u.last_sign_in_at):'Never')+'</td>'+
         '<td><span class="pill '+(banned?'bad':'ok')+'">'+(banned?'Banned':'Active')+'</span></td>'+
         '<td><button type="button" class="btn '+(banned?'btn-unban':'btn-ban')+'" data-user-action="'+action+'" data-user-id="'+safe(u.id||'')+'">'+(banned?'Unban':'Ban')+'</button></td></tr>';
-    }).join('')||'<tr><td colspan="5">No users match that search.</td></tr>';
-    setStatus('Showing '+filtered.length+' of '+users.length+' users (maximum 100 per request). Admin accounts and your own account are protected.');
+    }).join('')||'<tr><td colspan="5">No users match.</td></tr>';
+    setStatus('Showing '+shown.length+' of '+users.length+' users (maximum 100 per request). Admin accounts and your own account are protected.');
   };
-  $('adminUserSearch').addEventListener('input',e=>renderUsers(e.target.value));
+  ['input','change'].forEach(ev=>{$('adminUserSearch').addEventListener(ev,renderUsers);$('adminUserFilter').addEventListener(ev,renderUsers);$('adminUserSort').addEventListener(ev,renderUsers)});
+  $('adminUsersCsv').addEventListener('click',()=>{
+    downloadCsv('machika-users-'+today()+'.csv',['Email','Registered','Last sign-in','Status'],shown.map(u=>[u.email||'',u.created_at||'',u.last_sign_in_at||'Never',isBanned(u)?'Banned':'Active']));
+    toast('Downloaded '+shown.length+' users.','success');
+  });
   $('adminUsersBody').addEventListener('click',async e=>{
     const b=e.target.closest('button[data-user-action]');
     if(b) await adminUserAction(b.dataset.userAction,b.dataset.userId);
@@ -78,11 +106,30 @@ function usersTable(users){
 }
 
 function receiptsTable(receipts){
-  $('adminResults').innerHTML=receipts.length
-    ?'<div class="table-wrap"><table class="table"><thead><tr><th>Receipt</th><th>Business</th><th>Customer</th><th class="r">Total</th><th>Created</th></tr></thead><tbody>'+
-      receipts.map(r=>'<tr><td class="mono break">'+safe(r.receipt_number||'—')+'</td><td>'+safe(r.business_name||'—')+'</td><td>'+safe(r.customer_name||'—')+'</td><td class="r mono">₦'+money(r.total)+'</td><td>'+safe(when(r.created_at))+'</td></tr>').join('')+
-      '</tbody></table></div>'
-    :'<p class="muted">No receipts returned.</p>';
+  if(!receipts.length){$('adminResults').innerHTML='<p class="muted">No receipts returned.</p>';return}
+  $('adminResults').innerHTML=
+    '<div class="admin-tools">'+
+     '<div class="admin-search"><label for="adminReceiptSearch">Search receipts</label><input id="adminReceiptSearch" type="search" placeholder="Receipt number, business or customer..." autocomplete="off"></div>'+
+     '<div class="admin-search"><label for="adminReceiptSort">Sort by</label><select class="input" id="adminReceiptSort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="high">Highest total</option><option value="low">Lowest total</option></select></div>'+
+     '<button type="button" class="btn btn-sm" id="adminReceiptsCsv">Download CSV</button>'+
+    '</div>'+
+    '<div class="table-wrap"><table class="table"><thead><tr><th>Receipt</th><th>Business</th><th>Customer</th><th class="r">Total</th><th>Created</th></tr></thead><tbody id="adminReceiptsBody"></tbody></table></div>';
+  let shown=receipts;
+  const render=()=>{
+    const q=$('adminReceiptSearch').value.trim().toLowerCase(),so=$('adminReceiptSort').value;
+    shown=receipts.filter(r=>[r.receipt_number,r.business_name,r.customer_name].some(v=>String(v||'').toLowerCase().includes(q)));
+    shown=[...shown].sort((x,y)=>so==='oldest'?time(x.created_at)-time(y.created_at):so==='high'?(Number(y.total)||0)-(Number(x.total)||0):so==='low'?(Number(x.total)||0)-(Number(y.total)||0):time(y.created_at)-time(x.created_at));
+    $('adminReceiptsBody').innerHTML=shown.map(r=>'<tr><td class="mono break">'+safe(r.receipt_number||'—')+'</td><td>'+safe(r.business_name||'—')+'</td><td>'+safe(r.customer_name||'—')+'</td><td class="r mono">₦'+money(r.total)+'</td><td>'+safe(when(r.created_at))+'</td></tr>').join('')||'<tr><td colspan="5">No receipts match.</td></tr>';
+    const sum=shown.reduce((t,r)=>t+(Number(r.total)||0),0);
+    setStatus('Showing '+shown.length+' of '+receipts.length+' recent receipts (maximum 100). Total of shown: ₦'+money(sum)+'.');
+  };
+  $('adminReceiptSearch').addEventListener('input',render);
+  $('adminReceiptSort').addEventListener('change',render);
+  $('adminReceiptsCsv').addEventListener('click',()=>{
+    downloadCsv('machika-receipts-'+today()+'.csv',['Receipt','Business','Customer','Total','Created'],shown.map(r=>[r.receipt_number||'',r.business_name||'',r.customer_name||'',Number(r.total)||0,r.created_at||'']));
+    toast('Downloaded '+shown.length+' receipts.','success');
+  });
+  render();
 }
 
 function analyticsChart(days){
@@ -113,7 +160,7 @@ export async function loadAdminData(action=view){
       $('adminStats').innerHTML='';
       const receipts=result.receipts||[];
       receiptsTable(receipts);
-      setStatus('Showing '+receipts.length+' recent receipts (maximum 100).');
+      if(!receipts.length) setStatus('No receipts returned.');
     }else if(action==='analytics'){
       $('adminStats').innerHTML='';
       analyticsChart(result.analytics||[]);
