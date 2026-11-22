@@ -2,7 +2,8 @@
 export const state={
   user:null,            // current Supabase user, or null when signed out
   ready:false,          // true once the first session check has finished
-  receipts:[],          // latest saved receipts of the signed-in user
+  receipts:[],
+  report:null,          // date + total of all receipts (for sales figures and the report)          // latest saved receipts of the signed-in user
   receiptsLoaded:false,
   receiptsAt:0,
   recovery:false        // true after the user opens a password-reset link
