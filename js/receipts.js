@@ -1,5 +1,5 @@
 import {sb} from './supa.js';
-import {$,safe,money,icon,fmtDate,today,toast,confirmAction} from './utils.js';
+import {$,qsa,safe,money,icon,fmtDate,today,toast,confirmAction} from './utils.js';
 import {state} from './state.js';
 import {RECEIPT_BUCKET,HISTORY_LIMIT} from './config.js';
 
@@ -17,9 +17,15 @@ export function loadReceipts({force=false}={}){
 async function doLoad(){
   const uid=state.user.id;
   if(!state.receiptsLoaded) renderLoading();
-  const {data,error}=await sb.from('receipts').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(HISTORY_LIMIT);
+  const [main,rep]=await Promise.all([
+    sb.from('receipts').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(HISTORY_LIMIT),
+    // Light copy (date and total only) so sales figures and the report cover all receipts, not just the latest few.
+    sb.from('receipts').select('receipt_date,total').eq('user_id',uid).order('receipt_date',{ascending:false}).limit(5000)
+  ]);
   if(state.user?.id!==uid) return;   // signed out or switched account while loading
+  const {data,error}=main;
   if(error){renderError(error.message);return}
+  state.report=rep.error?null:(rep.data||[]);
   state.receipts=data||[];
   state.receiptsLoaded=true;
   state.receiptsAt=Date.now();
@@ -50,7 +56,7 @@ function renderError(message){
   $('dashboardHistoryList').innerHTML=html;
 }
 
-export function renderAll(){renderDashboard();renderHistory();renderStats()}
+export function renderAll(){renderDashboard();renderHistory();renderStats();renderReport()}
 
 function renderDashboard(){
   const list=state.receipts.slice(0,5);
@@ -66,9 +72,37 @@ export function renderHistory(){
   el.innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(''):`<div class="empty">${icon('search')}<b>No matching receipts</b><span>Try a different receipt number or customer name.</span></div>`;
 }
 
+// All receipts' date + total when available, otherwise the latest receipts that are already loaded.
+const salesRows=()=>state.report||state.receipts;
+const sumOf=rows=>rows.reduce((s,r)=>s+(Number(r.total)||0),0);
+
+let reportRange=7;
+const pad2=n=>String(n).padStart(2,'0');
+const dayKey=d=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+export function renderReport(){
+  const chart=$('reportChart');
+  if(!chart||!state.receiptsLoaded) return;
+  const rows=salesRows(),now=new Date(),buckets=[];
+  if(reportRange===12){
+    for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);buckets.push({key:d.getFullYear()+'-'+pad2(d.getMonth()+1),label:MONTHS[d.getMonth()],full:MONTHS[d.getMonth()]+' '+d.getFullYear(),total:0,count:0})}
+  }else{
+    for(let i=reportRange-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()-i);buckets.push({key:dayKey(d),label:reportRange===7?['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]:String(d.getDate()),full:d.getDate()+' '+MONTHS[d.getMonth()],total:0,count:0})}
+  }
+  const map=new Map(buckets.map(b=>[b.key,b]));
+  rows.forEach(r=>{const k=String(r.receipt_date||'').slice(0,reportRange===12?7:10),b=map.get(k);if(b){b.total+=Number(r.total)||0;b.count++}});
+  const max=Math.max(1,...buckets.map(b=>b.total));
+  const total=buckets.reduce((s,b)=>s+b.total,0),count=buckets.reduce((s,b)=>s+b.count,0);
+  $('reportSum').innerHTML=count?`<b>₦${money(total)}</b> from ${count} receipt${count===1?'':'s'} in the last ${reportRange===12?'12 months':reportRange+' days'}.`:`No receipts in the last ${reportRange===12?'12 months':reportRange+' days'} yet.`;
+  chart.setAttribute('aria-label',reportRange===12?'Sales per month':'Sales per day');
+  chart.dataset.range=String(reportRange);
+  chart.innerHTML=buckets.map(b=>`<div class="rcol" title="${safe(b.full)}: ₦${money(b.total)} (${b.count})"><div class="rtrack"><span class="rbar" style="height:${Math.max(b.total?3:0,Math.round(b.total/max*100))}%"></span></div><span class="rlab">${safe(b.label)}</span></div>`).join('');
+}
+
 export function renderStats(){
   if(!state.receiptsLoaded) return;
-  const list=state.receipts,capped=list.length>=HISTORY_LIMIT;
+  const list=salesRows(),capped=!state.report&&list.length>=HISTORY_LIMIT;
   const total=list.reduce((s,r)=>s+(Number(r.total)||0),0);
   const ym=today().slice(0,7);
   $('statCount').textContent=capped?HISTORY_LIMIT+'+':String(list.length);
@@ -81,8 +115,9 @@ export function renderStats(){
 }
 
 export function resetReceiptViews(){
-  state.receipts=[];state.receiptsLoaded=false;state.receiptsAt=0;
+  state.receipts=[];state.report=null;state.receiptsLoaded=false;state.receiptsAt=0;
   ['statCount','statTotal','statMonth','statSalesToday','statSalesMonth'].forEach(id=>{$(id).textContent='—'});
+  $('reportChart').innerHTML='';$('reportSum').textContent='';
   $('statTotalNote').textContent='';
   $('history').innerHTML='';$('dashboardHistoryList').innerHTML='';
 }
@@ -131,4 +166,10 @@ export function initReceipts(){
   bindList($('history'));
   bindList($('dashboardHistoryList'));
   $('receiptSearch').addEventListener('input',renderHistory);
+  $('reportRange').addEventListener('click',e=>{
+    const b=e.target.closest('[data-range]');if(!b) return;
+    reportRange=Number(b.dataset.range);
+    qsa('#reportRange [data-range]').forEach(x=>x.classList.toggle('is-active',x===b));
+    renderReport();
+  });
 }
