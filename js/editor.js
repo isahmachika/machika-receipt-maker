@@ -129,7 +129,7 @@ export function setEditorTab(tab){
 /* ---------- PNG ---------- */
 const nextFrame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-async function makeReceiptPngBlob(){
+async function captureReceiptCanvas(){
   render();
   const receipt=$('receipt');
   if(!receipt||!receipt.innerText.trim()) throw new Error('There is no receipt to save as an image.');
@@ -138,11 +138,81 @@ async function makeReceiptPngBlob(){
   const root=$('editorRoot'),prevTab=root.dataset.tab;
   if(prevTab!=='preview'){root.dataset.tab='preview';await nextFrame()}
   try{
-    const canvas=await window.html2canvas(receipt,{backgroundColor:'#ffffff',scale:3,useCORS:true,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,receipt.scrollWidth),scrollX:0,scrollY:0});
-    return await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create receipt image.')),'image/png'));
+    return await window.html2canvas(receipt,{backgroundColor:'#ffffff',scale:3,useCORS:true,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,receipt.scrollWidth),scrollX:0,scrollY:0});
   }finally{
     if(prevTab!=='preview') root.dataset.tab=prevTab;
   }
+}
+
+const canvasToBlob=(canvas,type,q)=>new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not create the receipt file.')),type,q));
+async function makeReceiptPngBlob(){return canvasToBlob(await captureReceiptCanvas(),'image/png')}
+
+/* ---------- PDF (built here, no extra library): one A4 page with the receipt image ---------- */
+function buildPdf(jpeg,imgW,imgH){
+  const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+  const push=b=>{const u=typeof b==='string'?enc.encode(b):b;parts.push(u);len+=u.length};
+  const W=595,H=842,maxW=330,maxH=H-80;
+  const k=Math.min(maxW/imgW,maxH/imgH),w=(imgW*k).toFixed(2),h=(imgH*k).toFixed(2);
+  const x=((W-imgW*k)/2).toFixed(2),y=(H-40-imgH*k).toFixed(2);
+  const content=`q ${w} 0 0 ${h} ${x} ${y} cm /Im0 Do Q`;
+  const obj=(n,body)=>{offs[n]=len;push(n+' 0 obj\n'+body+'\nendobj\n')};
+  push('%PDF-1.4\n');
+  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+  offs[4]=len;push(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);push(jpeg);push('\nendstream\nendobj\n');
+  obj(5,`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  const xref=len;
+  push('xref\n0 6\n0000000000 65535 f \n'+[1,2,3,4,5].map(n=>String(offs[n]).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(parts,{type:'application/pdf'});
+}
+
+async function makeReceiptPdfBlob(){
+  const canvas=await captureReceiptCanvas();
+  const jpg=await canvasToBlob(canvas,'image/jpeg',0.92);
+  return buildPdf(new Uint8Array(await jpg.arrayBuffer()),canvas.width,canvas.height);
+}
+
+function saveBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.download=filename;a.href=url;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+const fileBase=()=>($('receiptNo').value.trim()||'receipt').replace(/[^a-z0-9_-]/gi,'_');
+
+async function downloadPdf(){
+  const btn=$('pdf');
+  setBusy(btn,true,'Preparing...');
+  try{
+    saveBlob(await makeReceiptPdfBlob(),fileBase()+'.pdf');
+    toast('Receipt PDF downloaded.','success');
+  }catch(err){
+    console.error(err);
+    toast('Could not create the PDF. Please try again.','error');
+  }finally{setBusy(btn,false)}
+}
+
+// Phones open the share sheet (WhatsApp, Telegram, ...) with the receipt image. Where that is not possible, WhatsApp opens with the receipt details as text.
+async function shareReceipt(){
+  const btn=$('share'),d=values();
+  const text=`Receipt ${d.receiptNo} from ${d.business}\nCustomer: ${d.customer}\nTotal: \u20a6${money(d.total)}`;
+  setBusy(btn,true,'Preparing...');
+  try{
+    const blob=await makeReceiptPngBlob();
+    const file=new File([blob],fileBase()+'.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'Receipt '+d.receiptNo,text});
+    }else{
+      window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+      toast('This device cannot share the image directly. Download the PNG and attach it in WhatsApp.','info',8000);
+    }
+  }catch(err){
+    if(err&&err.name==='AbortError') return;   // the person closed the share sheet
+    console.error(err);
+    toast('Could not share the receipt. Please try again.','error');
+  }finally{setBusy(btn,false)}
 }
 
 async function downloadPng(){
@@ -150,12 +220,7 @@ async function downloadPng(){
   setBusy(btn,true,'Preparing...');
   try{
     const blob=await makeReceiptPngBlob();
-    const name=($('receiptNo').value.trim()||'receipt').replace(/[^a-z0-9_-]/gi,'_');
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.download=name+'.png';a.href=url;
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
+    saveBlob(blob,fileBase()+'.png');
     toast('Receipt image downloaded.','success');
   }catch(err){
     console.error(err);
@@ -208,6 +273,8 @@ export function initEditor(){
   $('addItem').addEventListener('click',()=>{const row=addItem();row.querySelector('.iname').focus()});
   $('save').addEventListener('click',save);
   $('image').addEventListener('click',downloadPng);
+  $('pdf').addEventListener('click',downloadPdf);
+  $('share').addEventListener('click',shareReceipt);
   $('clear').addEventListener('click',async()=>{
     const ok=await confirmAction({title:'Start a new receipt?',text:'Make sure you saved the current one if needed.',okText:'New receipt'});
     if(ok) clearForm();
