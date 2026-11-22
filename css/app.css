@@ -131,3 +131,9 @@
 .bar em{font-style:normal;text-align:right;font-family:var(--ff-m);color:var(--ink)}
 .btn-ban{--bg:var(--red-l);--fg:var(--red-d);--bd:#f5c6c3;min-height:34px;padding:0 12px;font-size:13px}
 .btn-unban{--bg:var(--ok-l);--fg:var(--ok);--bd:#bfe3cf;min-height:34px;padding:0 12px;font-size:13px}
+
+/* ---------- Saved items and customers ---------- */
+.slist{display:grid;margin-top:14px}
+.srow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1.5px dashed var(--rule)}
+.srow-name{flex:1;min-width:0;font-weight:500;overflow-wrap:anywhere}
+.srow-meta{color:var(--muted);font-size:14px}
