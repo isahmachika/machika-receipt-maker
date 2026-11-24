@@ -9,9 +9,9 @@
 .strip-note{margin-top:-8px}
 @media(max-width:640px){
  .strip{grid-template-columns:1fr}
- .strip>div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 18px;border-left:0;border-top:1.5px dashed var(--rule)}
+ .strip>div{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;padding:14px 18px;border-left:0;border-top:1.5px dashed var(--rule)}
  .strip>div:first-child{border-top:0}
- .strip b{margin:0;font-size:20px}
+ .strip b{margin:0 0 0 auto;font-size:20px;text-align:right}
 }
 .dash-grid{display:grid;gap:18px;align-items:start}
 @media(min-width:1040px){.dash-grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}}
@@ -38,6 +38,14 @@
  .rrow{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"main total actions";gap:16px}
  .rrow-actions{margin-left:0}
 }
+/* Phones: when a very big amount leaves too little room for the name, the amount drops under the name instead of squeezing it */
+@media(max-width:699.98px){
+ .rrow{display:flex;flex-wrap:wrap}
+ .rrow-main{flex:1 1 8rem}
+ .rrow-total{flex:0 1 auto;margin-left:auto;min-width:0;max-width:100%;overflow-wrap:anywhere}
+ .rrow-actions{flex:0 0 100%}
+}
+.badges .pill{white-space:nowrap;flex:0 0 auto}
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 .search{flex:1 1 280px;position:relative;display:block;max-width:560px}
 .search .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none}
@@ -166,3 +174,56 @@
 .rchart[data-range="30"] .rcol:not(:nth-child(5n+1)) .rlab{visibility:hidden}
 @media(max-width:640px){.rtrack{height:120px}.rlab{font-size:10px}}
 .strip-note:empty{display:none}
+
+/* ---------- Document type, balance, paper size ---------- */
+.sum .balance{color:var(--red-d);font-weight:700}
+.paper-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.paper-row label{font-size:13px;font-weight:600;color:var(--ink-2)}
+.paper-row .input{width:auto;min-height:42px;flex:1 1 160px;max-width:240px}
+
+/* ---------- Money page, status badges, callouts ---------- */
+.pill.warn{background:#fff3cd;color:#7a5b00}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
+.rrow-main .pill{font-size:12px;color:var(--blue-d)}
+.rrow-main .pill.bad{color:var(--red-d)}
+.rrow-main .pill.warn{color:#7a5b00}
+.owe-note{display:block;margin-top:2px;font:500 12px var(--ff-b);letter-spacing:0;color:var(--red-d)}
+.rrow.owe .owe-note{color:var(--muted)}
+.owe-actions{flex-wrap:wrap;gap:8px;margin-left:0!important}
+.owe-hint{padding:0 18px 16px;margin:0}
+.callouts{display:grid;gap:10px;margin-top:12px}
+.callouts:not(:has(.callout:not([hidden]))){display:none}
+.callout{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 18px;border-radius:var(--r-m);background:#fff7d6;border:1px solid #f0dc87;color:#5c4a00}
+.callout>div{display:grid;gap:2px;min-width:0}
+.callout b{font-size:16px;color:#3f3200}
+.callout span{font-size:14px}
+.callout-owe{background:var(--red-l);border-color:#f5c6c3;color:var(--red-d)}
+.callout-owe b{color:var(--red-d)}
+.srow-sub{display:block;margin-top:2px;font-size:12.5px;color:var(--muted);font-weight:400}
+.strip-2{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.strip-2{grid-template-columns:repeat(2,minmax(0,1fr))}.strip-2>div:nth-child(3){border-left:0;border-top:1.5px dashed var(--rule)}.strip-2>div:nth-child(4){border-top:1.5px dashed var(--rule)}}
+@media(max-width:640px){.strip.strip-2{grid-template-columns:1fr}.strip-2>div:nth-child(n){border-top:1.5px dashed var(--rule)}.strip-2>div:first-child{border-top:0}}
+
+/* ---------- Stock ---------- */
+.stock{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--ok-l);color:var(--ok)}
+.stock.low{background:#fff3cd;color:#7a5b00}
+.stock.out{background:var(--red-l);color:var(--red-d)}
+.srow{flex-wrap:wrap}
+
+/* ---------- Switch (Telegram evening summary), feedback ---------- */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:14px 16px;border:1.5px solid var(--rule);border-radius:var(--r-m);background:#fff}
+.switch-row>div{display:grid;gap:3px;min-width:0}
+.switch-row b{font-size:15px}
+.switch{position:relative;flex:none;display:inline-flex;cursor:pointer}
+.switch input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.switch-ui{position:relative;display:block;width:50px;height:30px;border-radius:999px;background:var(--pad-2);border:1.5px solid var(--faint);transition:background .15s,border-color .15s}
+.switch-ui::after{content:"";position:absolute;top:2px;left:2px;width:23px;height:23px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(10,18,48,.35);transition:transform .15s}
+.switch input:checked+.switch-ui{background:var(--blue);border-color:var(--blue)}
+.switch input:checked+.switch-ui::after{transform:translateX(20px)}
+.switch input:focus-visible+.switch-ui{outline:2px solid var(--blue);outline-offset:2px}
+.switch input:disabled{cursor:progress}
+.switch input:disabled+.switch-ui{opacity:.55}
+@media(prefers-reduced-motion:reduce){.switch-ui,.switch-ui::after{transition:none}}
+textarea.input{display:block;min-height:110px;resize:vertical;line-height:1.5}
+#feedbackCard .field .hint{text-align:right}
+.table td.msg{min-width:220px;white-space:pre-wrap;overflow-wrap:anywhere}
