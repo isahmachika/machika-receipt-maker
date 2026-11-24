@@ -1,10 +1,10 @@
 import {sb} from './supa.js';
-import {$,qsa,safe,money,nextNo,today,icon,toast,setBusy,confirmAction} from './utils.js';
+import {$,qsa,safe,money,nextNo,today,icon,toast,setBusy,confirmAction,waNumber} from './utils.js';
 import {state,profileOf} from './state.js';
 import {RECEIPT_BUCKET} from './config.js';
 import {loadReceipts} from './receipts.js';
 import {go} from './router.js';
-import {savedPrice,savedPhone,rememberFromReceipt} from './catalog.js';
+import {savedPrice,savedPhone,rememberFromReceipt,applyStock} from './catalog.js';
 
 let logoData='';
 // Receipt colour: only these values are ever used (black = the original look).
@@ -16,7 +16,16 @@ function setColor(c,remember=true){
   if(remember){try{localStorage.setItem('machika-receipt-colour',rcolor)}catch{/* private mode */}}
   render();
 }
-const FIELDS=['business','phone','address','receiptNo','date','customer','payment','discount','note'];
+const FIELDS=['business','phone','address','receiptNo','date','customer','payment','discount','note','docType','dueDate','payStatus','amountPaid'];
+
+// Receipt, invoice (pay later) or quotation (price offer).
+const DOC={
+  receipt:{label:'Receipt',prefix:'REC',title:'',foot:'Thank you for your patronage!'},
+  invoice:{label:'Invoice',prefix:'INV',title:'INVOICE',foot:'Thank you for your patronage!'},
+  quote:{label:'Quotation',prefix:'QUO',title:'QUOTATION',foot:'This is a price quotation, not a receipt.'}
+};
+const docKind=()=>DOC[$('docType').value]?$('docType').value:'receipt';
+const inDays=n=>new Date(Date.now()+n*864e5).toLocaleDateString('en-CA');
 
 /* ---------- Items ---------- */
 export function addItem(name='',qty=1,price=''){
@@ -41,12 +50,33 @@ export function values(){
   const items=qsa('.item-row').map(r=>({name:r.querySelector('.iname').value.trim(),qty:Math.max(0,Number(r.querySelector('.iqty').value)||0),price:Math.max(0,Number(r.querySelector('.iprice').value)||0)})).filter(x=>x.name);
   const subtotal=items.reduce((s,x)=>s+x.qty*x.price,0);
   const discount=Math.max(0,Number($('discount').value)||0);
-  return {business:$('business').value.trim()||'Business Name',phone:$('phone').value.trim(),address:$('address').value.trim(),receiptNo:$('receiptNo').value.trim()||nextNo(),date:$('date').value,customer:$('customer').value.trim()||'Walk-in Customer',payment:$('payment').value,items,subtotal,discount,total:Math.max(0,subtotal-discount),note:$('note').value.trim(),color:rcolor};
+  const total=Math.max(0,subtotal-discount);
+  const doc=docKind();
+  // Payment: a quotation is not a payment, so it is always treated as "paid" (never owed).
+  let status=doc==='quote'?'paid':$('payStatus').value,paid=total;
+  if(status==='unpaid') paid=0;
+  else if(status==='part'){
+    paid=Math.min(total,Math.max(0,Number($('amountPaid').value)||0));
+    if(total>0&&paid>=total) status='paid'; else if(paid<=0) status='unpaid';
+  }
+  if(status!=='paid'&&status!=='part'&&status!=='unpaid') status='paid';
+  if(status==='paid'||total===0){status='paid';paid=total}
+  return {business:$('business').value.trim()||'Business Name',phone:$('phone').value.trim(),address:$('address').value.trim(),receiptNo:$('receiptNo').value.trim()||nextNo(DOC[doc].prefix),date:$('date').value,customer:$('customer').value.trim()||'Walk-in Customer',payment:$('payment').value,items,subtotal,discount,total,note:$('note').value.trim(),color:rcolor,docType:doc,due:doc==='receipt'?'':$('dueDate').value,status,paid,balance:Math.max(0,total-paid)};
 }
 
 export function render(){
   const d=values();
-  $('receipt').innerHTML=`${logoData?`<div class="center" style="margin-bottom:8px"><img src="${logoData}" alt="Shop logo" style="max-width:90px;max-height:70px;object-fit:contain"></div>`:''}<h3${d.color?` style="color:${d.color}"`:''}>${safe(d.business)}</h3><div class="meta">${safe(d.address)}${d.phone?'\nTel: '+safe(d.phone):''}</div><hr><div style="font-size:12px;line-height:1.7"><div><b>Receipt:</b> ${safe(d.receiptNo)}</div><div><b>Date:</b> ${safe(d.date||new Date().toLocaleDateString('en-CA'))}</div><div><b>Customer:</b> ${safe(d.customer)}</div><div><b>Payment:</b> ${safe(d.payment)}</div></div><hr><table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${d.items.map(x=>`<tr><td>${safe(x.name)}</td><td class="num">${x.qty}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`).join('')||'<tr><td colspan="4" class="center">No items yet</td></tr>'}</tbody></table><hr><div style="font-size:13px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₦${money(d.subtotal)}</span></div><div style="display:flex;justify-content:space-between"><span>Discount</span><span>₦${money(d.discount)}</span></div><div class="total" style="display:flex;justify-content:space-between${d.color?`;color:${d.color}`:''}"><span>TOTAL</span><span>₦${money(d.total)}</span></div></div><hr><div class="foot">${safe(d.note||'Thank you for your patronage!')}</div>`;
+  const dk=DOC[d.docType],owing=d.docType!=='quote'&&d.status!=='paid',tint=d.color?`;color:${d.color}`:'';
+  $('receipt').innerHTML=`${logoData?`<div class="center" style="margin-bottom:8px"><img src="${logoData}" alt="Shop logo" style="max-width:90px;max-height:70px;object-fit:contain"></div>`:''}<h3${d.color?` style="color:${d.color}"`:''}>${safe(d.business)}</h3><div class="meta">${safe(d.address)}${d.phone?'\nTel: '+safe(d.phone):''}</div>${dk.title?`<div class="center" style="font-weight:700;letter-spacing:.14em;font-size:13px;margin-top:6px${tint}">${dk.title}</div>`:''}<hr><div style="font-size:12px;line-height:1.7"><div><b>${dk.label}:</b> ${safe(d.receiptNo)}</div><div><b>Date:</b> ${safe(d.date||new Date().toLocaleDateString('en-CA'))}</div>${d.due?`<div><b>${d.docType==='quote'?'Valid until':'Due date'}:</b> ${safe(d.due)}</div>`:''}<div><b>Customer:</b> ${safe(d.customer)}</div><div><b>Payment:</b> ${safe(d.payment)}</div>${owing?`<div><b>Status:</b> ${d.status==='part'?'Part payment':'Not paid yet'}</div>`:''}</div><hr><table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${d.items.map(x=>`<tr><td>${safe(x.name)}</td><td class="num">${x.qty}</td><td class="num">${money(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`).join('')||'<tr><td colspan="4" class="center">No items yet</td></tr>'}</tbody></table><hr><div style="font-size:13px;line-height:1.8"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₦${money(d.subtotal)}</span></div><div style="display:flex;justify-content:space-between"><span>Discount</span><span>₦${money(d.discount)}</span></div><div class="total" style="display:flex;justify-content:space-between${tint}"><span>TOTAL</span><span>₦${money(d.total)}</span></div>${owing?`<div style="display:flex;justify-content:space-between"><span>Amount paid</span><span>₦${money(d.paid)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700"><span>BALANCE DUE</span><span>₦${money(d.balance)}</span></div>`:''}</div><hr><div class="foot">${safe(d.note||dk.foot)}</div>`;
+  // Show only the fields that make sense for this kind of document.
+  $('dueField').hidden=d.docType==='receipt';
+  $('dueLabel').textContent=d.docType==='quote'?'Valid until':'Due date';
+  $('receiptNoLabel').textContent=dk.label+' number';
+  $('payStatusField').hidden=d.docType==='quote';
+  $('amountPaidField').hidden=d.docType==='quote'||$('payStatus').value!=='part';
+  $('sumPaidRow').hidden=!owing;$('sumBalRow').hidden=!owing;
+  $('sumPaid').textContent='₦'+money(d.paid);$('sumBal').textContent='₦'+money(d.balance);
+  const sl=$('saveLabel');if(sl) sl.textContent='Save '+dk.label.toLowerCase();
   // Per-line amounts and the totals summary next to the form.
   qsa('.item-row').forEach(r=>{
     const q=Math.max(0,Number(r.querySelector('.iqty').value)||0),p=Math.max(0,Number(r.querySelector('.iprice').value)||0);
@@ -88,6 +118,19 @@ function initLogo(){
   setColor(saved,false);
   $('colorPick').addEventListener('click',e=>{const b=e.target.closest('.swatch');if(b)setColor(b.dataset.color)});
   $('whatsapp').addEventListener('click',whatsappCustomer);
+  $('print').addEventListener('click',printReceipt);
+  let paperSaved='';try{paperSaved=localStorage.getItem('machika-paper')||''}catch{/* ignore */}
+  if(['a4','80','58'].includes(paperSaved)) $('paper').value=paperSaved;
+  $('paper').addEventListener('change',()=>{try{localStorage.setItem('machika-paper',$('paper').value)}catch{/* ignore */}});
+  // Changing the document type gives it the right number prefix, and a sensible due date and payment status.
+  $('docType').addEventListener('change',()=>{
+    const k=docKind(),cur=$('receiptNo').value.trim();
+    if(!cur||/^(REC|INV|QUO)-\d{8}-\d{5}$/.test(cur)) $('receiptNo').value=nextNo(DOC[k].prefix);
+    if(k==='invoice'&&$('payStatus').value==='paid') $('payStatus').value='unpaid';
+    if(k==='receipt'&&$('payStatus').value==='unpaid'){$('payStatus').value='paid';$('amountPaid').value=''}
+    if(k!=='receipt'&&!$('dueDate').value) $('dueDate').value=inDays(k==='quote'?14:7);
+    render();
+  });
 }
 
 /* ---------- Profile defaults ---------- */
@@ -114,14 +157,14 @@ export function loadCloudReceipt(r){
   if(!r) return;
   const meta=r.items&&typeof r.items==='object'&&!Array.isArray(r.items)?r.items:{};
   const lines=Array.isArray(meta.lines)?meta.lines:(Array.isArray(r.items)?r.items:[]);
-  loadReceipt({business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',color:meta.color||'',items:lines});
+  loadReceipt({business:r.business_name||'',phone:meta.phone||'',address:meta.address||'',receiptNo:r.receipt_number||'',date:r.receipt_date||'',customer:r.customer_name||'',payment:meta.payment||'Cash',discount:meta.discount||0,note:meta.note||'',color:meta.color||'',docType:r.doc_type||'receipt',dueDate:meta.due||'',payStatus:r.payment_status||'paid',amountPaid:r.payment_status==='part'&&r.amount_paid!=null?r.amount_paid:'',items:lines});
 }
 
 // Copy of a saved receipt: same shop, customer and items, but a fresh receipt number and today's date.
 export function duplicateCloudReceipt(r){
   if(!r) return;
   loadCloudReceipt(r);
-  $('receiptNo').value=nextNo();
+  $('receiptNo').value=nextNo(DOC[docKind()].prefix);
   $('date').value=today();
   render();
 }
@@ -129,6 +172,7 @@ export function duplicateCloudReceipt(r){
 export function clearForm(){
   ['customer','note'].forEach(k=>$(k).value='');
   $('discount').value=0;
+  $('docType').value='receipt';$('dueDate').value='';$('payStatus').value='paid';$('amountPaid').value='';
   $('receiptNo').value=nextNo();
   $('date').value=today();
   $('payment').value='Cash';
@@ -156,7 +200,7 @@ export function setEditorTab(tab){
 /* ---------- PNG ---------- */
 const nextFrame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-async function captureReceiptCanvas(){
+async function captureReceiptCanvas(roll=''){
   render();
   const receipt=$('receipt');
   if(!receipt||!receipt.innerText.trim()) throw new Error('There is no receipt to save as an image.');
@@ -164,9 +208,11 @@ async function captureReceiptCanvas(){
   // On phones the preview can be on the other tab; it must be on screen to be captured.
   const root=$('editorRoot'),prevTab=root.dataset.tab;
   if(prevTab!=='preview'){root.dataset.tab='preview';await nextFrame()}
+  if(roll){receipt.classList.add('roll-'+roll);await nextFrame()}
   try{
     return await window.html2canvas(receipt,{backgroundColor:'#ffffff',scale:3,useCORS:true,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,receipt.scrollWidth),scrollX:0,scrollY:0});
   }finally{
+    if(roll) receipt.classList.remove('roll-'+roll);
     if(prevTab!=='preview') root.dataset.tab=prevTab;
   }
 }
@@ -175,12 +221,15 @@ const canvasToBlob=(canvas,type,q)=>new Promise((resolve,reject)=>canvas.toBlob(
 async function makeReceiptPngBlob(){return canvasToBlob(await captureReceiptCanvas(),'image/png')}
 
 /* ---------- PDF (built here, no extra library): one A4 page with the receipt image ---------- */
-function buildPdf(jpeg,imgW,imgH){
+function buildPdf(jpeg,imgW,imgH,paper='a4'){
   const enc=new TextEncoder(),parts=[],offs=[];let len=0;
   const push=b=>{const u=typeof b==='string'?enc.encode(b):b;parts.push(u);len+=u.length};
-  const W=595,H=842,maxW=330,maxH=H-80;
-  const k=Math.min(maxW/imgW,maxH/imgH),w=(imgW*k).toFixed(2),h=(imgH*k).toFixed(2);
-  const x=((W-imgW*k)/2).toFixed(2),y=(H-40-imgH*k).toFixed(2);
+  // A4: the receipt sits centred on the page. 80mm / 58mm roll: the page is exactly one receipt long.
+  let W=595,H=842,k,px,py;
+  if(paper==='a4'){const maxW=330,maxH=H-80;k=Math.min(maxW/imgW,maxH/imgH);px=(W-imgW*k)/2;py=H-40-imgH*k}
+  else{const pad=5;W=paper==='58'?164.41:226.77;k=(W-2*pad)/imgW;H=imgH*k+2*pad;px=pad;py=pad}
+  const w=(imgW*k).toFixed(2),h=(imgH*k).toFixed(2),x=px.toFixed(2),y=py.toFixed(2);
+  W=Number(W.toFixed(2));H=Number(H.toFixed(2));
   const content=`q ${w} 0 0 ${h} ${x} ${y} cm /Im0 Do Q`;
   const obj=(n,body)=>{offs[n]=len;push(n+' 0 obj\n'+body+'\nendobj\n')};
   push('%PDF-1.4\n');
@@ -194,10 +243,13 @@ function buildPdf(jpeg,imgW,imgH){
   return new Blob(parts,{type:'application/pdf'});
 }
 
+const paperVal=()=>['a4','80','58'].includes($('paper').value)?$('paper').value:'a4';
+
 async function makeReceiptPdfBlob(){
-  const canvas=await captureReceiptCanvas();
+  const paper=paperVal();
+  const canvas=await captureReceiptCanvas(paper==='a4'?'':paper);
   const jpg=await canvasToBlob(canvas,'image/jpeg',0.92);
-  return buildPdf(new Uint8Array(await jpg.arrayBuffer()),canvas.width,canvas.height);
+  return buildPdf(new Uint8Array(await jpg.arrayBuffer()),canvas.width,canvas.height,paper);
 }
 
 function saveBlob(blob,filename){
@@ -213,7 +265,7 @@ async function downloadPdf(){
   const btn=$('pdf');
   setBusy(btn,true,'Preparing...');
   try{
-    saveBlob(await makeReceiptPdfBlob(),fileBase()+'.pdf');
+    saveBlob(await makeReceiptPdfBlob(),fileBase()+(paperVal()==='a4'?'':'-'+paperVal()+'mm')+'.pdf');
     toast('Receipt PDF downloaded.','success');
   }catch(err){
     console.error(err);
@@ -243,18 +295,40 @@ async function shareReceipt(){
 }
 
 // Opens WhatsApp to the customer's saved number (or lets the person pick a contact), with the receipt details as text.
-function phoneForWhatsApp(raw){
-  let n=String(raw||'').replace(/[^\d]/g,'');
-  if(n.startsWith('00')) n=n.slice(2);
-  if(n.startsWith('0')) n='234'+n.slice(1);   // Nigerian local format 080... -> 23480...
-  return n.length>=10?n:'';
-}
 function whatsappCustomer(){
   const d=values();
-  const num=phoneForWhatsApp(savedPhone($('customer').value));
+  const num=waNumber(savedPhone($('customer').value));
   const text=`Hello ${d.customer},\nHere is your receipt ${d.receiptNo} from ${d.business}.\nDate: ${d.date||today()}\nTotal: \u20a6${money(d.total)}\nThank you for your patronage!`;
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(text),'_blank','noopener');
   if(!num) toast('No saved phone number for this customer, so choose the contact in WhatsApp. Save the number in Business profile to skip this step.','info',8000);
+}
+
+// Print only the receipt. Receipt rolls get a page exactly as wide (and as long) as the receipt.
+function printReceipt(){
+  const paper=paperVal(),root=$('editorRoot'),prevTab=root.dataset.tab,receipt=$('receipt');
+  render();
+  if(!receipt.innerText.trim()){toast('There is no receipt to print.','error');return}
+  if(prevTab!=='preview') root.dataset.tab='preview';
+  document.body.classList.add('printing');
+  const style=document.createElement('style');
+  if(paper==='a4') style.textContent='@page{size:A4;margin:12mm}';
+  else{
+    receipt.classList.add('roll-'+paper);
+    const mm=Math.ceil(receipt.getBoundingClientRect().height*25.4/96)+6;
+    style.textContent=`@page{size:${paper}mm ${mm}mm;margin:0}`;
+  }
+  document.head.appendChild(style);
+  let done=false;
+  const cleanup=()=>{
+    if(done) return;done=true;
+    style.remove();receipt.classList.remove('roll-80','roll-58');
+    document.body.classList.remove('printing');
+    if(prevTab!=='preview') root.dataset.tab=prevTab;
+    window.removeEventListener('afterprint',cleanup);
+  };
+  window.addEventListener('afterprint',cleanup);
+  setTimeout(cleanup,180000);
+  setTimeout(()=>window.print(),80);   // let the new width settle first
 }
 
 async function downloadPng(){
@@ -292,7 +366,7 @@ async function save(){
     let imagePath;
     try{imagePath=await saveReceiptImage(d.receiptNo)}
     catch(err){toast('Could not save the receipt image. '+err.message,'error');return}
-    const row={user_id:state.user.id,receipt_number:d.receiptNo,business_name:d.business,customer_name:d.customer,receipt_date:d.date||new Date().toLocaleDateString('en-CA'),items:{lines:d.items,discount:d.discount,phone:d.phone,address:d.address,payment:d.payment,note:d.note,color:d.color},subtotal:d.subtotal,tax:0,total:d.total,currency:'NGN',image_path:imagePath};
+    const row={user_id:state.user.id,receipt_number:d.receiptNo,business_name:d.business,customer_name:d.customer,receipt_date:d.date||new Date().toLocaleDateString('en-CA'),items:{lines:d.items,discount:d.discount,phone:d.phone,address:d.address,payment:d.payment,note:d.note,color:d.color,due:d.due},subtotal:d.subtotal,tax:0,total:d.total,currency:'NGN',image_path:imagePath,doc_type:d.docType,payment_status:d.status,amount_paid:d.paid};
     const {data:existing,error:findErr}=await sb.from('receipts').select('id,image_path').eq('user_id',state.user.id).eq('receipt_number',d.receiptNo).maybeSingle();
     if(findErr){toast('Could not save receipt. Check the receipts table and policies. ('+findErr.message+')','error');return}
     const result=existing
@@ -301,7 +375,8 @@ async function save(){
     if(result.error){toast('Could not save receipt details: '+result.error.message+' If it mentions image_path, run the SQL setup instructions first.','error');return}
     await loadReceipts({force:true});
     rememberFromReceipt(d,$('customer').value);
-    toast('Receipt saved to your account. You can open it again any time from Receipts.','success');
+    if(!existing&&d.docType!=='quote') applyStock(d).then(low=>{if(low.length) toast('Running low: '+low.map(x=>x.name+' ('+x.left+' left)').join(', ')+'.','info',9000)});
+    toast(DOC[d.docType].label+' saved to your account. You can open it again any time from Receipts.','success');
     go('/my-receipts');
   }finally{setBusy(btn,false)}
 }

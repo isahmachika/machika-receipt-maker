@@ -1,5 +1,5 @@
 import {sb} from './supa.js';
-import {$,qsa,safe,money,icon,fmtDate,today,toast,confirmAction} from './utils.js';
+import {$,qsa,safe,money,icon,fmtDate,today,toast,confirmAction,setBusy,downloadCsv} from './utils.js';
 import {state} from './state.js';
 import {RECEIPT_BUCKET,HISTORY_LIMIT} from './config.js';
 
@@ -17,15 +17,18 @@ export function loadReceipts({force=false}={}){
 async function doLoad(){
   const uid=state.user.id;
   if(!state.receiptsLoaded) renderLoading();
-  const [main,rep]=await Promise.all([
+  const [main,rep,owe]=await Promise.all([
     sb.from('receipts').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(HISTORY_LIMIT),
-    // Light copy (date and total only) so sales figures and the report cover all receipts, not just the latest few.
-    sb.from('receipts').select('receipt_date,total').eq('user_id',uid).order('receipt_date',{ascending:false}).limit(5000)
+    // Light copy so sales figures and the report cover all receipts, not just the latest few.
+    sb.from('receipts').select('receipt_date,total,doc_type,payment_status,amount_paid').eq('user_id',uid).order('receipt_date',{ascending:false}).limit(5000),
+    // Everything that still has a balance (for the Money page).
+    sb.from('receipts').select('*').eq('user_id',uid).neq('payment_status','paid').order('created_at',{ascending:false}).limit(500)
   ]);
   if(state.user?.id!==uid) return;   // signed out or switched account while loading
   const {data,error}=main;
   if(error){renderError(error.message);return}
   state.report=rep.error?null:(rep.data||[]);
+  state.owing=owe.error?[]:(owe.data||[]);
   state.receipts=data||[];
   state.receiptsLoaded=true;
   state.receiptsAt=Date.now();
@@ -33,12 +36,21 @@ async function doLoad(){
 }
 
 /* ---------- Rendering ---------- */
+const balanceOf=r=>Math.max(0,(Number(r.total)||0)-(r.payment_status==='unpaid'?0:(Number(r.amount_paid)||0)));
+export function badgesHTML(r){
+  let h='';
+  if(r.doc_type==='invoice') h+='<span class="pill">Invoice</span>';
+  else if(r.doc_type==='quote') h+='<span class="pill">Quotation</span>';
+  if(r.payment_status==='part') h+='<span class="pill warn">Part paid</span>';
+  else if(r.payment_status==='unpaid') h+='<span class="pill bad">Not paid</span>';
+  return h?`<span class="badges">${h}</span>`:'';
+}
 function rowHTML(r,full){
   const id=safe(r.id),num=safe(r.receipt_number);
   const btn=(act,ico,label,cls='')=>`<button class="icon-btn ${cls}" type="button" data-act="${act}" title="${label}" aria-label="${label}, receipt ${num}">${icon(ico)}</button>`;
   return `<article class="rrow" data-id="${id}">`+
-    `<div class="rrow-main"><b>${num}</b><span class="who">${safe(r.customer_name||'Customer')}</span><span>${safe(fmtDate(r.receipt_date))}</span></div>`+
-    `<div class="rrow-total">₦${money(r.total)}</div>`+
+    `<div class="rrow-main"><b>${num}</b><span class="who">${safe(r.customer_name||'Customer')}</span><span>${safe(fmtDate(r.receipt_date))}</span>${badgesHTML(r)}</div>`+
+    `<div class="rrow-total">₦${money(r.total)}${r.payment_status&&r.payment_status!=='paid'?`<small class="owe-note">Balance ₦${money(balanceOf(r))}</small>`:''}</div>`+
     `<div class="rrow-actions">${btn('open','pencil','Open and edit')}${full?btn('duplicate','copy','Make a copy'):''}${btn('view','image','View image')}${full?btn('download','download','Download PNG')+btn('delete','trash','Delete','danger'):''}</div>`+
     `</article>`;
 }
@@ -56,7 +68,7 @@ function renderError(message){
   $('dashboardHistoryList').innerHTML=html;
 }
 
-export function renderAll(){renderDashboard();renderHistory();renderStats();renderReport()}
+export function renderAll(){renderDashboard();renderHistory();renderStats();renderReport();document.dispatchEvent(new Event('receipts:updated'))}
 
 function renderDashboard(){
   const list=state.receipts.slice(0,5);
@@ -73,7 +85,8 @@ export function renderHistory(){
 }
 
 // All receipts' date + total when available, otherwise the latest receipts that are already loaded.
-const salesRows=()=>state.report||state.receipts;
+// Quotations are price offers, not sales.
+export const salesRows=()=>(state.report||state.receipts).filter(r=>r.doc_type!=='quote');
 const sumOf=rows=>rows.reduce((s,r)=>s+(Number(r.total)||0),0);
 
 let reportRange=7;
@@ -115,7 +128,7 @@ export function renderStats(){
 }
 
 export function resetReceiptViews(){
-  state.receipts=[];state.report=null;state.receiptsLoaded=false;state.receiptsAt=0;
+  state.receipts=[];state.owing=[];state.report=null;state.receiptsLoaded=false;state.receiptsAt=0;
   ['statCount','statTotal','statMonth','statSalesToday','statSalesMonth'].forEach(id=>{$(id).textContent='—'});
   $('reportChart').innerHTML='';$('reportSum').textContent='';
   $('statTotalNote').textContent='';
@@ -162,7 +175,29 @@ function bindList(el){
   });
 }
 
+async function exportCsv(){
+  if(!state.user) return;
+  const btn=$('receiptsCsv');
+  setBusy(btn,true,'Preparing...');
+  try{
+    const {data,error}=await sb.from('receipts').select('receipt_number,doc_type,customer_name,receipt_date,total,payment_status,amount_paid,created_at,items').eq('user_id',state.user.id).order('receipt_date',{ascending:false}).limit(5000);
+    if(error) throw error;
+    const rows=(data||[]).map(r=>{
+      const m=r.items&&typeof r.items==='object'&&!Array.isArray(r.items)?r.items:{};
+      const lines=Array.isArray(m.lines)?m.lines:(Array.isArray(r.items)?r.items:[]);
+      const itemsText=lines.map(x=>`${x.name} x${x.qty??x.quantity??1} @${x.price}`).join('; ');
+      const total=Number(r.total)||0,status=r.payment_status||'paid',paid=status==='paid'?total:(Number(r.amount_paid)||0);
+      return [r.receipt_number||'',r.doc_type||'receipt',r.receipt_date||'',r.customer_name||'',itemsText,m.payment||'',total,status,paid,Math.max(0,total-paid),r.created_at||''];
+    });
+    downloadCsv('machika-receipts-'+today()+'.csv',['Number','Type','Date','Customer','Items','Payment method','Total','Status','Amount paid','Balance','Created'],rows);
+    toast(`Downloaded ${rows.length} receipt${rows.length===1?'':'s'}.`,'success');
+  }catch(err){
+    toast('Could not download your receipts: '+(err.message||err),'error');
+  }finally{setBusy(btn,false)}
+}
+
 export function initReceipts(){
+  $('receiptsCsv').addEventListener('click',exportCsv);
   bindList($('history'));
   bindList($('dashboardHistoryList'));
   $('receiptSearch').addEventListener('input',renderHistory);

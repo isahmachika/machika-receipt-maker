@@ -4,12 +4,13 @@ import {SUPER_ADMIN_EMAIL} from './config.js';
 
 // Same URLs as before, so old links and bookmarks keep working.
 export const PUBLIC=['/','/login','/register'];
-export const PROTECTED=['/dashboard','/create-receipt','/my-receipts','/profile','/account','/admin'];
+export const PROTECTED=['/dashboard','/create-receipt','/my-receipts','/money','/profile','/account','/admin'];
 
 const PAGES={
   '/dashboard':['Dashboard',''],
   '/create-receipt':['Create receipt','Fill in the details and watch the receipt update.'],
   '/my-receipts':['Receipts','Every receipt you have saved.'],
+  '/money':['Money','Who owes you, what you spent, and your profit.'],
   '/profile':['Business profile','Your shop details, filled into every new receipt.'],
   '/account':['My account','Manage your signed-in account.'],
   '/admin':['Super admin','']
@@ -69,6 +70,8 @@ export function render(){
   }else{
     document.title=PUBLIC_TITLES[path];
   }
+  const canon=document.querySelector('link[rel="canonical"]');
+  if(canon) canon.href=location.origin+(isApp?'/':path);
 
   const key=path+'|'+signed;
   if(key!==lastKey){

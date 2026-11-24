@@ -18,12 +18,40 @@ function startPolling(){
 }
 export const stopTelegramPolling=stopPolling;
 
+// The evening-summary switch only shows while Telegram is connected.
+function showSummary(on,checked=false){
+  const row=$('telegramSummaryRow'),box=$('telegramSummary');
+  if(!row||!box) return;
+  row.hidden=!on;
+  if(on&&!box.disabled) box.checked=checked;
+}
+
+async function changeSummary(){
+  const box=$('telegramSummary'),want=box.checked;
+  box.disabled=true;
+  try{
+    const {data,error}=await sb.functions.invoke('machika-telegram-link',{body:{action:'summary',enabled:want}});
+    if(error){
+      let why='';
+      try{why=(await error.context?.json?.())?.error||''}catch{}
+      throw new Error(why||error.message||'Could not change the evening summary.');
+    }
+    if(!data||data.success!==true) throw new Error(data?.error||'Could not change the evening summary.');
+    box.checked=data.daily_summary===true;
+    toast(box.checked?'Evening summary is on. Look out for it around 8 pm.':'Evening summary is off.','success');
+  }catch(err){
+    console.error('Telegram summary switch error:',err);
+    box.checked=!want;   // put the switch back to what is really saved
+    toast(String(err?.message||'Could not change the evening summary. Please try again.').slice(0,160),'error');
+  }finally{box.disabled=false}
+}
+
 export async function checkTelegramStatus({silent=false}={}){
   const status=$('telegramConnectStatus'),gen=$('telegramConnectBtn'),dis=$('telegramDisconnectBtn'),pill=$('telegramPill');
   if(!status||!gen||!dis) return;
   if(!state.user){
     status.textContent='Please sign in to check your Telegram connection.';
-    gen.hidden=false;dis.hidden=true;pill.hidden=true;
+    gen.hidden=false;dis.hidden=true;pill.hidden=true;showSummary(false);
     return;
   }
   if(!silent) status.textContent='Checking Telegram connection...';
@@ -34,18 +62,19 @@ export async function checkTelegramStatus({silent=false}={}){
     if(data.connected){
       status.textContent='Telegram is connected to your Machika account.';
       gen.hidden=true;dis.hidden=false;pill.hidden=false;
+      showSummary(true,data.daily_summary===true);
       $('telegramLinkResult').hidden=true;
       stopPolling();
     }else{
       if(!silent) status.textContent='Telegram is not connected yet.';
-      gen.hidden=false;dis.hidden=true;pill.hidden=true;
+      gen.hidden=false;dis.hidden=true;pill.hidden=true;showSummary(false);
     }
   }catch(err){
     console.error('Telegram status error:',err);
     if(!silent){
       const why=String(err?.message||'').slice(0,120);
       status.textContent='Could not check your Telegram connection'+(why?' ('+why+')':'')+'. Check your internet, then refresh the page.';
-      gen.hidden=false;dis.hidden=true;pill.hidden=true;
+      gen.hidden=false;dis.hidden=true;pill.hidden=true;showSummary(false);
     }
   }
 }
@@ -97,6 +126,7 @@ async function generateTelegramLinkCode(){
 export function initTelegram(){
   $('telegramConnectBtn').addEventListener('click',generateTelegramLinkCode);
   $('telegramDisconnectBtn').addEventListener('click',disconnectTelegram);
+  $('telegramSummary').addEventListener('change',changeSummary);
   $('copyCommandBtn').addEventListener('click',async()=>{
     const ok=await copyText($('telegramStartCommand').textContent);
     toast(ok?'Command copied.':'Could not copy. Select the command and copy it manually.',ok?'success':'error');

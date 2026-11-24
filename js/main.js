@@ -6,8 +6,10 @@ import {initAuth,setMode} from './auth.js';
 import {initEditor,hardResetEditor,applyProfile,loadCloudReceipt,duplicateCloudReceipt,setEditorTab} from './editor.js';
 import {initReceipts,loadReceipts,resetReceiptViews} from './receipts.js';
 import {initProfile,fillProfileForm} from './profile.js';
+import {initMoney,loadExpenses,resetMoney,showMoneyTab} from './money.js';
 import {initTelegram,checkTelegramStatus,stopTelegramPolling} from './telegram.js';
 import {initAdmin,loadAdminData} from './admin.js';
+import {initFeedback,resetFeedback} from './feedback.js';
 import {initLegal} from './legal.js';
 import {initLanding} from './landing.js';
 import {initCatalog,loadCatalog,resetCatalog} from './catalog.js';
@@ -19,7 +21,7 @@ function boot(){
     return;
   }
 
-  initRouter();initAuth();initEditor();initReceipts();initProfile();initTelegram();initAdmin();initLegal();initLanding();initCatalog();
+  initRouter();initAuth();initEditor();initReceipts();initProfile();initTelegram();initAdmin();initLegal();initLanding();initCatalog();initMoney();initFeedback();
 
   // Runs only when the page (or sign-in state) changes, never on tab focus.
   onEnter('/login',()=>setMode('login'));
@@ -27,10 +29,12 @@ function boot(){
   onEnter('/dashboard',()=>{
     $('pageSub').textContent=greeting()+', '+displayName()+'.';
     loadReceipts();
+    loadExpenses();
     checkTelegramStatus();
   });
   onEnter('/create-receipt',()=>setEditorTab('edit'));
   onEnter('/my-receipts',()=>{loadReceipts()});
+  onEnter('/money',()=>{loadReceipts();loadExpenses();showMoneyTab('owing')});
   onEnter('/profile',fillProfileForm);
   onEnter('/account',()=>{
     $('recoveryNotice').hidden=!state.recovery;
@@ -61,7 +65,7 @@ function boot(){
     if(changed){
       // A different person (or nobody): clear everything that belongs to the previous account.
       stopTelegramPolling();
-      resetReceiptViews();resetCatalog();
+      resetReceiptViews();resetCatalog();resetMoney();resetFeedback();
       hardResetEditor();
       if(user){
         applyProfile(true);fillProfileForm();updateShellUser();

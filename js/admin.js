@@ -1,6 +1,6 @@
 import {sb} from './supa.js';
 import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY} from './config.js';
-import {$,qsa,safe,money,toast,confirmAction} from './utils.js';
+import {$,qsa,safe,money,toast,confirmAction,downloadCsv} from './utils.js';
 
 let view='stats';
 
@@ -53,18 +53,6 @@ async function adminUserAction(action,userId){
 const statCard=(label,value)=>`<div class="stat"><small>${safe(label)}</small><b>${safe(typeof value==='number'?value.toLocaleString('en-NG'):value)}</b></div>`;
 const when=v=>v?new Date(v).toLocaleString():'—';
 
-// Download rows as a CSV file that opens correctly in Excel.
-function downloadCsv(filename,headers,rows){
-  const cell=v=>{
-    let t=v==null?'':String(v);
-    if(/^[=+\-@\t\r]/.test(t)) t="'"+t;   // stops spreadsheet formulas from running
-    return '"'+t.replace(/"/g,'""')+'"';
-  };
-  const text='﻿'+[headers,...rows].map(r=>r.map(cell).join(',')).join('\r\n');
-  const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));
-  const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),4000);
-}
 const today=()=>new Date().toISOString().slice(0,10);
 const isBanned=u=>!!(u.banned_until&&new Date(u.banned_until).getTime()>Date.now());
 const isNew=u=>u.created_at&&Date.now()-new Date(u.created_at).getTime()<864e5;
@@ -132,6 +120,32 @@ function receiptsTable(receipts){
   render();
 }
 
+const KIND_LABEL={idea:'Idea',problem:'Problem',other:'Other'};
+
+function feedbackList(items){
+  $('adminResults').innerHTML=
+    '<div class="admin-tools">'+
+     '<div class="admin-search"><label for="adminFeedbackSearch">Search feedback</label><input id="adminFeedbackSearch" type="search" placeholder="Words or email..." autocomplete="off"></div>'+
+     '<div class="admin-search"><label for="adminFeedbackKind">Show</label><select class="input" id="adminFeedbackKind"><option value="all">All messages</option><option value="idea">Ideas</option><option value="problem">Problems</option><option value="other">Other</option></select></div>'+
+     '<button type="button" class="btn btn-sm" id="adminFeedbackCsv">Download CSV</button>'+
+    '</div>'+
+    '<div class="table-wrap"><table class="table"><thead><tr><th>When</th><th>Type</th><th>From</th><th>Message</th></tr></thead><tbody id="adminFeedbackBody"></tbody></table></div>';
+  let shown=items;
+  const render=()=>{
+    const q=$('adminFeedbackSearch').value.trim().toLowerCase(),k=$('adminFeedbackKind').value;
+    shown=items.filter(f=>(k==='all'||f.kind===k)&&[f.message,f.email].some(v=>String(v||'').toLowerCase().includes(q)));
+    $('adminFeedbackBody').innerHTML=shown.map(f=>'<tr><td>'+safe(when(f.created_at))+'</td><td><span class="pill'+(f.kind==='problem'?' bad':'')+'">'+safe(KIND_LABEL[f.kind]||f.kind||'—')+'</span></td><td class="break">'+safe(f.email||'—')+'</td><td class="msg">'+safe(f.message||'')+'</td></tr>').join('')||'<tr><td colspan="4">No messages match.</td></tr>';
+    setStatus('Showing '+shown.length+' of '+items.length+' messages (newest first, up to the latest 300).');
+  };
+  $('adminFeedbackSearch').addEventListener('input',render);
+  $('adminFeedbackKind').addEventListener('change',render);
+  $('adminFeedbackCsv').addEventListener('click',()=>{
+    downloadCsv('machika-feedback-'+today()+'.csv',['When','Type','From','Message'],shown.map(f=>[f.created_at||'',KIND_LABEL[f.kind]||f.kind||'',f.email||'',f.message||'']));
+    toast('Downloaded '+shown.length+' messages.','success');
+  });
+  render();
+}
+
 function analyticsChart(days){
   const max=Math.max(1,...days.map(d=>Math.max(Number(d.receipts)||0,Number(d.visits)||0)));
   const bar=(label,n,cls)=>'<div class="bar"><span>'+label+'</span><span class="bar-track"><span class="bar-fill '+cls+'" style="width:'+Math.round((Number(n)||0)/max*100)+'%"></span></span><em>'+(n||0)+'</em></div>';
@@ -165,6 +179,11 @@ export async function loadAdminData(action=view){
       $('adminStats').innerHTML='';
       analyticsChart(result.analytics||[]);
       setStatus('Analytics loaded for the last 7 days.');
+    }else if(action==='feedback'){
+      $('adminStats').innerHTML='';
+      const items=result.feedback||[];
+      if(!items.length){$('adminResults').innerHTML='<p class="muted">No feedback yet. Messages sent from the Account page show here.</p>';setStatus('No feedback yet.')}
+      else feedbackList(items);
     }
   }catch(err){
     setStatus('Could not load admin data: '+err.message,true);
