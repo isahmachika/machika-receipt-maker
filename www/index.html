@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1230">
+<title>Machika Receipt Maker</title>
+<meta name="description" content="Create professional receipts for your shop, online store or service business in minutes. Add your business details, download as PNG and keep every receipt saved in your account.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Machika Receipt Maker">
+<meta property="og:description" content="Create professional receipts in minutes. No more handwriting, no more stress.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/layout.css">
+<link rel="stylesheet" href="/css/public.css">
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/receipt.css">
+</head>
+<body>
+<noscript><p style="padding:24px;font-family:sans-serif">Machika Receipt Maker needs JavaScript to run. Please turn it on and reload.</p></noscript>
+
+<!-- Icon sprite (Feather-style strokes). The logo is the original Machika receipt mark. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+ <defs>
+  <symbol id="i-logo" viewBox="0 0 64 64" fill="none"><path d="M15 7h34l7 7v43l-7-5-7 5-7-5-7 5-7-5-7 5V14l8-7Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M23 24h20M23 34h20M23 44h14" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+ </defs>
+</svg>
+
+<div id="splash" class="splash" role="status" aria-label="Loading"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span></div>
+
+<!-- ============ PUBLIC: LANDING ============ -->
+<div id="landingView" hidden>
+ <header class="site-nav">
+  <div class="wrap nav-in">
+   <a class="brand" href="/" data-route="/" aria-label="Machika Receipt Maker home"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></a>
+   <nav class="nav-links" aria-label="Page sections"><a href="#how">How it works</a><a href="#features">Features</a></nav>
+   <div class="nav-actions"><a class="btn btn-ghost btn-sm" href="/login" data-route="/login">Login</a><a class="btn btn-primary btn-sm" href="/register" data-route="/register">Create account</a></div>
+  </div>
+ </header>
+
+ <main>
+  <section class="hero">
+   <div class="hero-copy">
+    <h1>Make your business look professional</h1>
+    <p class="lead">Create beautiful and professional receipts for your business in minutes. No more handwriting, no more stress!</p>
+    <div class="hero-cta">
+     <a class="btn btn-primary btn-lg" href="/register" data-route="/register">Try it now for free</a>
+     <a class="btn btn-lg" href="#how">See how it works</a>
+    </div>
+    <label class="try" for="heroShopInput"><span>Type your shop name and watch the receipt change</span><input class="input" id="heroShopInput" maxlength="28" placeholder="Machika Store" autocomplete="off"></label>
+   </div>
+
+   <div class="hero-desk">
+    <div class="printer" aria-hidden="true">
+     <div class="printer-body"><span class="led"></span><span class="printer-name">MACHIKA</span></div>
+     <div class="slot"></div>
+     <div class="feed">
+      <div class="slip">
+       <div class="slip-head"><b id="heroShop">MACHIKA STORE</b><span>123 Market Street, Katsina</span></div>
+       <div class="slip-meta"><span>REC-20261120-48213</span><span>20 Nov 2026</span></div>
+       <div class="slip-row"><span>Rice</span><span>2 x 1,500.00</span><b>3,000.00</b></div>
+       <div class="slip-row"><span>Soap</span><span>1 x 500.00</span><b>500.00</b></div>
+       <div class="slip-total"><span>TOTAL</span><b>₦3,500.00</b></div>
+       <div class="slip-foot">Thank you for your patronage!</div>
+       <div class="barcode"></div>
+       <div class="stamp">PAID</div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  <section id="how" class="band">
+   <div class="wrap">
+    <h2 class="band-title">From blank page to finished receipt in three steps</h2>
+    <ol class="steps">
+     <li><span class="step-n">1</span><h3>Create your free account</h3><p>Sign up with your email and a password. It takes a minute.</p></li>
+     <li><span class="step-n">2</span><h3>Add your business and items</h3><p>Enter your shop details once, then list what you sold. The preview updates as you type.</p></li>
+     <li><span class="step-n">3</span><h3>Save or download</h3><p>Download the receipt as a PNG or PDF, or share it on WhatsApp, and find it again any time in your account.</p></li>
+    </ol>
+   </div>
+  </section>
+
+  <section id="features" class="band band-white">
+   <div class="wrap split">
+    <h2 class="band-title">Everything a good receipt needs</h2>
+    <dl class="ruled">
+     <div><dt>Create receipts in minutes</dt><dd>Fast and easy to use</dd></div>
+     <div><dt>Add your business details</dt><dd>Name, address, phone and more</dd></div>
+     <div><dt>Download as image</dt><dd>Save and share easily as PNG or PDF</dd></div>
+     <div><dt>Perfect for all businesses</dt><dd>Shops, online stores, services and more</dd></div>
+    </dl>
+   </div>
+  </section>
+
+  <section class="band">
+   <div class="wrap">
+    <h2 class="band-title">Who can use Machika Receipt Maker</h2>
+    <div class="trio">
+     <article><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><h3>Shops</h3><p>For retail shops and small businesses</p></article>
+     <article><svg class="ico" aria-hidden="true"><use href="#i-monitor"/></svg><h3>Online stores</h3><p>For online sellers and vendors</p></article>
+     <article><svg class="ico" aria-hidden="true"><use href="#i-wrench"/></svg><h3>Services</h3><p>For service providers and professionals</p></article>
+    </div>
+   </div>
+  </section>
+
+  <section class="cta-band">
+   <div class="wrap cta-in">
+    <div><h2>Small tool. Big impact.</h2><p>Perfect receipts for a better business!</p></div>
+    <a class="btn btn-light btn-lg" href="/register" data-route="/register">Create your free account</a>
+   </div>
+  </section>
+ </main>
+
+ <footer class="site-foot">
+  <div class="wrap foot-in">
+   <div class="foot-brand"><strong>Machika Receipt Maker</strong><p>Built for shops and small businesses. Create professional receipts and download them as PNG images.</p></div>
+   <div class="foot-nav">
+   <div class="foot-links">
+    <button type="button" class="link-btn" data-open-legal="privacy">Privacy Policy</button>
+    <button type="button" class="link-btn" data-open-legal="terms">Terms of Service</button>
+    <a href="mailto:support.machikareceiptmaker@gmail.com">Contact Support</a>
+   </div>
+   <div class="foot-social" aria-label="Machika Receipt Maker social media">
+    <a href="https://x.com/Mareceipt_maker" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
+    <a href="https://t.me/mareceipt_maker" target="_blank" rel="noopener noreferrer">Telegram</a>
+    <a href="https://www.instagram.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">Instagram</a>
+    <a href="https://www.facebook.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">Facebook</a>
+    <a href="mailto:support.machikareceiptmaker@gmail.com">Email</a>
+   </div>
+   </div>
+   <p class="foot-copy">© <span id="footerYear">2026</span> Machika Receipt Maker. All rights reserved.</p>
+  </div>
+ </footer>
+</div>
+
+<!-- ============ PUBLIC: LOGIN / REGISTER ============ -->
+<div id="authView" class="auth" hidden>
+ <aside class="auth-side" aria-hidden="true">
+  <div class="brand brand-light"><span class="brand-mark brand-mark-light"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></div>
+  <div class="auth-pitch">
+   <p class="auth-big">Perfect receipts for a better business!</p>
+   <ul class="auth-points"><li>Create receipts in minutes</li><li>Download them as PNG images</li><li>Every receipt saved in your account</li></ul>
+  </div>
+  <div class="slip slip-static">
+   <div class="slip-head"><b>MACHIKA STORE</b><span>123 Market Street, Katsina</span></div>
+   <div class="slip-row"><span>Rice</span><span>2 x 1,500.00</span><b>3,000.00</b></div>
+   <div class="slip-row"><span>Soap</span><span>1 x 500.00</span><b>500.00</b></div>
+   <div class="slip-total"><span>TOTAL</span><b>₦3,500.00</b></div>
+   <div class="slip-foot">Thank you for your patronage!</div>
+   <div class="barcode"></div>
+   <div class="stamp stamp-static">PAID</div>
+  </div>
+ </aside>
+
+ <main class="auth-main">
+  <div class="auth-card">
+   <a class="back-link" href="/" data-route="/"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left"/></svg>Back to home</a>
+   <a class="brand brand-auth" href="/" data-route="/" aria-label="Machika Receipt Maker home"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></a>
+   <h1 id="authHeading">Login to your account</h1>
+   <p class="muted" id="authIntro">Log in to use the receipt maker.</p>
+   <div class="seg" id="authTabs" role="tablist" aria-label="Login or create account">
+    <button class="seg-btn is-active" id="loginTab" type="button" role="tab" aria-selected="true">Login</button>
+    <button class="seg-btn" id="registerTab" type="button" role="tab" aria-selected="false">Create account</button>
+   </div>
+   <form id="authForm" class="stack" novalidate>
+    <div class="field"><label for="authEmail">Email</label><input class="input" id="authEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com"></div>
+    <div class="field"><label for="authPassword">Password (at least 6 characters)</label>
+     <div class="pw"><input class="input" id="authPassword" type="password" autocomplete="current-password" placeholder="Password"><button class="pw-toggle" id="pwToggle" type="button" aria-label="Show password" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-eye"/></svg></button></div>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" id="authSubmit" type="submit">Login</button>
+    <button class="btn btn-ghost btn-block" id="resetBtn" type="button">Forgot password</button>
+   </form>
+   <p id="authStatus" class="status" role="status" aria-live="polite"></p>
+  </div>
+ </main>
+</div>
+
+<!-- ============ APP SHELL (signed in) ============ -->
+<div id="appShell" class="shell" hidden>
+ <aside class="sidebar" aria-label="Main navigation">
+  <a class="brand" href="/dashboard" data-route="/dashboard"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span><span class="brand-text"><strong>Machika</strong><small>Receipt Maker</small></span></a>
+  <nav class="nav">
+   <a class="nav-link" data-nav="/dashboard" data-route="/dashboard" href="/dashboard"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>Dashboard</span></a>
+   <a class="nav-link" data-nav="/create-receipt" data-route="/create-receipt" href="/create-receipt"><svg class="ico" aria-hidden="true"><use href="#i-file-plus"/></svg><span>Create receipt</span></a>
+   <a class="nav-link" data-nav="/my-receipts" data-route="/my-receipts" href="/my-receipts"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg><span>Receipts</span></a>
+   <a class="nav-link" data-nav="/profile" data-route="/profile" href="/profile"><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><span>Business profile</span></a>
+   <a class="nav-link" data-nav="/account" data-route="/account" href="/account"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span>My account</span></a>
+   <a class="nav-link" id="navAdmin" data-nav="/admin" data-route="/admin" href="/admin" hidden><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span>Super admin</span></a>
+  </nav>
+  <div class="sidebar-foot">
+   <div class="user-chip"><span class="avatar" id="sideAvatar">M</span><span class="user-meta"><b id="sideName">Your business</b><small id="sideEmail"></small></span></div>
+   <button class="btn btn-side" id="logoutBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-logout"/></svg>Logout</button>
+  </div>
+ </aside>
+
+ <div class="main">
+  <header class="topbar">
+   <a class="brand brand-mini" href="/dashboard" data-route="/dashboard" aria-label="Dashboard"><span class="brand-mark"><svg class="logo-svg" viewBox="0 0 64 64"><use href="#i-logo"/></svg></span></a>
+   <div class="topbar-title"><h1 id="pageTitle">Dashboard</h1><p id="pageSub"></p></div>
+   <a class="btn btn-primary btn-sm topbar-new" href="/create-receipt" data-route="/create-receipt"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>New receipt</a>
+   <a class="avatar avatar-top" id="topAvatar" href="/account" data-route="/account" aria-label="My account">M</a>
+  </header>
+
+  <main id="view" class="view" tabindex="-1">
+
+   <!-- Dashboard -->
+   <section class="page" id="page-dashboard" hidden>
+    <div class="strip" id="statStrip">
+     <div><small>Receipts saved</small><b id="statCount">—</b></div>
+     <div><small>Sales total</small><b id="statTotal">—</b></div>
+     <div><small>Receipts this month</small><b id="statMonth">—</b></div>
+    </div>
+    <div class="strip strip-2">
+     <div><small>Sales today</small><b id="statSalesToday">—</b></div>
+     <div><small>Sales this month</small><b id="statSalesMonth">—</b></div>
+    </div>
+    <p class="hint strip-note" id="statTotalNote"></p>
+    <section class="panel report" id="reportPanel">
+     <div class="panel-head"><h2>Sales report</h2>
+      <div class="seg" id="reportRange" role="group" aria-label="Report period">
+       <button class="seg-btn is-active" type="button" data-range="7">7 days</button>
+       <button class="seg-btn" type="button" data-range="30">30 days</button>
+       <button class="seg-btn" type="button" data-range="12">12 months</button>
+      </div>
+     </div>
+     <p class="report-sum" id="reportSum"></p>
+     <div class="rchart" id="reportChart" role="img" aria-label="Sales per day"></div>
+    </section>
+    <div class="dash-grid">
+     <section class="panel">
+      <div class="panel-head"><h2>Recent receipts</h2><a class="link" href="/my-receipts" data-route="/my-receipts">View all</a></div>
+      <div id="dashboardHistoryList" class="rlist"></div>
+     </section>
+     <div class="stack">
+      <section class="panel" id="telegramConnectCard">
+       <div class="panel-head"><h2>Connect Telegram</h2><span class="pill" id="telegramPill" hidden>Connected</span></div>
+       <p class="muted">Link your Telegram account to Machika Receipt Maker so you can create receipts through your Telegram bot. You must be signed in to link your account.</p>
+       <p id="telegramConnectStatus" class="status" role="status" aria-live="polite">Checking Telegram connection...</p>
+       <div class="actions">
+        <button class="btn btn-primary" id="telegramConnectBtn" type="button">Generate Telegram link code</button>
+        <button class="btn btn-danger" id="telegramDisconnectBtn" type="button" hidden>Disconnect Telegram</button>
+       </div>
+       <div id="telegramLinkResult" class="linkbox" hidden>
+        <p>One-time link code</p>
+        <strong id="telegramLinkCode" class="mono"></strong>
+        <p class="hint">Open your Machika Telegram bot and send:</p>
+        <div class="cmd"><code id="telegramStartCommand"></code><button class="icon-btn" id="copyCommandBtn" type="button" title="Copy command" aria-label="Copy command"><svg class="ico" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
+        <p class="hint">Use this code only once and do not share it. If it expires, generate a new one.</p>
+        <a id="telegramOpenBot" class="btn btn-sm" href="#" target="_blank" rel="noopener noreferrer" hidden>Open Telegram bot</a>
+       </div>
+      </section>
+      <section class="panel tip" id="profileTip" hidden>
+       <h2>Add your business details</h2>
+       <p class="muted">Save your shop name, address and phone number once and every new receipt starts filled in.</p>
+       <a class="btn btn-sm" href="/profile" data-route="/profile">Open business profile</a>
+      </section>
+     </div>
+    </div>
+   </section>
+
+   <!-- Create receipt -->
+   <section class="page page-editor" id="page-create-receipt" hidden>
+    <div class="seg seg-sticky editor-tabs" role="tablist" aria-label="Receipt editor view">
+     <button class="seg-btn is-active" type="button" role="tab" aria-selected="true" data-editor-tab="edit">Edit</button>
+     <button class="seg-btn" type="button" role="tab" aria-selected="false" data-editor-tab="preview">Preview</button>
+    </div>
+
+    <div class="editor" id="editorRoot" data-tab="edit">
+     <div class="editor-form stack">
+      <section class="panel">
+       <div class="panel-head"><h2>Business details</h2></div>
+       <div class="form-grid">
+        <div class="field span-2">
+         <span class="label">Business logo (optional)</span>
+         <div class="logo-pick">
+          <input id="logoFile" class="sr-only" type="file" accept="image/*">
+          <label class="drop" for="logoFile"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg><span><b>Choose an image</b><small>Your logo will appear on the receipt. The selected image stays in this browser.</small></span></label>
+          <div class="logo-prev" id="logoPrev" hidden><img id="logoImg" alt="Selected logo"><button class="btn btn-ghost btn-sm" id="logoRemove" type="button">Remove logo</button></div>
+         </div>
+        </div>
+        <div class="field span-2"><label for="business">Business / shop name</label><input class="input" id="business" placeholder="Machika Stores" autocomplete="organization"></div>
+        <div class="field span-2">
+         <span class="label" id="colorLabel">Receipt colour</span>
+         <div class="swatches" id="colorPick" role="radiogroup" aria-labelledby="colorLabel">
+          <button type="button" class="swatch is-on" role="radio" aria-checked="true" aria-label="Black" data-color="" style="--sw:#111111"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Blue" data-color="#1743c9" style="--sw:#1743c9"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Green" data-color="#0f7a4a" style="--sw:#0f7a4a"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Red" data-color="#b42318" style="--sw:#b42318"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Purple" data-color="#6d28d9" style="--sw:#6d28d9"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="Orange" data-color="#c2410c" style="--sw:#c2410c"></button>
+         </div>
+        </div>
+        <div class="field"><label for="phone">Phone number</label><input class="input" id="phone" placeholder="080..." inputmode="tel" autocomplete="tel"></div>
+        <div class="field"><label for="address">Address</label><input class="input" id="address" placeholder="Katsina, Nigeria" autocomplete="street-address"></div>
+       </div>
+      </section>
+
+      <section class="panel">
+       <div class="panel-head"><h2>Receipt details</h2></div>
+       <div class="form-grid">
+        <div class="field"><label for="receiptNo">Receipt number</label><input class="input mono" id="receiptNo"></div>
+        <div class="field"><label for="date">Receipt date</label><input class="input" id="date" type="date"></div>
+        <div class="field"><label for="customer">Customer name</label><input class="input" id="customer" placeholder="Cash customer" list="savedCustomersData" autocomplete="off"></div>
+        <div class="field"><label for="payment">Payment method</label><select class="input" id="payment"><option>Cash</option><option>Transfer</option><option>POS</option><option>Card</option><option>Credit</option></select></div>
+       </div>
+      </section>
+
+      <section class="panel items-panel">
+       <div class="panel-head"><h2>Items sold</h2></div>
+       <div class="items-head" aria-hidden="true"><span>Item / service</span><span>Quantity</span><span>Price (₦)</span><span>Amount</span><span></span></div>
+       <div id="items"></div>
+       <button class="btn btn-block btn-dashed" id="addItem" type="button"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>Add item</button>
+      </section>
+
+      <section class="panel">
+       <div class="panel-head"><h2>Totals</h2></div>
+       <div class="form-grid">
+        <div class="field"><label for="discount">Discount (₦)</label><input class="input mono" id="discount" type="number" min="0" value="0" inputmode="decimal"></div>
+        <div class="field"><label for="note">Additional notes</label><input class="input" id="note" placeholder="Thank you for your business"></div>
+       </div>
+       <dl class="sum">
+        <div><dt>Subtotal</dt><dd id="sumSub" class="mono">₦0.00</dd></div>
+        <div><dt>Discount</dt><dd id="sumDisc" class="mono">₦0.00</dd></div>
+        <div class="grand"><dt>Total</dt><dd id="sumTotal" class="mono">₦0.00</dd></div>
+       </dl>
+      </section>
+     </div>
+
+     <aside class="editor-preview">
+      <div class="preview-desk"><div class="paper"><div class="receipt" id="receipt"></div></div></div>
+      <p class="hint">The preview updates as you type. PNG, PDF and Share use this exact receipt.</p>
+     </aside>
+    </div>
+
+    <div class="actionbar">
+     <button class="btn btn-primary grow" id="save" type="button"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Save receipt</button>
+     <button class="btn" id="image" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Download PNG</button>
+     <button class="btn" id="pdf" type="button"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg>Download PDF</button>
+     <button class="btn" id="share" type="button"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg>Share</button>
+     <button class="btn" id="whatsapp" type="button"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg>WhatsApp customer</button>
+     <button class="btn btn-ghost" id="clear" type="button">New receipt</button>
+    </div>
+   </section>
+
+   <!-- Receipt history -->
+   <section class="page" id="page-my-receipts" hidden>
+    <div class="toolbar">
+     <label class="search"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search receipts</span><input id="receiptSearch" type="search" placeholder="Search by receipt number or customer" autocomplete="off"></label>
+    </div>
+    <section class="panel panel-flush"><div id="history" class="rlist"></div></section>
+   </section>
+
+   <!-- Business profile -->
+   <section class="page" id="page-profile" hidden>
+    <section class="panel narrow">
+     <div class="panel-head"><h2>Business details</h2></div>
+     <p class="muted lead-s">Save your shop name, address, and phone number once. They will be filled in automatically for future receipts.</p>
+     <form id="profileForm" class="stack" novalidate>
+      <div class="form-grid">
+       <div class="field span-2"><label for="profileBusiness">Business / shop name</label><input class="input" id="profileBusiness" placeholder="Machika Store"></div>
+       <div class="field"><label for="profilePhone">Phone number</label><input class="input" id="profilePhone" placeholder="080..." inputmode="tel"></div>
+       <div class="field"><label for="profileAddress">Business address</label><input class="input" id="profileAddress" placeholder="Shop address"></div>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="saveProfileBtn" type="submit">Save business profile</button></div>
+     </form>
+     <p id="profileStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+    <div id="catalogOff" class="notice narrow" hidden>Saved items and customers are not available yet.</div>
+    <div id="catalogPanels" class="stack">
+     <section class="panel narrow">
+      <div class="panel-head"><h2>Saved items</h2></div>
+      <p class="muted lead-s">Items you sell often. Type the name on a receipt and the price fills in.</p>
+      <form id="itemForm" class="form-grid" novalidate>
+       <div class="field"><label for="newItemName">Item name</label><input class="input" id="newItemName" autocomplete="off"></div>
+       <div class="field"><label for="newItemPrice">Price (₦)</label><input class="input" id="newItemPrice" type="number" min="0" step="0.01" inputmode="decimal"></div>
+       <div class="actions span-2"><button class="btn btn-primary" id="addSavedItem" type="submit">Save item</button></div>
+      </form>
+      <div id="savedItemsList" class="slist"></div>
+     </section>
+     <section class="panel narrow">
+      <div class="panel-head"><h2>Saved customers</h2></div>
+      <p class="muted lead-s">Pick a customer from the list when you create a receipt.</p>
+      <form id="customerForm" class="form-grid" novalidate>
+       <div class="field"><label for="newCustomerName">Customer name</label><input class="input" id="newCustomerName" autocomplete="off"></div>
+       <div class="field"><label for="newCustomerPhone">Phone number (optional)</label><input class="input" id="newCustomerPhone" inputmode="tel" autocomplete="off"></div>
+       <div class="actions span-2"><button class="btn btn-primary" id="addSavedCustomer" type="submit">Save customer</button></div>
+      </form>
+      <div id="savedCustomersList" class="slist"></div>
+     </section>
+    </div>
+   </section>
+
+   <!-- Account -->
+   <section class="page" id="page-account" hidden>
+    <div class="narrow stack">
+     <div class="notice" id="recoveryNotice" role="status" hidden>You opened a password reset link. Choose a new password below to finish.</div>
+     <section class="panel">
+      <div class="panel-head"><h2>My account</h2></div>
+      <div class="row"><span class="avatar avatar-lg" id="accAvatar">M</span><div class="grow"><p class="label">Email address</p><p id="myAccountEmail" class="mono break"></p></div></div>
+     </section>
+     <section class="panel">
+      <div class="panel-head"><h2>Change password</h2></div>
+      <form id="passwordForm" class="stack" novalidate>
+       <div class="field"><label for="newPassword">New password (at least 6 characters)</label><input class="input" id="newPassword" type="password" autocomplete="new-password"></div>
+       <div class="field"><label for="confirmPassword">Confirm new password</label><input class="input" id="confirmPassword" type="password" autocomplete="new-password"></div>
+       <div class="actions"><button class="btn btn-primary" id="changePasswordBtn" type="submit">Update password</button></div>
+      </form>
+      <p id="passwordStatus" class="status" role="status" aria-live="polite"></p>
+     </section>
+     <section class="panel">
+      <button class="btn btn-danger" id="accountLogoutBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-logout"/></svg>Logout</button>
+     </section>
+    </div>
+   </section>
+
+   <!-- Super admin -->
+   <section class="page" id="page-admin" hidden>
+    <p class="muted lead-s">Restricted administration area. The server checks admin permissions for every request.</p>
+    <div class="toolbar">
+     <div class="seg" id="adminTabs" role="tablist" aria-label="Admin views">
+      <button class="seg-btn is-active" id="adminStatsBtn" type="button" data-admin="stats">Overview</button>
+      <button class="seg-btn" id="adminUsersBtn" type="button" data-admin="users">Users</button>
+      <button class="seg-btn" id="adminReceiptsBtn" type="button" data-admin="receipts">All receipts</button>
+      <button class="seg-btn" id="adminAnalyticsBtn" type="button" data-admin="analytics">Analytics (7 days)</button>
+     </div>
+     <button class="btn btn-sm" id="adminRefreshBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>Refresh</button>
+    </div>
+    <p id="adminStatus" class="status" role="status" aria-live="polite"></p>
+    <div id="adminStats" class="stats-grid"></div>
+    <div id="adminResults"></div>
+   </section>
+  </main>
+
+  <footer class="app-foot">
+   <span>© <span id="appFooterYear">2026</span> Machika Receipt Maker</span>
+   <button type="button" class="link-btn" data-open-legal="privacy">Privacy Policy</button>
+   <button type="button" class="link-btn" data-open-legal="terms">Terms of Service</button>
+   <a href="mailto:support.machikareceiptmaker@gmail.com">Contact Support</a>
+  </footer>
+ </div>
+
+ <nav class="tabbar" aria-label="Primary">
+  <a class="tab" data-nav="/dashboard" data-route="/dashboard" href="/dashboard"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></a>
+  <a class="tab" data-nav="/my-receipts" data-route="/my-receipts" href="/my-receipts"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg><span>Receipts</span></a>
+  <a class="tab tab-create" data-nav="/create-receipt" data-route="/create-receipt" href="/create-receipt"><span class="tab-fab"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></span><span>Create</span></a>
+  <a class="tab" data-nav="/profile" data-route="/profile" href="/profile"><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><span>Business</span></a>
+  <a class="tab" data-nav="/account" data-route="/account" href="/account"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span>Account</span></a>
+ </nav>
+</div>
+
+<!-- ============ DIALOGS + TOASTS ============ -->
+<dialog id="confirmDialog" class="dialog" aria-labelledby="confirmTitle">
+ <form method="dialog">
+  <h2 id="confirmTitle">Are you sure?</h2>
+  <p id="confirmText" class="muted"></p>
+  <div class="dialog-actions">
+   <button class="btn" value="cancel" autofocus>Cancel</button>
+   <button class="btn btn-danger-solid" id="confirmOk" value="ok">Confirm</button>
+  </div>
+ </form>
+</dialog>
+
+<dialog id="legalDialog" class="dialog dialog-wide" aria-labelledby="legalTitle">
+ <div class="dialog-head"><h2 id="legalTitle">Legal information</h2><button type="button" class="icon-btn" id="legalClose" aria-label="Close"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+ <div id="legalContent" class="legal-content"></div>
+ <div class="dialog-actions"><button type="button" class="btn btn-primary" id="legalDone">Close</button></div>
+</dialog>
+
+<datalist id="savedItemsData"></datalist><datalist id="savedCustomersData"></datalist>
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>
