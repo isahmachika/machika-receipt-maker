@@ -5,10 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a1230">
 <title>Machika Receipt Maker</title>
-<meta name="description" content="Create professional receipts for your shop, online store or service business in minutes. Add your business details, download as PNG and keep every receipt saved in your account.">
+<meta name="description" content="Make professional receipts, invoices and quotations in minutes. Download as PNG or PDF, print, share on WhatsApp and track who still owes you.">
+<link rel="canonical" href="https://machika-receipt-maker.netlify.app/">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Machika Receipt Maker">
 <meta property="og:title" content="Machika Receipt Maker">
-<meta property="og:description" content="Create professional receipts in minutes. No more handwriting, no more stress.">
+<meta property="og:description" content="Receipts, invoices and quotations for your shop. Download, print or share on WhatsApp.">
+<meta property="og:url" content="https://machika-receipt-maker.netlify.app/">
+<meta property="og:image" content="https://machika-receipt-maker.netlify.app/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A sample receipt from Machika Receipt Maker with a total of ₦90,000.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Machika Receipt Maker">
+<meta name="twitter:description" content="Receipts, invoices and quotations for your shop. Download, print or share on WhatsApp.">
+<meta name="twitter:image" content="https://machika-receipt-maker.netlify.app/og-image.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -31,6 +43,7 @@
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
   <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></symbol>
   <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></symbol>
+  <symbol id="i-naira" viewBox="0 0 24 24"><path d="M6 20V4l12 16V4"/><path d="M3 9h18M3 15h18"/></symbol>
   <symbol id="i-store" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
@@ -214,6 +227,7 @@
    <a class="nav-link" data-nav="/dashboard" data-route="/dashboard" href="/dashboard"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>Dashboard</span></a>
    <a class="nav-link" data-nav="/create-receipt" data-route="/create-receipt" href="/create-receipt"><svg class="ico" aria-hidden="true"><use href="#i-file-plus"/></svg><span>Create receipt</span></a>
    <a class="nav-link" data-nav="/my-receipts" data-route="/my-receipts" href="/my-receipts"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg><span>Receipts</span></a>
+   <a class="nav-link" data-nav="/money" data-route="/money" href="/money"><svg class="ico" aria-hidden="true"><use href="#i-naira"/></svg><span>Money</span></a>
    <a class="nav-link" data-nav="/profile" data-route="/profile" href="/profile"><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><span>Business profile</span></a>
    <a class="nav-link" data-nav="/account" data-route="/account" href="/account"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span>My account</span></a>
    <a class="nav-link" id="navAdmin" data-nav="/admin" data-route="/admin" href="/admin" hidden><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span>Super admin</span></a>
@@ -244,8 +258,14 @@
     <div class="strip strip-2">
      <div><small>Sales today</small><b id="statSalesToday">—</b></div>
      <div><small>Sales this month</small><b id="statSalesMonth">—</b></div>
+     <div><small>Expenses this month</small><b id="statExpMonth">—</b></div>
+     <div><small>Profit this month</small><b id="statProfitMonth">—</b></div>
     </div>
     <p class="hint strip-note" id="statTotalNote"></p>
+    <div class="callouts">
+     <div class="callout callout-owe" id="oweCallout" hidden><div><b id="oweCalloutTitle"></b><span id="oweCalloutText"></span></div><a class="btn btn-sm btn-primary" href="/money" data-route="/money">See who owes you</a></div>
+     <div class="callout" id="lowCallout" hidden><div><b>Running low on stock</b><span id="lowCalloutText"></span></div><a class="btn btn-sm" href="/profile" data-route="/profile">Update stock</a></div>
+    </div>
     <section class="panel report" id="reportPanel">
      <div class="panel-head"><h2>Sales report</h2>
       <div class="seg" id="reportRange" role="group" aria-label="Report period">
@@ -265,11 +285,15 @@
      <div class="stack">
       <section class="panel" id="telegramConnectCard">
        <div class="panel-head"><h2>Connect Telegram</h2><span class="pill" id="telegramPill" hidden>Connected</span></div>
-       <p class="muted">Link your Telegram account to Machika Receipt Maker so you can create receipts through your Telegram bot. You must be signed in to link your account.</p>
+       <p class="muted">Link your Telegram account to Machika Receipt Maker so you can create receipts, check today's sales and see who owes you from your Telegram bot. You must be signed in to link your account.</p>
        <p id="telegramConnectStatus" class="status" role="status" aria-live="polite">Checking Telegram connection...</p>
        <div class="actions">
         <button class="btn btn-primary" id="telegramConnectBtn" type="button">Generate Telegram link code</button>
         <button class="btn btn-danger" id="telegramDisconnectBtn" type="button" hidden>Disconnect Telegram</button>
+       </div>
+       <div class="switch-row" id="telegramSummaryRow" hidden>
+        <div><b>Evening summary</b><span class="hint">Around 8 pm Nigeria time, on days when you saved a receipt or an expense: your sales, expenses, profit and who still owes you.</span></div>
+        <label class="switch"><input type="checkbox" id="telegramSummary" role="switch"><span class="switch-ui" aria-hidden="true"></span><span class="sr-only">Send me an evening summary on Telegram</span></label>
        </div>
        <div id="telegramLinkResult" class="linkbox" hidden>
         <p>One-time link code</p>
@@ -278,6 +302,14 @@
         <div class="cmd"><code id="telegramStartCommand"></code><button class="icon-btn" id="copyCommandBtn" type="button" title="Copy command" aria-label="Copy command"><svg class="ico" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
         <p class="hint">Use this code only once and do not share it. If it expires, generate a new one.</p>
         <a id="telegramOpenBot" class="btn btn-sm" href="#" target="_blank" rel="noopener noreferrer" hidden>Open Telegram bot</a>
+       </div>
+      </section>
+      <section class="panel" id="inviteCard">
+       <div class="panel-head"><h2>Invite a friend</h2></div>
+       <p class="muted">Know another shop owner who still writes receipts by hand? Send them the link on WhatsApp.</p>
+       <div class="actions">
+        <button class="btn btn-primary" id="inviteWhatsapp" type="button"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg>Share on WhatsApp</button>
+        <button class="btn" id="inviteCopy" type="button"><svg class="ico" aria-hidden="true"><use href="#i-copy"/></svg>Copy link</button>
        </div>
       </section>
       <section class="panel tip" id="profileTip" hidden>
@@ -329,8 +361,10 @@
       <section class="panel">
        <div class="panel-head"><h2>Receipt details</h2></div>
        <div class="form-grid">
-        <div class="field"><label for="receiptNo">Receipt number</label><input class="input mono" id="receiptNo"></div>
+        <div class="field span-2"><label for="docType">Document type</label><select class="input" id="docType"><option value="receipt">Receipt (customer has paid)</option><option value="invoice">Invoice (customer will pay later)</option><option value="quote">Quotation (price offer)</option></select></div>
+        <div class="field"><label for="receiptNo" id="receiptNoLabel">Receipt number</label><input class="input mono" id="receiptNo"></div>
         <div class="field"><label for="date">Receipt date</label><input class="input" id="date" type="date"></div>
+        <div class="field span-2" id="dueField" hidden><label for="dueDate" id="dueLabel">Due date</label><input class="input" id="dueDate" type="date"></div>
         <div class="field"><label for="customer">Customer name</label><input class="input" id="customer" placeholder="Cash customer" list="savedCustomersData" autocomplete="off"></div>
         <div class="field"><label for="payment">Payment method</label><select class="input" id="payment"><option>Cash</option><option>Transfer</option><option>POS</option><option>Card</option><option>Credit</option></select></div>
        </div>
@@ -348,11 +382,15 @@
        <div class="form-grid">
         <div class="field"><label for="discount">Discount (₦)</label><input class="input mono" id="discount" type="number" min="0" value="0" inputmode="decimal"></div>
         <div class="field"><label for="note">Additional notes</label><input class="input" id="note" placeholder="Thank you for your business"></div>
+        <div class="field" id="payStatusField"><label for="payStatus">Payment status</label><select class="input" id="payStatus"><option value="paid">Paid in full</option><option value="part">Part payment</option><option value="unpaid">Not paid yet</option></select></div>
+        <div class="field" id="amountPaidField" hidden><label for="amountPaid">Amount paid so far (₦)</label><input class="input mono" id="amountPaid" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
        </div>
        <dl class="sum">
         <div><dt>Subtotal</dt><dd id="sumSub" class="mono">₦0.00</dd></div>
         <div><dt>Discount</dt><dd id="sumDisc" class="mono">₦0.00</dd></div>
         <div class="grand"><dt>Total</dt><dd id="sumTotal" class="mono">₦0.00</dd></div>
+        <div id="sumPaidRow" hidden><dt>Paid so far</dt><dd id="sumPaid" class="mono">₦0.00</dd></div>
+        <div id="sumBalRow" class="balance" hidden><dt>Balance due</dt><dd id="sumBal" class="mono">₦0.00</dd></div>
        </dl>
       </section>
      </div>
@@ -360,13 +398,15 @@
      <aside class="editor-preview">
       <div class="preview-desk"><div class="paper"><div class="receipt" id="receipt"></div></div></div>
       <p class="hint">The preview updates as you type. PNG, PDF and Share use this exact receipt.</p>
+      <div class="paper-row"><label for="paper">Paper for Print and PDF</label><select class="input" id="paper"><option value="a4">A4 page</option><option value="80">80mm receipt roll</option><option value="58">58mm receipt roll</option></select></div>
      </aside>
     </div>
 
     <div class="actionbar">
-     <button class="btn btn-primary grow" id="save" type="button"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Save receipt</button>
+     <button class="btn btn-primary grow" id="save" type="button"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg><span id="saveLabel">Save receipt</span></button>
      <button class="btn" id="image" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Download PNG</button>
      <button class="btn" id="pdf" type="button"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg>Download PDF</button>
+     <button class="btn" id="print" type="button"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg>Print</button>
      <button class="btn" id="share" type="button"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg>Share</button>
      <button class="btn" id="whatsapp" type="button"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg>WhatsApp customer</button>
      <button class="btn btn-ghost" id="clear" type="button">New receipt</button>
@@ -377,8 +417,48 @@
    <section class="page" id="page-my-receipts" hidden>
     <div class="toolbar">
      <label class="search"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search receipts</span><input id="receiptSearch" type="search" placeholder="Search by receipt number or customer" autocomplete="off"></label>
+     <button class="btn btn-sm" id="receiptsCsv" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Download CSV</button>
     </div>
     <section class="panel panel-flush"><div id="history" class="rlist"></div></section>
+   </section>
+
+   <!-- Money -->
+   <section class="page" id="page-money" hidden>
+    <div class="strip">
+     <div><small>Owed to you</small><b id="moOwed">—</b></div>
+     <div><small>Expenses this month</small><b id="moExp">—</b></div>
+     <div><small>Profit this month</small><b id="moProfit">—</b></div>
+    </div>
+    <p class="hint strip-note">Profit is this month's sales minus this month's expenses. Money still owed to you counts as sales.</p>
+    <div class="toolbar">
+     <div class="seg" id="moneyTabs" role="group" aria-label="Money views">
+      <button class="seg-btn is-active" type="button" data-money="owing" aria-pressed="true">Who owes you</button>
+      <button class="seg-btn" type="button" data-money="expenses" aria-pressed="false">Expenses</button>
+     </div>
+    </div>
+    <section class="panel panel-flush" id="moneyOwing">
+     <div id="owingList" class="rlist"></div>
+     <p class="hint owe-hint">The saved picture of a receipt does not change when you record a payment. Open the receipt and save it again to update the picture.</p>
+    </section>
+    <div id="moneyExpenses" class="stack" hidden>
+     <div id="expensesOff" class="notice" hidden>Expenses are not available yet.</div>
+     <div id="expensesPanels" class="stack">
+      <section class="panel">
+       <div class="panel-head"><h2>Add an expense</h2></div>
+       <form id="expenseForm" class="form-grid" novalidate>
+        <div class="field span-2"><label for="expTitle">What did you spend on?</label><input class="input" id="expTitle" maxlength="120" placeholder="Rent, transport, stock..." autocomplete="off"></div>
+        <div class="field"><label for="expAmount">Amount (₦)</label><input class="input mono" id="expAmount" type="number" min="0" step="0.01" inputmode="decimal"></div>
+        <div class="field"><label for="expDate">Date</label><input class="input" id="expDate" type="date"></div>
+        <div class="actions span-2"><button class="btn btn-primary" id="addExpense" type="submit">Save expense</button></div>
+       </form>
+      </section>
+      <section class="panel">
+       <div class="panel-head"><h2>Your expenses</h2><button class="btn btn-sm" id="expensesCsv" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Download CSV</button></div>
+       <p class="muted" id="expSum"></p>
+       <div id="expensesList" class="slist"></div>
+      </section>
+     </div>
+    </div>
    </section>
 
    <!-- Business profile -->
@@ -400,10 +480,11 @@
     <div id="catalogPanels" class="stack">
      <section class="panel narrow">
       <div class="panel-head"><h2>Saved items</h2></div>
-      <p class="muted lead-s">Items you sell often. Type the name on a receipt and the price fills in.</p>
+      <p class="muted lead-s">Items you sell often. Type the name on a receipt and the price fills in. If you enter how many you have, it goes down each time you save a receipt with that item, and the dashboard warns you when it runs low.</p>
       <form id="itemForm" class="form-grid" novalidate>
        <div class="field"><label for="newItemName">Item name</label><input class="input" id="newItemName" autocomplete="off"></div>
        <div class="field"><label for="newItemPrice">Price (₦)</label><input class="input" id="newItemPrice" type="number" min="0" step="0.01" inputmode="decimal"></div>
+       <div class="field span-2"><label for="newItemStock">How many do you have? (optional)</label><input class="input" id="newItemStock" type="number" min="0" step="any" inputmode="decimal" placeholder="Leave empty if you do not count this item"></div>
        <div class="actions span-2"><button class="btn btn-primary" id="addSavedItem" type="submit">Save item</button></div>
       </form>
       <div id="savedItemsList" class="slist"></div>
@@ -438,6 +519,18 @@
       </form>
       <p id="passwordStatus" class="status" role="status" aria-live="polite"></p>
      </section>
+     <section class="panel" id="feedbackCard">
+      <div class="panel-head"><h2>Send feedback</h2></div>
+      <p class="muted">Tell us what to add or fix. We read every message.</p>
+      <form id="feedbackForm" class="stack" novalidate>
+       <div class="field"><label for="feedbackKind">What is it about?</label>
+        <select class="input" id="feedbackKind"><option value="idea">An idea or request</option><option value="problem">A problem</option><option value="other">Something else</option></select></div>
+       <div class="field"><label for="feedbackMessage">Your message</label>
+        <textarea class="input" id="feedbackMessage" rows="4" maxlength="1000" placeholder="Write here..."></textarea>
+        <span class="hint" id="feedbackCount">0 of 1000 characters</span></div>
+       <div class="actions"><button class="btn btn-primary" id="feedbackSend" type="submit">Send feedback</button></div>
+      </form>
+     </section>
      <section class="panel">
       <button class="btn btn-danger" id="accountLogoutBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-logout"/></svg>Logout</button>
      </section>
@@ -453,6 +546,7 @@
       <button class="seg-btn" id="adminUsersBtn" type="button" data-admin="users">Users</button>
       <button class="seg-btn" id="adminReceiptsBtn" type="button" data-admin="receipts">All receipts</button>
       <button class="seg-btn" id="adminAnalyticsBtn" type="button" data-admin="analytics">Analytics (7 days)</button>
+      <button class="seg-btn" id="adminFeedbackBtn" type="button" data-admin="feedback">Feedback</button>
      </div>
      <button class="btn btn-sm" id="adminRefreshBtn" type="button"><svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>Refresh</button>
     </div>
@@ -474,6 +568,7 @@
   <a class="tab" data-nav="/dashboard" data-route="/dashboard" href="/dashboard"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></a>
   <a class="tab" data-nav="/my-receipts" data-route="/my-receipts" href="/my-receipts"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg><span>Receipts</span></a>
   <a class="tab tab-create" data-nav="/create-receipt" data-route="/create-receipt" href="/create-receipt"><span class="tab-fab"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></span><span>Create</span></a>
+  <a class="tab" data-nav="/money" data-route="/money" href="/money"><svg class="ico" aria-hidden="true"><use href="#i-naira"/></svg><span>Money</span></a>
   <a class="tab" data-nav="/profile" data-route="/profile" href="/profile"><svg class="ico" aria-hidden="true"><use href="#i-store"/></svg><span>Business</span></a>
   <a class="tab" data-nav="/account" data-route="/account" href="/account"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span>Account</span></a>
  </nav>
@@ -487,6 +582,19 @@
   <div class="dialog-actions">
    <button class="btn" value="cancel" autofocus>Cancel</button>
    <button class="btn btn-danger-solid" id="confirmOk" value="ok">Confirm</button>
+  </div>
+ </form>
+</dialog>
+
+<dialog id="promptDialog" class="dialog" aria-labelledby="promptTitle">
+ <form method="dialog" id="promptForm">
+  <h2 id="promptTitle">Enter a number</h2>
+  <p id="promptText" class="muted"></p>
+  <div class="field"><label for="promptInput" id="promptLabel">Amount</label><input class="input mono" id="promptInput" type="number" inputmode="decimal" step="any"></div>
+  <p id="promptError" class="status error" role="alert"></p>
+  <div class="dialog-actions">
+   <button class="btn" value="cancel" formnovalidate>Cancel</button>
+   <button class="btn btn-primary" id="promptOk" value="ok">Save</button>
   </div>
  </form>
 </dialog>
