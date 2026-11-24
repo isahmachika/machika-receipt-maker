@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /create-receipt
+Disallow: /my-receipts
+Disallow: /money
+Disallow: /profile
+Disallow: /account
+Disallow: /admin
+
+Sitemap: https://machika-receipt-maker.netlify.app/sitemap.xml
