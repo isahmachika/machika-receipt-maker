@@ -36,18 +36,45 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Machika Receipt Maker",
-  "url": "https://machika-receipt-maker.netlify.app/",
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Any",
-  "description": "An online receipt maker for shops and small businesses to create professional receipts, invoices and quotations, download PNG receipt images, print and share on WhatsApp.",
-  "featureList": [
-    "Create professional receipts online",
-    "Create invoices and quotations",
-    "Download receipts as PNG images",
-    "Print and share receipts on WhatsApp",
-    "Save and view receipt history"
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://machika-receipt-maker.netlify.app/#organization",
+      "name": "Machika Receipt Maker",
+      "url": "https://machika-receipt-maker.netlify.app/",
+      "logo": "https://machika-receipt-maker.netlify.app/favicon.svg",
+      "founder": {
+        "@type": "Person",
+        "name": "Isah Tasiu Machika",
+        "jobTitle": "Founder and CEO"
+      },
+      "sameAs": [
+        "https://x.com/Mareceipt_maker",
+        "https://t.me/mareceipt_maker",
+        "https://www.instagram.com/mareceiptmaker/",
+        "https://www.facebook.com/mareceiptmaker/"
+      ],
+      "email": "support.machikareceiptmaker@gmail.com"
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://machika-receipt-maker.netlify.app/#webapp",
+      "name": "Machika Receipt Maker",
+      "url": "https://machika-receipt-maker.netlify.app/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "publisher": {
+        "@id": "https://machika-receipt-maker.netlify.app/#organization"
+      },
+      "description": "An online receipt maker for shops and small businesses to create professional receipts, invoices and quotations, download PNG receipt images, print and share on WhatsApp.",
+      "featureList": [
+        "Create professional receipts online",
+        "Create invoices and quotations",
+        "Download receipts as PNG images",
+        "Print and share receipts on WhatsApp",
+        "Save and view receipt history"
+      ]
+    }
   ]
 }
 </script>
@@ -172,6 +199,21 @@
     <a class="btn btn-light btn-lg" href="/register" data-route="/register">Create your free account</a>
    </div>
   </section>
+
+  <section class="band band-white" id="about-machika">
+   <div class="wrap">
+    <h2 class="band-title">About Machika Receipt Maker</h2>
+    <p>Machika Receipt Maker is an online tool built to help shops and small businesses create professional receipts, invoices and quotations, save receipt records, and share receipt images with customers.</p>
+    <p><strong>Founder and CEO:</strong> Isah Tasiu Machika</p>
+    <p>Connect with Machika:
+     <a href="https://www.facebook.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">Facebook</a> ·
+     <a href="https://www.instagram.com/mareceiptmaker/" target="_blank" rel="noopener noreferrer">Instagram</a> ·
+     <a href="https://x.com/Mareceipt_maker" target="_blank" rel="noopener noreferrer">X</a> ·
+     <a href="https://t.me/mareceipt_maker" target="_blank" rel="noopener noreferrer">Telegram</a>
+    </p>
+   </div>
+  </section>
+
  </main>
 
  <footer class="site-foot">
