@@ -118,10 +118,6 @@ function initLogo(){
   setColor(saved,false);
   $('colorPick').addEventListener('click',e=>{const b=e.target.closest('.swatch');if(b)setColor(b.dataset.color)});
   $('whatsapp').addEventListener('click',whatsappCustomer);
-  $('print').addEventListener('click',printReceipt);
-  let paperSaved='';try{paperSaved=localStorage.getItem('machika-paper')||''}catch{/* ignore */}
-  if(['a4','80','58'].includes(paperSaved)) $('paper').value=paperSaved;
-  $('paper').addEventListener('change',()=>{try{localStorage.setItem('machika-paper',$('paper').value)}catch{/* ignore */}});
   // Changing the document type gives it the right number prefix, and a sensible due date and payment status.
   $('docType').addEventListener('change',()=>{
     const k=docKind(),cur=$('receiptNo').value.trim();
@@ -200,7 +196,7 @@ export function setEditorTab(tab){
 /* ---------- PNG ---------- */
 const nextFrame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-async function captureReceiptCanvas(roll=''){
+async function captureReceiptCanvas(){
   render();
   const receipt=$('receipt');
   if(!receipt||!receipt.innerText.trim()) throw new Error('There is no receipt to save as an image.');
@@ -208,11 +204,9 @@ async function captureReceiptCanvas(roll=''){
   // On phones the preview can be on the other tab; it must be on screen to be captured.
   const root=$('editorRoot'),prevTab=root.dataset.tab;
   if(prevTab!=='preview'){root.dataset.tab='preview';await nextFrame()}
-  if(roll){receipt.classList.add('roll-'+roll);await nextFrame()}
   try{
     return await window.html2canvas(receipt,{backgroundColor:'#ffffff',scale:3,useCORS:true,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,receipt.scrollWidth),scrollX:0,scrollY:0});
   }finally{
-    if(roll) receipt.classList.remove('roll-'+roll);
     if(prevTab!=='preview') root.dataset.tab=prevTab;
   }
 }
@@ -221,15 +215,12 @@ const canvasToBlob=(canvas,type,q)=>new Promise((resolve,reject)=>canvas.toBlob(
 async function makeReceiptPngBlob(){return canvasToBlob(await captureReceiptCanvas(),'image/png')}
 
 /* ---------- PDF (built here, no extra library): one A4 page with the receipt image ---------- */
-function buildPdf(jpeg,imgW,imgH,paper='a4'){
+function buildPdf(jpeg,imgW,imgH){
   const enc=new TextEncoder(),parts=[],offs=[];let len=0;
   const push=b=>{const u=typeof b==='string'?enc.encode(b):b;parts.push(u);len+=u.length};
-  // A4: the receipt sits centred on the page. 80mm / 58mm roll: the page is exactly one receipt long.
-  let W=595,H=842,k,px,py;
-  if(paper==='a4'){const maxW=330,maxH=H-80;k=Math.min(maxW/imgW,maxH/imgH);px=(W-imgW*k)/2;py=H-40-imgH*k}
-  else{const pad=5;W=paper==='58'?164.41:226.77;k=(W-2*pad)/imgW;H=imgH*k+2*pad;px=pad;py=pad}
-  const w=(imgW*k).toFixed(2),h=(imgH*k).toFixed(2),x=px.toFixed(2),y=py.toFixed(2);
-  W=Number(W.toFixed(2));H=Number(H.toFixed(2));
+  const W=595,H=842,maxW=330,maxH=H-80;
+  const k=Math.min(maxW/imgW,maxH/imgH),w=(imgW*k).toFixed(2),h=(imgH*k).toFixed(2);
+  const x=((W-imgW*k)/2).toFixed(2),y=(H-40-imgH*k).toFixed(2);
   const content=`q ${w} 0 0 ${h} ${x} ${y} cm /Im0 Do Q`;
   const obj=(n,body)=>{offs[n]=len;push(n+' 0 obj\n'+body+'\nendobj\n')};
   push('%PDF-1.4\n');
@@ -243,13 +234,10 @@ function buildPdf(jpeg,imgW,imgH,paper='a4'){
   return new Blob(parts,{type:'application/pdf'});
 }
 
-const paperVal=()=>['a4','80','58'].includes($('paper').value)?$('paper').value:'a4';
-
 async function makeReceiptPdfBlob(){
-  const paper=paperVal();
-  const canvas=await captureReceiptCanvas(paper==='a4'?'':paper);
+  const canvas=await captureReceiptCanvas();
   const jpg=await canvasToBlob(canvas,'image/jpeg',0.92);
-  return buildPdf(new Uint8Array(await jpg.arrayBuffer()),canvas.width,canvas.height,paper);
+  return buildPdf(new Uint8Array(await jpg.arrayBuffer()),canvas.width,canvas.height);
 }
 
 function saveBlob(blob,filename){
@@ -265,7 +253,7 @@ async function downloadPdf(){
   const btn=$('pdf');
   setBusy(btn,true,'Preparing...');
   try{
-    saveBlob(await makeReceiptPdfBlob(),fileBase()+(paperVal()==='a4'?'':'-'+paperVal()+'mm')+'.pdf');
+    saveBlob(await makeReceiptPdfBlob(),fileBase()+'.pdf');
     toast('Receipt PDF downloaded.','success');
   }catch(err){
     console.error(err);
@@ -301,34 +289,6 @@ function whatsappCustomer(){
   const text=`Hello ${d.customer},\nHere is your receipt ${d.receiptNo} from ${d.business}.\nDate: ${d.date||today()}\nTotal: \u20a6${money(d.total)}\nThank you for your patronage!`;
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(text),'_blank','noopener');
   if(!num) toast('No saved phone number for this customer, so choose the contact in WhatsApp. Save the number in Business profile to skip this step.','info',8000);
-}
-
-// Print only the receipt. Receipt rolls get a page exactly as wide (and as long) as the receipt.
-function printReceipt(){
-  const paper=paperVal(),root=$('editorRoot'),prevTab=root.dataset.tab,receipt=$('receipt');
-  render();
-  if(!receipt.innerText.trim()){toast('There is no receipt to print.','error');return}
-  if(prevTab!=='preview') root.dataset.tab='preview';
-  document.body.classList.add('printing');
-  const style=document.createElement('style');
-  if(paper==='a4') style.textContent='@page{size:A4;margin:12mm}';
-  else{
-    receipt.classList.add('roll-'+paper);
-    const mm=Math.ceil(receipt.getBoundingClientRect().height*25.4/96)+6;
-    style.textContent=`@page{size:${paper}mm ${mm}mm;margin:0}`;
-  }
-  document.head.appendChild(style);
-  let done=false;
-  const cleanup=()=>{
-    if(done) return;done=true;
-    style.remove();receipt.classList.remove('roll-80','roll-58');
-    document.body.classList.remove('printing');
-    if(prevTab!=='preview') root.dataset.tab=prevTab;
-    window.removeEventListener('afterprint',cleanup);
-  };
-  window.addEventListener('afterprint',cleanup);
-  setTimeout(cleanup,180000);
-  setTimeout(()=>window.print(),80);   // let the new width settle first
 }
 
 async function downloadPng(){
