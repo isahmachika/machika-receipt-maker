@@ -8,7 +8,8 @@
 .nav-links a:hover{color:var(--blue);text-decoration:none}
 .nav-actions{display:flex;gap:8px;align-items:center}
 @media(min-width:760px){.nav-links{display:flex}}
-@media(max-width:420px){.nav-actions .btn-ghost{display:none}}
+@media(max-width:420px){.nav-actions{gap:6px}.nav-actions .btn-sm{padding:0 10px}.brand-text small{display:none}}
+@media(max-width:380px){.site-nav .brand-text{display:none}}
 
 /* ---------- Hero: copy on pad grey, receipt printing on a blue desk ---------- */
 .hero{display:grid;grid-template-columns:1fr}
@@ -130,3 +131,7 @@
 .auth-points li::before{content:"";display:inline-block;width:8px;height:8px;margin-right:12px;border-radius:2px;background:#fff}
 .slip-static{width:min(360px,100%);margin:0 auto -1px;clip-path:none;animation:none;padding-bottom:34px}
 .stamp-static{animation:none;opacity:.88}
+
+.cta-btns{display:flex;flex-wrap:wrap;gap:12px}
+.btn-outline-light{--bg:transparent;--fg:#fff;--bd:rgba(255,255,255,.5)}
+.btn-outline-light:hover{--bg:rgba(255,255,255,.12)}
