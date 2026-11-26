@@ -27,14 +27,3 @@
 .receipt .num{text-align:right;white-space:normal;font-variant-numeric:tabular-nums}
 .receipt .total{font-weight:700;font-size:16px}
 .receipt .foot{text-align:center;font-size:12px;margin-top:16px;white-space:pre-line}
-
-/* Receipt roll widths (80mm = 302px, 58mm = 219px at 96dpi). Used for roll PDFs and printing. */
-.receipt.roll-80{width:302px;max-width:302px;font-size:14px}
-.receipt.roll-58{width:219px;max-width:219px;font-size:13px}
-.receipt.roll-80 table,.receipt.roll-58 table{font-size:11px;table-layout:auto}
-/* On a narrow roll the numbers keep their size and never break in the middle; the item name takes what is left and wraps. */
-.receipt.roll-80 table th,.receipt.roll-80 table td,.receipt.roll-58 table th,.receipt.roll-58 table td{width:auto;padding-left:2px;padding-right:2px}
-.receipt.roll-80 table .num,.receipt.roll-58 table .num{white-space:nowrap;overflow-wrap:normal;padding-left:6px}
-.receipt.roll-58 table{font-size:10px}
-.receipt.roll-58 h3{font-size:17px}
-.receipt.roll-58 .total{font-size:14px}
