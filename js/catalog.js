@@ -25,6 +25,8 @@ export const savedPhone=name=>{
   return hit&&hit.phone?String(hit.phone):'';
 };
 
+// Items that are being counted and are running low (used by the notification bell).
+export const lowStockItems=()=>cat.ok?cat.items.filter(x=>tracked(x)&&Number(x.stock)<=LOW_STOCK).sort((a,b)=>Number(a.stock)-Number(b.stock)).map(x=>({name:x.name,left:Number(x.stock)})):[];
 export function resetCatalog(){cat.items=[];cat.customers=[];cat.ok=true;draw()}
 
 export async function loadCatalog(){
@@ -70,6 +72,7 @@ function renderLow(){
     const shown=low.slice(0,5).map(x=>`${x.name} (${Number(x.stock)})`).join(', ');
     $('lowCalloutText').textContent=shown+(low.length>5?` and ${low.length-5} more`:'');
   }
+  document.dispatchEvent(new Event('notify:refresh'));
 }
 
 // After a new receipt is saved, take the sold quantities off the stock of saved items that are being counted.

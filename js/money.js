@@ -54,6 +54,7 @@ export function renderMoney(){
   $('moProfit').textContent=haveExpenses&&haveReceipts?peso(profit):'—';
   drawOwing();
   drawExpenses(pre);
+  document.dispatchEvent(new Event('notify:refresh'));
 }
 
 function drawOwing(){

@@ -13,6 +13,7 @@ import {initFeedback,resetFeedback} from './feedback.js';
 import {initLegal} from './legal.js';
 import {initLanding} from './landing.js';
 import {initCatalog,loadCatalog,resetCatalog} from './catalog.js';
+import {initNotifications} from './notifications.js';
 import {updateShellUser,displayName,greeting} from './shell.js';
 
 function boot(){
@@ -21,7 +22,7 @@ function boot(){
     return;
   }
 
-  initRouter();initAuth();initEditor();initReceipts();initProfile();initTelegram();initAdmin();initLegal();initLanding();initCatalog();initMoney();initFeedback();
+  initRouter();initAuth();initEditor();initReceipts();initProfile();initTelegram();initAdmin();initLegal();initLanding();initCatalog();initMoney();initFeedback();initNotifications();
 
   // Runs only when the page (or sign-in state) changes, never on tab focus.
   onEnter('/login',()=>setMode('login'));

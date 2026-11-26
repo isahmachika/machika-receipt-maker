@@ -22,4 +22,5 @@ export function updateShellUser(){
   $('myAccountEmail').textContent=u?.email||'';
   const p=profileOf(u);
   $('profileTip').hidden=!u||!!(p.business&&p.phone&&p.address);
+  document.dispatchEvent(new Event('notify:refresh'));
 }
