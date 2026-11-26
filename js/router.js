@@ -62,7 +62,8 @@ export function render(){
       a.classList.toggle('active',on);
       if(on) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
     });
-    $('navAdmin').hidden=!isSuperAdmin();
+    const admin=isSuperAdmin();   // the admin entry is in the side menu (desktop), the top bar and the Account page (phones)
+    $('navAdmin').hidden=!admin;$('topAdmin').hidden=!admin;$('adminCard').hidden=!admin;
     $('appShell').dataset.page=path.slice(1);
     $('pageTitle').textContent=PAGES[path][0];
     $('pageSub').textContent=PAGES[path][1];
