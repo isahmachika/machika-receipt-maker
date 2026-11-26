@@ -177,9 +177,6 @@
 
 /* ---------- Document type, balance, paper size ---------- */
 .sum .balance{color:var(--red-d);font-weight:700}
-.paper-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
-.paper-row label{font-size:13px;font-weight:600;color:var(--ink-2)}
-.paper-row .input{width:auto;min-height:42px;flex:1 1 160px;max-width:240px}
 
 /* ---------- Money page, status badges, callouts ---------- */
 .pill.warn{background:#fff3cd;color:#7a5b00}
