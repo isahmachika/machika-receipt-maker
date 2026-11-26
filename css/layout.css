@@ -27,6 +27,10 @@
 .avatar{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:11px;background:var(--blue-l);color:var(--blue-d);font:700 17px/1 var(--ff-d);text-decoration:none;text-transform:uppercase}
 .avatar:hover{text-decoration:none;background:var(--blue-m)}
 .avatar-lg{width:52px;height:52px;font-size:22px;border-radius:14px}
+/* Super admin shortcut in the top bar (phones; on a computer the side menu has it) */
+.topbar-admin{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:11px;background:var(--ink);color:#fff;text-decoration:none}
+.topbar-admin:hover{text-decoration:none;background:var(--ink-2)}
+.topbar-admin.active{background:var(--blue)}
 
 .view{width:100%;max-width:1180px;margin:0 auto;flex:1;outline:none}
 .page{padding:18px 16px 40px;display:grid;gap:18px;align-content:start}
@@ -66,7 +70,7 @@
  .btn-side:hover{--bg:rgba(255,255,255,.14);--fg:#fff}
  .tabbar{display:none}
  .topbar{position:static;padding:24px 36px 8px;border-bottom:0;gap:16px;align-items:flex-end}
- .brand-mini,.avatar-top{display:none}
+ .brand-mini,.avatar-top,.topbar-admin{display:none}
  .topbar-title h1{font-size:34px;letter-spacing:-.02em}
  .topbar-title p{display:block;margin-top:6px;font-size:15px;color:var(--muted)}
  .topbar-new{display:inline-flex}
@@ -81,7 +85,4 @@
  .preview-desk{background:none!important;padding:0!important}
  .paper{box-shadow:none!important}
  .paper::after{display:none!important}
- body.printing .editor-preview,body.printing .preview-desk,body.printing .paper{position:static!important;padding:0!important;margin:0!important;width:auto!important;max-width:none!important;border:0!important}
- body.printing .paper-row,body.printing .page-editor>*:not(.editor){display:none!important}
- .receipt.roll-80,.receipt.roll-58{margin:0!important;padding:2mm!important}
 }
