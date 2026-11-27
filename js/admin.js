@@ -1,4 +1,5 @@
 import {sb} from './supa.js';
+import {loadNews} from './news.js';
 import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY} from './config.js';
 import {$,qsa,safe,money,toast,confirmAction,downloadCsv} from './utils.js';
 
@@ -154,12 +155,94 @@ function analyticsChart(days){
     :'<p class="muted">No analytics data returned.</p>';
 }
 
+
+/* ---------- Announcements: shown on every dashboard and bell, and optionally sent through the Telegram bot ---------- */
+const BOT_URL=SUPABASE_URL+'/functions/v1/rapid-handler';
+
+async function broadcastToTelegram(id){
+  const {data,error}=await sb.auth.getSession();
+  if(error||!data.session) throw new Error('Please log in again.');
+  const response=await fetch(BOT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+data.session.access_token},
+    body:JSON.stringify({action:'broadcast',id})
+  });
+  let result={};
+  try{result=await response.json()}catch{}
+  if(!response.ok||!result.ok) throw new Error(result.error||('The Telegram bot did not accept it ('+response.status+').'));
+  return result;
+}
+
+const tgMessage=r=>`Sent to ${r.sent} Telegram chat${r.sent===1?'':'s'}`+(r.failed?` (${r.failed} could not be reached)`:'')+'.';
+
+async function announceList(){
+  const host=$('annList');
+  if(!host) return;
+  const {data,error}=await sb.from('announcements').select('id,title,body,created_at,telegram_sent_at,telegram_count').order('created_at',{ascending:false}).limit(50);
+  if(error){host.innerHTML='<p class="muted">Could not load announcements: '+safe(error.message)+'</p>';return}
+  host.innerHTML=(data||[]).length?data.map(a=>
+    '<div class="ann-item"><b>'+safe(a.title)+'</b><p>'+safe(a.body)+'</p>'+
+    '<div class="ann-meta">'+safe(when(a.created_at))+' · '+(a.telegram_sent_at?'Sent to '+safe(String(a.telegram_count??0))+' Telegram chat'+((a.telegram_count??0)===1?'':'s'):'Not sent to Telegram')+'</div>'+
+    '<div class="ann-btns">'+(a.telegram_sent_at?'':'<button type="button" class="btn btn-sm" data-ann-tg="'+safe(a.id)+'">Send to Telegram</button>')+
+    '<button type="button" class="btn btn-sm btn-ban" data-ann-del="'+safe(a.id)+'">Delete</button></div></div>').join('')
+    :'<p class="muted">No announcements yet.</p>';
+}
+
+function renderAnnounce(){
+  $('adminResults').innerHTML=
+    '<form id="annForm" class="ann-form panel" novalidate>'+
+     '<h3>New announcement</h3>'+
+     '<div class="field"><label for="annTitle">Title</label><input class="input" id="annTitle" maxlength="120" placeholder="For example: New feature: Money page" autocomplete="off"></div>'+
+     '<div class="field"><label for="annBody">Message</label><textarea class="input" id="annBody" maxlength="1500" placeholder="Write what you want every user to know."></textarea></div>'+
+     '<label class="ann-check"><input type="checkbox" id="annTg" checked><span>Also send it to users who connected Telegram</span></label>'+
+     '<button class="btn btn-primary" id="annSend" type="submit">Publish announcement</button>'+
+    '</form>'+
+    '<h3>Published</h3><div id="annList"><p class="muted">Loading...</p></div>';
+  setStatus('Announcements appear on every user\'s dashboard and in their bell. You can also send them with /announce in your Telegram bot.');
+  $('annForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const title=$('annTitle').value.trim(),body=$('annBody').value.trim(),tg=$('annTg').checked;
+    if(!title){toast('Write a title.','error');$('annTitle').focus();return}
+    if(!body){toast('Write the message.','error');$('annBody').focus();return}
+    const btn=$('annSend');btn.disabled=true;
+    try{
+      const {data,error}=await sb.from('announcements').insert({title,body}).select('id').single();
+      if(error||!data) throw new Error(error?.message||'Could not publish.');
+      $('annTitle').value='';$('annBody').value='';
+      let note='Published. Every user will see it on their dashboard.';
+      if(tg){
+        try{note='Published. '+tgMessage(await broadcastToTelegram(data.id))}
+        catch(err){toast('Published on the website, but Telegram failed: '+err.message,'error',9000);note=''}
+      }
+      if(note) toast(note,'success',7000);
+      loadNews({force:true});
+    }catch(err){toast('Could not publish: '+err.message,'error')}
+    finally{btn.disabled=false;announceList()}
+  });
+  $('annList').addEventListener('click',async e=>{
+    const send=e.target.closest('[data-ann-tg]'),del=e.target.closest('[data-ann-del]');
+    if(send){
+      send.disabled=true;
+      try{toast(tgMessage(await broadcastToTelegram(send.dataset.annTg)),'success',7000)}
+      catch(err){toast('Telegram failed: '+err.message,'error',9000)}
+      announceList();
+    }else if(del){
+      if(!await confirmAction({title:'Delete this announcement?',text:'Users will no longer see it. Messages already sent in Telegram stay there.',okText:'Delete',danger:true})) return;
+      const {error}=await sb.from('announcements').delete().eq('id',del.dataset.annDel);
+      if(error){toast('Could not delete: '+error.message,'error');return}
+      toast('Deleted.','success');loadNews({force:true});announceList();
+    }
+  });
+  announceList();
+}
+
 export async function loadAdminData(action=view){
   view=action;
   setActiveTab(action);
   setStatus('Loading admin data...');
   $('adminResults').innerHTML='';
   if(action==='stats') $('adminStats').innerHTML='';
+  if(action==='announce'){$('adminStats').innerHTML='';renderAnnounce();return}
   try{
     const result=await callAdmin(action);
     if(action==='stats'){

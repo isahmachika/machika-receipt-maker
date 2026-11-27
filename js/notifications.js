@@ -1,6 +1,7 @@
 import {$,safe,money} from './utils.js';
 import {state,profileOf} from './state.js';
 import {lowStockItems} from './catalog.js';
+import {recentNews} from './news.js';
 
 // The bell in the top bar. It is built from what the app already knows (who owes you, stock, business details),
 // so it needs no extra database table. "Read" is remembered in this browser only.
@@ -15,6 +16,10 @@ let items=[];
 function build(){
   const out=[];
   if(!state.user) return out;
+  for(const a of recentNews().slice(0,5)){
+    const body=String(a.body||'').replace(/\s+/g,' ').trim();
+    out.push({id:'news:'+a.id,title:a.title,text:body.length>110?body.slice(0,107)+'...':body,href:'/dashboard'});
+  }
   const p=profileOf(state.user);
   if(!(p.business&&p.phone&&p.address)){
     out.push({id:'profile',title:'Finish your business profile',text:'Add your shop name, phone and address so they appear on every receipt.',href:'/profile'});
