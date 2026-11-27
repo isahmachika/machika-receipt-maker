@@ -4,7 +4,7 @@
 const VERSION='machika-v3';
 const CORE=['/','/index.html','/favicon.svg','/manifest.webmanifest','/icons/icon-192.png','/icons/icon-512.png',
  '/css/base.css','/css/layout.css','/css/public.css','/css/app.css','/css/receipt.css',
- '/js/main.js','/js/config.js','/js/supa.js','/js/state.js','/js/utils.js','/js/shell.js','/js/router.js','/js/auth.js','/js/editor.js','/js/receipts.js','/js/profile.js','/js/telegram.js','/js/admin.js','/js/legal.js','/js/landing.js','/js/catalog.js','/js/money.js','/js/feedback.js','/js/notifications.js',
+ '/js/main.js','/js/config.js','/js/supa.js','/js/state.js','/js/utils.js','/js/shell.js','/js/router.js','/js/auth.js','/js/editor.js','/js/receipts.js','/js/profile.js','/js/telegram.js','/js/admin.js','/js/legal.js','/js/landing.js','/js/catalog.js','/js/money.js','/js/feedback.js','/js/notifications.js','/js/news.js',
  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2','https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'];
 
 self.addEventListener('install',e=>{
